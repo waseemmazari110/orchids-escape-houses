@@ -131,13 +131,31 @@ const nextConfig: NextConfig = {
         destination: '/easter',
         permanent: true,
       },
-      {
-        source: '/occasions/stag-do-houses',
-        destination: '/stag-do-houses',
-        permanent: true,
+        {
+          source: '/occasions/stag-do-houses',
+          destination: '/stag-do-houses',
+          permanent: true,
+        },
+          {
+            source: '/properties/inspiration/:slug',
+            destination: '/inspiration/:slug',
+            permanent: true,
+          },
+          {
+            source: '/blog/top-10-hen-do-activities-2025',
+            destination: '/inspiration/top-10-hen-do-activities-2025',
+            permanent: true,
+          },
+          // Redirect old/broken property links to main properties page
+          {
+            source: '/properties/:slug(sandbanks-retreat|grey-street-townhouse|northern-quarter-loft|clifftop-villa|riverside-york-retreat|shoreditch-loft|quayside-warehouse-loft|york-minster-house|royal-crescent-villa|riverside-bath-house|kensington-residence|deansgate-warehouse|windermere-lakeside-lodge|ambleside-mountain-retreat|jesmond-party-house|spinningfields-penthouse|castle-quarter-house|brighton-villa|lanes-townhouse|chelsea-manor|victorian-cardiff-terrace|bournemouth-beach-house|cardiff-bay-penthouse|shambles-georgian-townhouse|georgian-spa-house|keswick-country-house)',
+            destination: '/properties',
+            permanent: true,
+          },
+        ];
       },
-    ];
-  },
-};
+    };
+
 
 export default nextConfig;
+// Orchids restart: 1768399632632

@@ -37,16 +37,7 @@ export default function HouseStylesPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "House Styles", url: "/house-styles" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-[var(--color-bg-primary)]">

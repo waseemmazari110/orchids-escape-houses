@@ -17,7 +17,19 @@ export default function BlogPage() {
       image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-of-hen-party-ac-2ed8f30b-20251018105832.jpg",
       date: "15 Jan 2025",
       slug: "alternative-hen-party-ideas",
+      path: "/inspiration/alternative-hen-party-ideas"
     },
+    {
+      id: 6,
+      title: "Your Complete Hen Party Planning Checklist",
+      excerpt: "From booking the house to coordinating activities, this step-by-step checklist ensures nothing gets forgotten when planning the perfect hen weekend.",
+      category: "Planning Tips",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-of-planning-che-9704c7d1-20251018105913.jpg",
+      date: "29 Dec 2024",
+      slug: "hen-party-checklist",
+      path: "/inspiration/hen-party-checklist"
+    },
+
     {
       id: 2,
       title: "The Ultimate Brighton Hen Do Guide: Where to Stay, Eat & Party",
@@ -100,16 +112,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Blog", url: "/blog" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <section className="pt-32 pb-16 bg-gradient-to-br from-[var(--color-bg-primary)] to-[var(--color-bg-secondary)]">

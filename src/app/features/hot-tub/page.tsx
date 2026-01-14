@@ -71,17 +71,7 @@ export default async function HotTubPage() {
           items: hotTubProperties
         }} 
       />
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Features", url: "/house-styles-and-features" },
-            { name: "Hot Tub", url: "/features/hot-tub" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">

@@ -94,28 +94,35 @@ export default function HeroSearchForm() {
     <div className="bg-white/95 backdrop-blur-sm rounded-2xl md:rounded-3xl shadow-2xl p-5 sm:p-6 md:p-6 max-w-5xl mx-auto">
       <div ref={announcementRef} className="sr-only" role="status" aria-live="polite" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-4">
-          {/* Destination */}
+            {/* Destination */}
             <Popover open={destinationOpen} onOpenChange={setDestinationOpen}>
               <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="h-14 sm:h-14 md:h-16 justify-start text-left font-normal rounded-xl md:rounded-2xl border-2 hover:border-[var(--color-accent-sage)] transition-colors"
-                  aria-label={`Destination: ${destination || "Search destinations"}`}
-                >
-                  <MapPin className="mr-2 h-5 w-5 text-[var(--color-accent-sage)] flex-shrink-0" />
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-xs text-gray-500">Where</span>
-                    <span className="text-sm font-medium truncate">{destination || "Search destinations"}</span>
+                <div className="relative group cursor-text">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-accent-sage)] z-10" />
+                  <div className="flex flex-col h-14 sm:h-14 md:h-16 rounded-xl md:rounded-2xl border-2 border-gray-200 group-hover:border-[var(--color-accent-sage)] transition-colors bg-white">
+                    <label className="text-xs text-gray-500 px-11 pt-2 pointer-events-none">Where</label>
+                    <input
+                      type="text"
+                      className="w-full h-full bg-transparent px-11 pb-2 text-sm font-medium focus:outline-none placeholder:text-gray-400"
+                      placeholder="Search destinations..."
+                      value={destination}
+                      onChange={(e) => {
+                        setDestination(e.target.value);
+                        if (!destinationOpen) setDestinationOpen(true);
+                      }}
+                      onFocus={() => setDestinationOpen(true)}
+                    />
                   </div>
-                </Button>
+                </div>
               </PopoverTrigger>
-                <PopoverContent className="w-[calc(100vw-40px)] md:w-80 p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search destinations..." />
-                    <CommandList className="smooth-scroll">
-                      <CommandEmpty>No destinations found.</CommandEmpty>
-                      <CommandGroup heading="Popular Locations">
-                        {allDestinations.map((dest, index) => (
+              <PopoverContent className="w-[calc(100vw-40px)] md:w-80 p-0" align="start">
+                <Command>
+                  <CommandList className="smooth-scroll">
+                    <CommandEmpty>No destinations found.</CommandEmpty>
+                    <CommandGroup heading="Popular Locations">
+                      {allDestinations
+                        .filter(dest => dest.toLowerCase().includes(destination.toLowerCase()))
+                        .map((dest) => (
                           <CommandItem
                             key={dest}
                             value={dest}
@@ -125,11 +132,10 @@ export default function HeroSearchForm() {
                             {dest}
                           </CommandItem>
                         ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
             </Popover>
 
 

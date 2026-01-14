@@ -62,17 +62,7 @@ export default async function SwimmingPoolPage() {
           items: poolProperties
         }} 
       />
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Features", url: "/house-styles-and-features" },
-            { name: "Swimming Pool", url: "/features/swimming-pool" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">

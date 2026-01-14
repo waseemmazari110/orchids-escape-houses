@@ -76,17 +76,7 @@ export default async function InspirationPostLayout({
 
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Inspiration", url: "/inspiration" },
-            { name: post.title, url: `/inspiration/${slug}` }
-          ]
-        }}
-      />
-      <UKServiceSchema 
+            <UKServiceSchema 
         type="article"
         data={{
           title: post.title,

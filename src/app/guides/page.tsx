@@ -59,16 +59,7 @@ const guides = [
 export default function GuidesPage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Guides", url: "/guides" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       <main className="pt-32 pb-24">
         <div className="max-w-[1200px] mx-auto px-6">

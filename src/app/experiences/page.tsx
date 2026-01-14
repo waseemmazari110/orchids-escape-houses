@@ -133,16 +133,7 @@ export default function ExperiencesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Experiences", url: "/experiences" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <motion.section

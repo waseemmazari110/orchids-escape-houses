@@ -23,16 +23,7 @@ export default function ExperiencesLayout({
 }) {
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Experiences", url: "/experiences" }
-          ]
-        }}
-      />
-      {children}
+            {children}
     </>
   );
 }

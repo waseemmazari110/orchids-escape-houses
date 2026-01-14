@@ -103,16 +103,7 @@ export default async function LargeGroupAccommodationPage() {
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <Header />
       
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Large Group Accommodation", url: "/large-group-accommodation" }
-          ]
-        }}
-      />
-      <UKServiceSchema type="faq" data={{ faqs }} />
+            <UKServiceSchema type="faq" data={{ faqs }} />
 
         {/* Hero Section */}
         <section className="relative min-h-[60vh] flex items-center justify-center pt-20">

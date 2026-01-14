@@ -95,17 +95,7 @@ export default function NewYearPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Occasions", url: "/occasions" },
-            { name: "New Year", url: "/occasions/new-year" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative">

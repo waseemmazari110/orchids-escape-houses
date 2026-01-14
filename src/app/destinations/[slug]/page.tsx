@@ -97,17 +97,7 @@ export default async function DestinationDetailPage({ params }: { params: Promis
       <div className="min-h-screen bg-[var(--color-bg-primary)]">
         <Header />
         
-        <UKServiceSchema 
-          type="breadcrumb" 
-          data={{
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: "Destinations", url: "/destinations" },
-              { name: destinationName, url: `/destinations/${slug}` }
-            ]
-          }}
-        />
-
+        
         {/* Initial HTML for SEO Crawlers */}
 
       <noscript>

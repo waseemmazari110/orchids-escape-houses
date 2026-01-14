@@ -23,16 +23,7 @@ export default function InspirationLayout({
 }) {
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Inspiration", url: "/inspiration" }
-          ]
-        }}
-      />
-      {children}
+            {children}
     </>
   );
 }

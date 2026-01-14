@@ -255,17 +255,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
           bedrooms: property.bedrooms,
           bathrooms: property.bathrooms,
           priceFrom: property.priceFromMidweek,
+          slug: slug,
+          features: features.map(f => f.featureName)
         }} 
-      />
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Properties", url: "/properties" },
-            { name: property.title, url: `/properties/${slug}` }
-          ]
-        }}
       />
       <UKServiceSchema type="faq" data={{ faqs }} />
 

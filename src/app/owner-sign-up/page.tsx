@@ -86,11 +86,11 @@ function SignUpForm() {
             id="name" 
             name="name"
             autoComplete="name"
-            placeholder="e.g. John Smith" 
+            placeholder="" 
             required 
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="rounded-xl border-gray-200 h-11"
+            className="rounded-xl border-gray-200 h-11 focus:ring-sage-500/20 focus:border-sage-500"
           />
         </div>
 
@@ -101,11 +101,11 @@ function SignUpForm() {
             name="email"
             type="email" 
             autoComplete="email"
-            placeholder="john@example.com" 
+            placeholder="" 
             required 
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="rounded-xl border-gray-200 h-11"
+            className="rounded-xl border-gray-200 h-11 focus:ring-sage-500/20 focus:border-sage-500"
           />
         </div>
 
@@ -117,11 +117,11 @@ function SignUpForm() {
               type="tel" 
               inputMode="tel"
               autoComplete="tel"
-            placeholder="e.g. 07123 456789" 
+            placeholder="" 
             required 
             value={formData.phone}
             onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            className="rounded-xl border-gray-200 h-11"
+            className="rounded-xl border-gray-200 h-11 focus:ring-sage-500/20 focus:border-sage-500"
           />
         </div>
 
@@ -131,11 +131,11 @@ function SignUpForm() {
               id="propertyName" 
               name="company"
               autoComplete="organization"
-              placeholder="e.g. The Grand Manor" 
+              placeholder="" 
               required 
               value={formData.propertyName}
               onChange={(e) => setFormData({...formData, propertyName: e.target.value})}
-              className="rounded-xl border-gray-200 h-11"
+              className="rounded-xl border-gray-200 h-11 focus:ring-sage-500/20 focus:border-sage-500"
             />
           </div>
 
@@ -146,10 +146,10 @@ function SignUpForm() {
             name="url"
             type="url" 
             autoComplete="url"
-            placeholder="https://yourproperty.co.uk" 
+            placeholder="" 
             value={formData.propertyWebsite}
             onChange={(e) => setFormData({...formData, propertyWebsite: e.target.value})}
-            className="rounded-xl border-gray-200 h-11"
+            className="rounded-xl border-gray-200 h-11 focus:ring-sage-500/20 focus:border-sage-500"
           />
         </div>
 
@@ -165,7 +165,7 @@ function SignUpForm() {
               required 
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="rounded-xl border-gray-200 h-11 pr-10"
+              className="rounded-xl border-gray-200 h-11 pr-10 focus:ring-sage-500/20 focus:border-sage-500"
             />
             <button
               type="button"

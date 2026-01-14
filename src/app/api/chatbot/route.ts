@@ -13,25 +13,25 @@ SAMPLE PROPERTIES:
 1. Brighton Manor - Brighton, East Sussex
    - Sleeps 16, 8 bedrooms, 6 bathrooms
    - Hot tub, indoor pool, games room, BBQ area
-   - From £950 midweek, £1200 weekend
+   - From £1,200 midweek, £1,800 weekend
 
 2. Bath Spa Retreat - Bath, Somerset
    - Sleeps 20, 10 bedrooms
    - Games room, cinema, spa facilities
-   - From £95 per person
+   - From £120 per person
 
 3. Manchester Party House - Manchester
    - Sleeps 14, 7 bedrooms
    - Hot tub, BBQ area, games room
-   - From £79 per person
+   - From £89 per person
 
 EXPERIENCES WE OFFER:
 - Cocktail Masterclass (2 hours) - from £45pp
-- Butlers in the Buff - from £150
-- Life Drawing (1.5-2 hours) - from £35pp
-- Private Chef - from £50pp
+- Butlers in the Buff - from £170
+- Life Drawing (1.5-2 hours) - from £40pp
+- Private Chef - from £65pp
 - Spa Treatments - various prices
-- Bottomless Brunch - from £40pp
+- Bottomless Brunch - from £45pp
 
 BOOKING PROCESS:
 1. Browse properties and select your favorite

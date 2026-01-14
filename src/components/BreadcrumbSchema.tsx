@@ -42,12 +42,8 @@ export default function BreadcrumbSchema() {
         "@type": "ListItem",
         "position": index + 1,
         "name": crumb.name,
+        "item": crumb.url
       };
-
-      // Omit 'item' field for the final position (current page)
-      if (index < breadcrumbs.length - 1) {
-        item.item = crumb.url;
-      }
 
       return item;
     })

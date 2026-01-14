@@ -8,16 +8,7 @@ import UKServiceSchema from "@/components/UKServiceSchema";
 export default function BookingTermsPage() {
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Booking Terms", url: "/booking-terms" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-[var(--color-bg-primary)]">

@@ -112,16 +112,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Blog", url: "/blog" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <section className="pt-32 pb-16 bg-gradient-to-br from-[var(--color-bg-primary)] to-[var(--color-bg-secondary)]">

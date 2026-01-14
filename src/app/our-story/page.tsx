@@ -8,16 +8,7 @@ import UKServiceSchema from "@/components/UKServiceSchema";
 export default function OurStoryPage() {
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Our Story", url: "/our-story" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">

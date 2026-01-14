@@ -19,17 +19,7 @@ export default function LuxuryHousesPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "House Styles", url: "/house-styles" },
-            { name: "Luxury Houses", url: "/house-styles/luxury-houses" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">

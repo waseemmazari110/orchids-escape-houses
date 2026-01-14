@@ -75,17 +75,7 @@ export default function EVChargingPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Features", url: "/house-styles-and-features" },
-            { name: "EV Charging", url: "/features/ev-charging" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">

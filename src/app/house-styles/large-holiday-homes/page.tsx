@@ -19,17 +19,7 @@ export default function LargeHolidayHomesPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "House Styles", url: "/house-styles" },
-            { name: "Large Holiday Homes", url: "/house-styles/large-holiday-homes" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">

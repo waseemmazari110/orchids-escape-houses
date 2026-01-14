@@ -91,17 +91,7 @@ export default function ChristmasPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Occasions", url: "/occasions" },
-            { name: "Christmas", url: "/occasions/christmas" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative">

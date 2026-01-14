@@ -68,16 +68,16 @@ export default function DestinationsPage() {
       bio: "Iconic waterfront city with legendary nightlife and Beatles heritage.",
       featured: true
     },
-    {
-      name: "Newquay",
-      region: "Cornwall",
-      propertyCount: 8,
-      image: "https://media.istockphoto.com/id/1211485656/photo/surfboard-and-palm-tree-on-beach-background.jpg?s=612x612&w=0&k=20&c=sjiA2xKDegW63sCAOc_b95aE6aDOuFIHUtasbKXFw7M=",
-      slug: "newquay",
-      description: "Stunning surf beaches, coastal walks and vibrant nightlife in Cornwall's party town.",
-      bio: "Surf beaches meet vibrant nightlife in Cornwall's coastal party town.",
-      featured: false
-    },
+      {
+        name: "Newquay",
+        region: "Cornwall",
+        propertyCount: 8,
+        image: "https://images.unsplash.com/photo-1510332811516-7272204745a1?w=800&q=90",
+        slug: "newquay",
+        description: "Stunning surf beaches, coastal walks and vibrant nightlife in Cornwall's party town.",
+        bio: "Surf beaches meet vibrant nightlife in Cornwall's coastal party town.",
+        featured: false
+      },
     {
       name: "Lake District",
       region: "Cumbria",
@@ -337,13 +337,14 @@ export default function DestinationsPage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <UKServiceSchema 
-        type="breadcrumb" 
+        type="itemList" 
         data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Destinations", url: "/destinations" }
-          ]
-        }}
+          name: "UK Destinations",
+          items: destinations.map(d => ({
+            name: d.name,
+            url: `/destinations/${d.slug}`
+          }))
+        }} 
       />
       <Header />
 

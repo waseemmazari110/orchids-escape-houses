@@ -111,16 +111,7 @@ export default function WeddingsPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Weddings", url: "/weddings" }
-          ]
-        }}
-      />
-      <UKServiceSchema
+            <UKServiceSchema
         type="article"
         data={{
           title: "Wedding Guest Accommodation UK",

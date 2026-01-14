@@ -36,17 +36,7 @@ export default async function ExperienceDetailLayout({
 
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Experiences", url: "/experiences" },
-            { name: experience.title, url: `/experiences/${slug}` }
-          ]
-        }}
-      />
-      {experience.faqs && experience.faqs.length > 0 && (
+            {experience.faqs && experience.faqs.length > 0 && (
         <UKServiceSchema type="faq" data={{ faqs: experience.faqs }} />
       )}
       {children}

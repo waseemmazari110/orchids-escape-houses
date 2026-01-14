@@ -22,16 +22,7 @@ export default function HowItWorksPage() {
         type="faq" 
         data={{ faqs }} 
       />
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "How It Works", url: "/how-it-works" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <section className="pt-32 pb-16 bg-gradient-to-br from-[var(--color-bg-primary)] to-[var(--color-bg-secondary)]">

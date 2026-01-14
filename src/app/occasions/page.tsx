@@ -106,20 +106,11 @@ export default function OccasionsPage() {
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Occasions", url: "/occasions" }
-          ]
-        }}
-      />
-      <Header />
-
-      {/* Hero Section */}
+    return (
+      <div className="min-h-screen bg-[var(--color-bg-primary)]">
+        <Header />
+  
+        {/* Hero Section */}
       <section className="relative pt-24 pb-32 overflow-hidden">
         {/* Background with overlay */}
         <div className="absolute inset-0">

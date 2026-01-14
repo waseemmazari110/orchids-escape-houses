@@ -6,14 +6,7 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import crypto from "crypto";
-import { verifyPassword } from "better-auth/crypto";
-import { sendWelcomeEmail, sendMagicLinkEmail } from "./email";
-
-const makeSignature = (password: string, secret: string) => {
-	const hmac = crypto.createHmac("sha256", secret);
-	hmac.update(password);
-	return hmac.digest("hex");
-};
+import { verifyPassword, makeSignature } from "better-auth/crypto";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -39,15 +32,23 @@ export const auth = betterAuth({
 		...(process.env.BETTER_AUTH_TRUSTED_ORIGINS?.split(",").map(o => o.trim()) || [])
 	],
 	socialProviders: {
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-			prompt: "select_account",
-		},
-		apple: {
-			clientId: process.env.APPLE_CLIENT_ID as string,
-			clientSecret: process.env.APPLE_CLIENT_SECRET as string,
-		},
+		...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
+			google: {
+				clientId: process.env.GOOGLE_CLIENT_ID,
+				clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+				prompt: "select_account",
+			}
+		} : {}),
+		...(process.env.APPLE_CLIENT_ID && (process.env.APPLE_CLIENT_SECRET || (process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY)) ? {
+			apple: {
+				clientId: process.env.APPLE_CLIENT_ID as string,
+				clientSecret: process.env.APPLE_CLIENT_SECRET || {
+					teamId: process.env.APPLE_TEAM_ID as string,
+					keyId: process.env.APPLE_KEY_ID as string,
+					privateKey: process.env.APPLE_PRIVATE_KEY as string,
+				},
+			}
+		} : {}),
 	},
 	session: {
 		expiresIn: 60 * 60 * 24 * 30,

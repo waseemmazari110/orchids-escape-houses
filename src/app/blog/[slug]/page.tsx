@@ -490,13 +490,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <Header />
   
         <UKServiceSchema 
-          type="breadcrumb" 
+          type="article" 
           data={{
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: "Blog", url: "/blog" },
-              { name: post.title, url: `/blog/${slug}` }
-            ]
+            title: post.title,
+            description: post.excerpt,
+            image: post.image,
+            datePublished: post.date,
+            slug: slug
           }}
         />
 

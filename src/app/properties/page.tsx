@@ -67,15 +67,6 @@ export default async function PropertiesPage() {
         }} 
       />
       <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Properties", url: "/properties" }
-          ]
-        }}
-      />
-      <UKServiceSchema 
         type="faq" 
         data={{
           faqs: [

@@ -30,9 +30,9 @@ import Image from "next/image";
 const PLANS = [
   {
     id: "bronze",
-    name: "Bronze Listing",
-    price: "£99.99",
-    monthlyPrice: "£9.99",
+    name: "Essential Listing",
+    price: "£450",
+    monthlyPrice: "£45",
     period: "/ year",
     description: "Everything you need to start receiving direct enquiries.",
     features: [
@@ -45,13 +45,13 @@ const PLANS = [
   },
   {
     id: "silver",
-    name: "Silver Listing",
-    price: "£149.99",
-    monthlyPrice: "£14.99",
+    name: "Professional Listing",
+    price: "£650",
+    monthlyPrice: "£65",
     period: "/ year",
     description: "Enhanced visibility and social media promotion.",
     features: [
-      "Everything in Bronze",
+      "Everything in Essential",
       "Professional page build & support",
       "Social media promotion (inc Late Deals)",
       "Enhanced search visibility",
@@ -60,13 +60,13 @@ const PLANS = [
   },
   {
     id: "gold",
-    name: "Gold Listing",
-    price: "£199.99",
-    monthlyPrice: "£19.99",
+    name: "Premium Listing",
+    price: "£850",
+    monthlyPrice: "£85",
     period: "/ year",
     description: "Maximum exposure across the entire platform.",
     features: [
-      "Everything in Silver",
+      "Everything in Professional",
       "Themed blog feature",
       "3 x Holiday Focus page inclusion",
       "Homepage featured placement",
@@ -215,139 +215,8 @@ export default function OwnerDashboard() {
             {/* Payment & Plan Section */}
             {showPaymentBanner && (
               <div className="mb-12">
-                {(!pendingProperty || !pendingProperty.plan) ? (
-                  <div className="bg-white rounded-3xl border border-[var(--color-accent-sage)] shadow-xl overflow-hidden">
-                      <div className="bg-[var(--color-accent-sage)] p-6 text-white text-center">
-                        <h2 className="text-2xl font-bold mb-2">
-                          Choose Your Membership Plan
-                        </h2>
-                        <p className="opacity-90 text-sm">
-                          Select the best plan to activate your account and start listing properties.
-                        </p>
-                      </div>
-                      <div className="p-8">
-                        <div className="grid md:grid-cols-3 gap-6 mb-8">
-                          {PLANS.map((plan) => (
-                            <div 
-                              key={plan.id}
-                              onClick={() => setSelectedPlan(plan.id)}
-                              className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative flex flex-col ${
-                                selectedPlan === plan.id 
-                                  ? "bg-[var(--color-bg-secondary)] border-[var(--color-accent-sage)] shadow-md scale-[1.02]" 
-                                  : "border-gray-100 bg-gray-50/50 hover:bg-gray-100/50"
-                              }`}
-                            >
-                              <div className="mb-4">
-                                <div className="flex justify-between items-center mb-1">
-                                  <h3 className="font-bold text-lg">{plan.name}</h3>
-                                  {selectedPlan === plan.id && <div className="w-5 h-5 bg-[var(--color-accent-sage)] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
-                                </div>
-                                <div className="flex items-baseline gap-1">
-                                  <span className="text-2xl font-bold">{plan.price}</span>
-                                  <span className="text-xs text-[var(--color-neutral-dark)]">+ VAT {plan.period}</span>
-                                </div>
-                              </div>
-                              <ul className="space-y-2 mb-4 flex-grow">
-                                {plan.features.map((feature, i) => (
-                                  <li key={i} className="flex items-start gap-2 text-xs">
-                                    <Check className="w-3 h-3 mt-0.5 text-[var(--color-accent-sage)] flex-shrink-0" />
-                                    <span>{feature}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex flex-col items-center gap-4">
-                          <Button 
-                            onClick={() => handlePayNow(pendingProperty?.id, selectedPlan)}
-                            disabled={loading}
-                            size="lg"
-                            className="rounded-xl px-12 py-6 text-lg font-bold text-white bg-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)]/90 shadow-lg"
-                          >
-                            {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <><CreditCard className="w-5 h-5 mr-2" /> Pay Now & Activate</>}
-                          </Button>
-                          <p className="text-xs text-[var(--color-neutral-dark)]">Secure payment via Stripe. VAT will be added at checkout.</p>
-                        </div>
-                      </div>
-                    <div className="p-8">
-                      {!pendingProperty && user.planId ? (
-                        <div className="flex flex-col items-center py-4">
-                          <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 mb-8 w-full max-w-lg text-center">
-                            <h3 className="text-2xl font-bold mb-2">{user.planId.charAt(0).toUpperCase() + user.planId.slice(1)} Listing</h3>
-                            <div className="flex items-center justify-center gap-1 mb-4">
-                              <span className="text-3xl font-bold">{PLANS.find(p => p.id === user.planId)?.price || '£99.99'}</span>
-                              <span className="text-sm text-[var(--color-neutral-dark)]">+ VAT / year</span>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-4">or {PLANS.find(p => p.id === user.planId)?.monthlyPrice || '£9.99'} / month</p>
-                            <ul className="text-left space-y-2 mb-0 inline-block">
-                              {PLANS.find(p => p.id === user.planId)?.features.map((feature, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm">
-                                  <Check className="w-4 h-4 mt-0.5 text-[var(--color-accent-sage)] flex-shrink-0" />
-                                  <span>{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <Button 
-                            onClick={() => handlePayNow(undefined, user.planId)}
-                            disabled={loading}
-                            size="lg"
-                            className="rounded-xl px-12 py-6 text-lg font-bold text-white bg-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)]/90 shadow-lg"
-                          >
-                            {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <><CreditCard className="w-5 h-5 mr-2" /> Pay Now & Activate</>}
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="grid md:grid-cols-3 gap-6 mb-8">
-                            {PLANS.map((plan) => (
-                              <div 
-                                key={plan.id}
-                                onClick={() => setSelectedPlan(plan.id)}
-                                className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative flex flex-col ${
-                                  selectedPlan === plan.id 
-                                    ? "bg-[var(--color-bg-secondary)] border-[var(--color-accent-sage)] shadow-md scale-[1.02]" 
-                                    : "border-gray-100 bg-gray-50/50 hover:bg-gray-100/50"
-                                }`}
-                              >
-                                <div className="mb-4">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <h3 className="font-bold text-lg">{plan.name}</h3>
-                                    {selectedPlan === plan.id && <div className="w-5 h-5 bg-[var(--color-accent-sage)] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
-                                  </div>
-                                  <div className="flex items-baseline gap-1">
-                                    <span className="text-2xl font-bold">{plan.price}</span>
-                                    <span className="text-xs text-[var(--color-neutral-dark)]">+ VAT {plan.period}</span>
-                                  </div>
-                                </div>
-                                <ul className="space-y-2 mb-4 flex-grow">
-                                  {plan.features.slice(0, 4).map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-xs">
-                                      <Check className="w-3 h-3 mt-0.5 text-[var(--color-accent-sage)] flex-shrink-0" />
-                                      <span>{feature}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex flex-col items-center gap-4">
-                            <Button 
-                              onClick={() => handlePayNow(pendingProperty?.id, selectedPlan)}
-                              disabled={loading}
-                              size="lg"
-                              className="rounded-xl px-12 py-6 text-lg font-bold text-white bg-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)]/90 shadow-lg"
-                            >
-                              {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <><ArrowRight className="w-5 h-5 mr-2" /> Proceed to Stripe</>}
-                            </Button>
-                            <p className="text-xs text-[var(--color-neutral-dark)]">Secure payment via Stripe. VAT will be added at checkout.</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ) : (
+                {pendingProperty?.plan ? (
+                  /* Simplified banner if plan already chosen */
                   <div className="bg-amber-50 border border-amber-100 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -373,6 +242,77 @@ export default function OwnerDashboard() {
                       >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pay Now & Activate"}
                       </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Full plan selection if no plan chosen */
+                  <div className="bg-white rounded-3xl border border-[var(--color-accent-sage)] shadow-xl overflow-hidden">
+                    <div className="bg-[var(--color-accent-sage)] p-6 text-white text-center">
+                      <h2 className="text-2xl font-bold mb-2">
+                        Activate Your Account
+                      </h2>
+                      <p className="opacity-90 text-sm">
+                        Select a membership plan to start listing your properties and receiving enquiries.
+                      </p>
+                    </div>
+                    
+                    <div className="p-8">
+                      {/* Plan Selection Grid */}
+                      <div className="grid md:grid-cols-3 gap-6 mb-10">
+                        {PLANS.map((plan) => (
+                          <div 
+                            key={plan.id}
+                            onClick={() => setSelectedPlan(plan.id)}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all relative flex flex-col ${
+                              selectedPlan === plan.id 
+                                ? "bg-[var(--color-bg-secondary)] border-[var(--color-accent-sage)] shadow-md scale-[1.02]" 
+                                : "border-gray-100 bg-gray-50/50 hover:bg-gray-100/50"
+                            }`}
+                          >
+                            <div className="mb-4">
+                              <div className="flex justify-between items-center mb-1">
+                                <h3 className="font-bold text-lg">{plan.name}</h3>
+                                {selectedPlan === plan.id && (
+                                  <div className="w-5 h-5 bg-[var(--color-accent-sage)] rounded-full flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-baseline gap-1">
+                                <span className="text-2xl font-bold">{plan.price}</span>
+                                <span className="text-xs text-[var(--color-neutral-dark)]">+ VAT {plan.period}</span>
+                              </div>
+                            </div>
+                            <ul className="space-y-2 mb-4 flex-grow">
+                              {plan.features.slice(0, 5).map((feature, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs">
+                                  <Check className="w-3 h-3 mt-0.5 text-[var(--color-accent-sage)] flex-shrink-0" />
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-col items-center gap-4">
+                        <Button 
+                          onClick={() => handlePayNow(pendingProperty?.id, selectedPlan)}
+                          disabled={loading}
+                          size="lg"
+                          className="rounded-xl px-12 py-7 text-xl font-bold text-white bg-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)]/90 shadow-lg transition-all hover:-translate-y-0.5"
+                        >
+                          {loading ? (
+                            <><Loader2 className="w-6 h-6 mr-2 animate-spin" /> Processing...</>
+                          ) : (
+                            <><CreditCard className="w-6 h-6 mr-2" /> Activate Membership</>
+                          )}
+                        </Button>
+                        <div className="flex items-center gap-2 text-sm text-[var(--color-neutral-dark)]">
+                          <ShieldCheck className="w-4 h-4 text-[var(--color-accent-sage)]" />
+                          <span>Secure payment via Stripe. VAT will be added at checkout.</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

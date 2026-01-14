@@ -40,6 +40,25 @@ const faqs = [
   }
 ];
 
+import ReviewSlider from "@/components/ReviewSlider";
+
+const ownerReviews = [
+  {
+    name: "Sarah Mitchell",
+    rating: 5,
+    comment: "Our professional listing paid for itself in the first week. The quality of enquiries from large groups is much higher than other platforms.",
+    date: "Manor House Owner",
+    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-portrait-photograph-of-a-co-c2a10f6e-20251127184832.jpg"
+  },
+  {
+    name: "James Thornton",
+    rating: 5,
+    comment: "I love the direct enquiry model. No commission and I get to talk to my guests before they book. Highly recommend the Professional plan.",
+    date: "Estate Owner",
+    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-portrait-photograph-of-a-fr-81c7fcec-20251127184832.jpg"
+  }
+];
+
 export default function RegisterYourProperty() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -132,19 +151,19 @@ export default function RegisterYourProperty() {
             </h2>
             
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Bronze Plan */}
+              {/* Essential Plan */}
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:shadow-xl transition-all flex flex-col">
                 <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-2 text-[#B87333]">Bronze Listing</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-[#B87333]">Essential Listing</h3>
                   <p className="text-[var(--color-neutral-dark)] text-sm">Everything you need to start receiving direct enquiries.</p>
                 </div>
                 
                 <div className="mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">£99.99</span>
+                    <span className="text-4xl font-bold">£450</span>
                     <span className="text-[var(--color-neutral-dark)]">+ VAT / year</span>
                   </div>
-                  <p className="text-sm text-[var(--color-neutral-dark)] mt-1">or £9.99 per month</p>
+                  <p className="text-sm text-[var(--color-neutral-dark)] mt-1">or £45 per month</p>
                 </div>
                 
                 <ul className="space-y-4 mb-8 flex-grow">
@@ -173,29 +192,29 @@ export default function RegisterYourProperty() {
                 </Button>
               </div>
 
-              {/* Silver Plan */}
+              {/* Professional Plan */}
               <div className="bg-white rounded-3xl p-8 border-2 border-[#71717A] shadow-lg hover:shadow-2xl transition-all relative flex flex-col">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#71717A] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                   Recommended
                 </div>
                 
                 <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-2 text-[#71717A]">Silver Listing</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-[#71717A]">Professional Listing</h3>
                   <p className="text-[var(--color-neutral-dark)] text-sm">Enhanced visibility and social media promotion.</p>
                 </div>
                 
                 <div className="mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">£149.99</span>
+                    <span className="text-4xl font-bold">£650</span>
                     <span className="text-[var(--color-neutral-dark)]">+ VAT / year</span>
                   </div>
                   <p className="text-sm text-[var(--color-neutral-dark)] mt-1 text-[#71717A] font-semibold">SAVE £30 VALUE</p>
-                  <p className="text-xs text-[var(--color-neutral-dark)] mt-1">or £14.99 per month</p>
+                  <p className="text-xs text-[var(--color-neutral-dark)] mt-1">or £65 per month</p>
                 </div>
                 
                 <ul className="space-y-4 mb-8 flex-grow">
                   {[
-                    "Everything in Bronze",
+                    "Everything in Essential",
                     "Professional page build & support",
                     "Social media promotion (inc Late Deals)",
                     "Enhanced search visibility",
@@ -219,25 +238,25 @@ export default function RegisterYourProperty() {
                 </Button>
               </div>
 
-              {/* Gold Plan */}
+              {/* Premium Plan */}
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:shadow-xl transition-all flex flex-col">
                 <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-2 text-[var(--color-accent-gold)]">Gold Listing</h3>
+                  <h3 className="text-2xl font-bold mb-2 text-[var(--color-accent-gold)]">Premium Listing</h3>
                   <p className="text-[var(--color-neutral-dark)] text-sm">Maximum exposure across the entire platform.</p>
                 </div>
                 
                 <div className="mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">£199.99</span>
+                    <span className="text-4xl font-bold">£850</span>
                     <span className="text-[var(--color-neutral-dark)]">+ VAT / year</span>
                   </div>
                   <p className="text-sm text-[var(--color-neutral-dark)] mt-1 text-[var(--color-accent-gold)] font-semibold">SAVE £40 VALUE</p>
-                  <p className="text-xs text-[var(--color-neutral-dark)] mt-1">or £19.99 per month</p>
+                  <p className="text-xs text-[var(--color-neutral-dark)] mt-1">or £85 per month</p>
                 </div>
                 
                 <ul className="space-y-4 mb-8 flex-grow">
                   {[
-                    "Everything in Silver",
+                    "Everything in Professional",
                     "Themed blog feature",
                     "3 x Holiday Focus page inclusion",
                     "Homepage featured placement",
@@ -407,7 +426,7 @@ export default function RegisterYourProperty() {
             <Button 
               asChild
               size="lg"
-              className="rounded-2xl px-12 py-8 text-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all"
+              className="rounded-2xl px-12 py-8 text-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all mb-16"
               style={{ background: "var(--color-accent-sage)" }}
             >
               <Link href="/owner-sign-up">
@@ -415,6 +434,11 @@ export default function RegisterYourProperty() {
                 <ArrowRight className="w-6 h-6 ml-2" />
               </Link>
             </Button>
+
+            <div className="pt-24 border-t border-gray-100">
+              <h3 className="text-2xl font-bold mb-12" style={{ fontFamily: "var(--font-display)" }}>Trusted by Property Owners</h3>
+              <ReviewSlider reviews={ownerReviews} />
+            </div>
           </div>
         </section>
       </main>

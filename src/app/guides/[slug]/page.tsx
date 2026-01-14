@@ -70,17 +70,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="min-h-screen bg-white">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Guides", url: "/guides" },
-            { name: guide.title, url: `/guides/${slug}` }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       <UKServiceSchema
         type="article"

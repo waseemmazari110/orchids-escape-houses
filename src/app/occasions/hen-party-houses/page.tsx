@@ -89,17 +89,7 @@ export default function HenPartyHousesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Occasions", url: "/occasions" },
-            { name: "Hen Party Houses", url: "/occasions/hen-party-houses" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative">

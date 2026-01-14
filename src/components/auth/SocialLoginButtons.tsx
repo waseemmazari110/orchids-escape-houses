@@ -38,12 +38,19 @@ export function SocialLoginButtons({ onSuccess, callbackURL = "/account/account-
     trackEvent(provider === "apple" ? AuthEvents.CLICK_APPLE_LOGIN : AuthEvents.CLICK_GOOGLE_LOGIN);
     
     try {
-      await authClient.signIn.social({
+      const { data, error } = await authClient.signIn.social({
         provider,
         callbackURL,
       });
+
+      if (error) {
+        console.error(`${provider} login error:`, error);
+        toast.error(error.message || `Failed to sign in with ${provider}`);
+        setLoadingProvider(null);
+      }
     } catch (error) {
       console.error(`${provider} login error:`, error);
+      toast.error(`An error occurred during ${provider} sign in`);
       setLoadingProvider(null);
     }
   };

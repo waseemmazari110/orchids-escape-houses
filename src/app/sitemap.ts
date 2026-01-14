@@ -71,10 +71,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/house-styles-and-features`,
+      url: `${baseUrl}/house-styles`,
       lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/holiday-focus`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/occasions`,
@@ -148,16 +154,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Blog posts
-  let blogRoutes: MetadataRoute.Sitemap = [];
+  // Inspiration routes (Blog posts now under inspiration)
+  let inspirationPostRoutes: MetadataRoute.Sitemap = [];
   try {
     const publishedBlogPosts = await db
       .select()
       .from(blogPosts)
       .where(eq(blogPosts.isPublished, true));
     
-    blogRoutes = publishedBlogPosts.map((post) => ({
-      url: `${baseUrl}/blog/${post.slug}`,
+    inspirationPostRoutes = publishedBlogPosts.map((post) => ({
+      url: `${baseUrl}/inspiration/${post.slug}`,
       lastModified: post.updatedAt || post.publishedAt || currentDate,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
@@ -202,7 +208,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  // Occasions and direct routes
+  // Occasions and direct routes (using FINAL URLs, no redirects)
   const occasionRoutes: MetadataRoute.Sitemap = [
     'hen-party-houses', 'weddings', 'special-celebrations', 'weekend-breaks', 
     'christmas', 'new-year', 'easter', 'stag-do-houses', 'spa-treatments'
@@ -211,16 +217,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: currentDate,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
-  }));
-
-  // Inspiration routes (filtering out redirected ones)
-  const inspirationRoutes: MetadataRoute.Sitemap = [
-    'brighton-hen-do-guide',
-  ].map((slug) => ({
-    url: `${baseUrl}/inspiration/${slug}`,
-    lastModified: currentDate,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
   }));
 
   // Holiday Focus routes
@@ -260,9 +256,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categoryRoutes,
     ...propertyRoutes,
     ...experienceRoutes,
-    ...inspirationRoutes,
     ...destinationRoutes,
-    ...blogRoutes,
+    ...inspirationPostRoutes,
     ...guideRoutes,
     ...featureRoutes,
     ...houseStyleRoutes,

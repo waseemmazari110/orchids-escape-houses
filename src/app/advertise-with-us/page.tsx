@@ -262,203 +262,203 @@ export default function AdvertiseWithUs() {
             
             <div className="grid md:grid-cols-3 gap-8 mb-8 mt-12">
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:shadow-xl transition-all">
-                <div className="text-center mb-8">
-                  <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                    Bronze
-                  </h3>
-                  <p className="text-[var(--color-neutral-dark)] text-sm">
-                    Everything you need to start receiving direct, commission-free enquiries.
-                  </p>
-                </div>
-                
-                <div className="mb-8">
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-2 justify-center mb-1">
-                      <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                        £99.99
+                  <div className="text-center mb-8">
+                    <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                      Essential
+                    </h3>
+                    <p className="text-[var(--color-neutral-dark)] text-sm">
+                      Everything you need to start receiving direct, commission-free enquiries.
+                    </p>
+                  </div>
+                  
+                  <div className="mb-8">
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-2 justify-center mb-1">
+                        <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                          £450
+                        </span>
+                        <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
+                      </div>
+                      <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
+                        Or <strong>£45 per month</strong>
+                      </p>
+                      <p className="text-xs text-[var(--color-neutral-dark)]">
+                        Minimum 12 months
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <ul className="space-y-4 mb-8">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                      <span className="text-sm">High-impact property page</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                      <span className="text-sm">Direct, commission-free enquiries</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                      <span className="text-sm">Full calendar management</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                      <span className="text-sm">Direct link to your website</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                      <span className="text-sm">Standard SEO optimization</span>
+                    </li>
+                  </ul>
+                  
+                    <Button 
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="w-full rounded-2xl px-8 py-6 font-semibold border-2 border-[var(--color-accent-sage)] text-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)] hover:text-white transition-all shadow-sm"
+                    >
+                      <Link href="/owner-sign-up?plan=bronze">
+                        Choose Essential
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-8 border-2 border-[var(--color-accent-sage)] shadow-2xl relative lg:scale-105 z-10 hover:shadow-xl transition-all">
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-[var(--color-accent-sage)] text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                        Most Popular
                       </span>
-                      <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
-                    </div>
-                    <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
-                      Or <strong>£9.99 per month</strong>
-                    </p>
-                    <p className="text-xs text-[var(--color-neutral-dark)]">
-                      Minimum 12 months
-                    </p>
-                  </div>
-                </div>
-                
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                    <span className="text-sm">High-impact property page</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                    <span className="text-sm">Direct, commission-free enquiries</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                    <span className="text-sm">Full calendar management</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                    <span className="text-sm">Direct link to your website</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                    <span className="text-sm">Standard SEO optimization</span>
-                  </li>
-                </ul>
-                
-                  <Button 
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-2xl px-8 py-6 font-semibold border-2 border-[var(--color-accent-sage)] text-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)] hover:text-white transition-all shadow-sm"
-                  >
-                    <Link href="/owner-sign-up?plan=bronze">
-                      Choose Bronze
-                    </Link>
-                  </Button>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 border-2 border-[var(--color-accent-sage)] shadow-2xl relative lg:scale-105 z-10 hover:shadow-xl transition-all">
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-[var(--color-accent-sage)] text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
-                      Most Popular
-                    </span>
-                  </div>
-                  
-                  <div className="text-center mb-8">
-                    <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                      Silver
-                    </h3>
-                    <p className="text-[var(--color-neutral-dark)] text-sm">
-                      Enhanced visibility and targeted social media promotion to boost your bookings.
-                    </p>
-                  </div>
-                  
-                  <div className="mb-8">
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2 justify-center mb-1">
-                        <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                          £149.99
-                        </span>
-                        <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
-                      </div>
-                      <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
                     </div>
                     
-                    <div className="text-center">
-                      <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
-                        Or <strong>£14.99 per month</strong>
+                    <div className="text-center mb-8">
+                      <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                        Professional
+                      </h3>
+                      <p className="text-[var(--color-neutral-dark)] text-sm">
+                        Enhanced visibility and targeted social media promotion to boost your bookings.
                       </p>
-                      <p className="text-xs text-[var(--color-neutral-dark)]">
-                        Minimum 12 months
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start gap-2 font-medium">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Everything in Bronze</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Featured social media promotion</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Themed inspiration feature spotlight</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Three dedicated Holiday Focus pages</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Ongoing listing production support</span>
-                    </li>
-                  </ul>
-                  
-                  <Button 
-                    asChild
-                    size="lg"
-                    className="w-full rounded-2xl px-8 py-6 font-semibold text-white transition-all hover:-translate-y-0.5 shadow-lg"
-                    style={{ background: "var(--color-accent-sage)" }}
-                  >
-                    <Link href="/owner-sign-up?plan=silver">
-                      Choose Silver
-                    </Link>
-                  </Button>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:shadow-xl transition-all">
-                  <div className="text-center mb-8">
-                    <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                      Gold
-                    </h3>
-                    <p className="text-[var(--color-neutral-dark)] text-sm">
-                      The ultimate marketing package with homepage placement and priority support.
-                    </p>
-                  </div>
-                  
-                  <div className="mb-8">
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2 justify-center mb-1">
-                        <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
-                          £199.99
-                        </span>
-                        <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
-                      </div>
-                      <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
                     </div>
                     
-                    <div className="text-center">
-                      <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
-                        Or <strong>£19.99 per month</strong>
-                      </p>
-                      <p className="text-xs text-[var(--color-neutral-dark)]">
-                        Minimum 12 months
+                    <div className="mb-8">
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-2 justify-center mb-1">
+                          <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                            £650
+                          </span>
+                          <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
+                        </div>
+                        <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
+                      </div>
+                      
+                      <div className="text-center">
+                        <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
+                          Or <strong>£65 per month</strong>
+                        </p>
+                        <p className="text-xs text-[var(--color-neutral-dark)]">
+                          Minimum 12 months
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-4 mb-8">
+                      <li className="flex items-start gap-2 font-medium">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Everything in Essential</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Featured social media promotion</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Themed inspiration feature spotlight</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Three dedicated Holiday Focus pages</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Ongoing listing production support</span>
+                      </li>
+                    </ul>
+                    
+                    <Button 
+                      asChild
+                      size="lg"
+                      className="w-full rounded-2xl px-8 py-6 font-semibold text-white transition-all hover:-translate-y-0.5 shadow-lg"
+                      style={{ background: "var(--color-accent-sage)" }}
+                    >
+                      <Link href="/owner-sign-up?plan=silver">
+                        Choose Professional
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:shadow-xl transition-all">
+                    <div className="text-center mb-8">
+                      <h3 className="text-3xl font-bold mb-2 text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                        Premium
+                      </h3>
+                      <p className="text-[var(--color-neutral-dark)] text-sm">
+                        The ultimate marketing package with homepage placement and priority support.
                       </p>
                     </div>
-                  </div>
-                  
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start gap-2 font-medium">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Everything in Silver</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Homepage feature placement</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Specialist page spotlighting</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
-                      <span className="text-sm">Priority production support</span>
-                    </li>
-                  </ul>
-                  
-                  <Button 
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-2xl px-8 py-6 font-semibold border-2 border-[var(--color-accent-sage)] text-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)] hover:text-white transition-all shadow-sm"
-                  >
-                    <Link href="/owner-sign-up?plan=gold">
-                      Choose Gold
-                    </Link>
-                  </Button>
+                    
+                    <div className="mb-8">
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-2 justify-center mb-1">
+                          <span className="text-4xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+                            £850
+                          </span>
+                          <span className="text-[var(--color-neutral-dark)] font-medium">+ VAT</span>
+                        </div>
+                        <p className="text-sm text-center text-[var(--color-neutral-dark)] font-medium">per year</p>
+                      </div>
+                      
+                      <div className="text-center">
+                        <p className="text-sm text-[var(--color-neutral-dark)] mb-1">
+                          Or <strong>£85 per month</strong>
+                        </p>
+                        <p className="text-xs text-[var(--color-neutral-dark)]">
+                          Minimum 12 months
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-4 mb-8">
+                      <li className="flex items-start gap-2 font-medium">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Everything in Professional</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Homepage feature placement</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Specialist page spotlighting</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-[var(--color-accent-sage)]" />
+                        <span className="text-sm">Priority production support</span>
+                      </li>
+                    </ul>
+                    
+                    <Button 
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="w-full rounded-2xl px-8 py-6 font-semibold border-2 border-[var(--color-accent-sage)] text-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)] hover:text-white transition-all shadow-sm"
+                    >
+                      <Link href="/owner-sign-up?plan=gold">
+                        Choose Premium
+                      </Link>
+                    </Button>
               </div>
             </div>
 

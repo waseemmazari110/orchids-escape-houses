@@ -228,29 +228,29 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
       >
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
-          <Input
-            ref={emailInputRef}
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => {
-              const value = e.target.value;
-              setEmail(value);
-              setEmailError("");
-              if (mode === "initial" && validateEmail(value)) {
-                // Optional: Auto-advance could be jarring, but the user requested it
-                // We'll add a slight delay or just keep it simple
-              }
-            }}
-            disabled={mode !== "initial"}
-            required
-            className={cn(
-              "rounded-xl border-gray-300 h-12 focus:ring-[var(--color-accent-sage)]",
-              emailError && "border-red-500"
-            )}
-          />
+            <Input
+              ref={emailInputRef}
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder=""
+              value={email}
+              onChange={(e) => {
+                const value = e.target.value;
+                setEmail(value);
+                setEmailError("");
+                if (mode === "initial" && validateEmail(value)) {
+                  // Optional: Auto-advance could be jarring, but the user requested it
+                  // We'll add a slight delay or just keep it simple
+                }
+              }}
+              disabled={isLoading}
+              required
+              className={cn(
+                "rounded-xl border-gray-300 h-12 focus:ring-[var(--color-accent-sage)]",
+                emailError && "border-red-500"
+              )}
+            />
           {emailError && <p className="text-xs text-red-500">{emailError}</p>}
         </div>
 
@@ -262,7 +262,7 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
             <Input
               id="name"
               autoComplete="name"
-              placeholder="Your name"
+              placeholder=""
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="rounded-xl border-gray-300 h-12 focus:ring-[var(--color-accent-sage)]"
@@ -291,7 +291,7 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
-                placeholder={mode === "login" ? "Password" : ""}
+                placeholder=""
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);

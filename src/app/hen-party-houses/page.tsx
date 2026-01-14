@@ -132,16 +132,7 @@ export default async function HenPartyHousesPage() {
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <Header />
       
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Hen Party Houses", url: "/hen-party-houses" }
-          ]
-        }}
-      />
-      <UKServiceSchema type="faq" data={{ faqs }} />
+            <UKServiceSchema type="faq" data={{ faqs }} />
 
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center pt-20">

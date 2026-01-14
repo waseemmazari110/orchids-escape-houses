@@ -166,10 +166,85 @@ const posts = [
       <h2>Don't Forget the Extras</h2>
       <p>Beyond the main meals, think about <a href="/experiences/cocktail-masterclass" style="color: var(--color-accent-sage); text-decoration: underline;">cocktail masterclasses</a> or even local food deliveries. Many of our properties can recommend excellent local caterers who can drop off 'ready-to-heat' gourmet meals—perfect for your first night when you just want to relax. Explore our full range of <a href="/experiences" style="color: var(--color-accent-sage); text-decoration: underline;">in-house experiences</a>.</p>
       
-      <p>Whichever option you choose, we can help facilitate it. From providing kitchen specs to connecting you with our network of approved private chefs, we'll ensure your group stay is delicious from start to finish. <a href="/contact" style="color: var(--color-accent-sage); text-decoration: underline;">Contact us</a> to learn more about our catering partners.</p>
-    `,
-  },
-];
+        <p>Whichever option you choose, we can help facilitate it. From providing kitchen specs to connecting you with our network of approved private chefs, we'll ensure your group stay is delicious from start to finish. <a href="/contact" style="color: var(--color-accent-sage); text-decoration: underline;">Contact us</a> to learn more about our catering partners.</p>
+      `,
+    },
+    {
+      id: 7,
+      title: "Brighton Manor Spotlight: The Ultimate Party House",
+      excerpt: "Take an exclusive look inside the Brighton Manor, featuring a hot tub, games room, and space for 16 guests in the heart of the UK's party capital.",
+      category: "House Spotlights",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-exterior-photograph-of-a-gr-18e00f17-20251019163902.jpg",
+      date: "20 Dec 2024",
+      slug: "brighton-manor-spotlight",
+      content: `
+        <p>When it comes to <a href="/properties/brighton-manor" style="color: var(--color-accent-sage); text-decoration: underline;">hen party houses in Brighton</a>, the Brighton Manor stands in a league of its own. This iconic property has been carefully restored to provide the ultimate group celebration experience.</p>
+        <h2>Everything You Need for a Party</h2>
+        <p>The manor features a state-of-the-art <a href="/features/hot-tub" style="color: var(--color-accent-sage); text-decoration: underline;">private hot tub</a>, a dedicated <a href="/features/games-room" style="color: var(--color-accent-sage); text-decoration: underline;">games room</a> with pool and foosball, and a spacious open-plan kitchen and dining area perfect for a <a href="/experiences/private-chef" style="color: var(--color-accent-sage); text-decoration: underline;">private chef dinner</a>.</p>
+        <h2>Location, Location, Location</h2>
+        <p>Situated just moments from the vibrant North Laine and a short walk to the beachfront, you're perfectly placed to explore everything <a href="/destinations/brighton" style="color: var(--color-accent-sage); text-decoration: underline;">Brighton</a> has to offer. Whether you're hitting the cocktail bars or shopping in the Lanes, the manor provides a luxurious sanctuary to return to.</p>
+      `,
+    },
+    {
+      id: 8,
+      title: "Bath vs Brighton: Which is Best for Your Hen Do?",
+      excerpt: "Comparing the UK's two most popular hen party destinations. We break down the nightlife, spas, and accommodation to help you choose.",
+      category: "Planning Tips",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-of-bath-uk-city-79258396-20251018100352.jpg",
+      date: "15 Dec 2024",
+      slug: "bath-vs-brighton",
+      content: `
+        <p>Choosing between <a href="/destinations/bath" style="color: var(--color-accent-sage); text-decoration: underline;">Bath</a> and <a href="/destinations/brighton" style="color: var(--color-accent-sage); text-decoration: underline;">Brighton</a> is a classic dilemma for hen party organisers. Both cities offer incredible <a href="/large-group-accommodation" style="color: var(--color-accent-sage); text-decoration: underline;">large group accommodation</a>, but the vibes are distinct.</p>
+        <h2>Brighton: The Party Capital</h2>
+        <p>If your group wants high-energy nightlife, beach clubs, and a vibrant, quirky atmosphere, Brighton is the winner. Our <a href="/destinations/brighton" style="color: var(--color-accent-sage); text-decoration: underline;">Brighton party houses</a> are built for entertainment.</p>
+        <h2>Bath: Elegant Sophistication</h2>
+        <p>For a more relaxed, spa-focused weekend with elegant Georgian architecture and sophisticated dining, Bath is hard to beat. Explore our <a href="/destinations/bath" style="color: var(--color-accent-sage); text-decoration: underline;">luxury townhouses in Bath</a> for a refined celebration.</p>
+      `,
+    },
+    {
+      id: 9,
+      title: "How to Split Costs for a Large Group Weekend",
+      excerpt: "Money can be the biggest stress when planning a group trip. Our guide shows you the best tools and methods for transparent cost splitting.",
+      category: "Planning Tips",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-showing-split-c-189baecf-20251018105904.jpg",
+      date: "10 Dec 2024",
+      slug: "split-costs-hen-weekend",
+      content: `
+        <p>Planning a <a href="/weekend-breaks" style="color: var(--color-accent-sage); text-decoration: underline;">weekend break</a> for 15+ people involves a lot of numbers. From the <a href="/properties" style="color: var(--color-accent-sage); text-decoration: underline;">holiday house rental</a> to grocery shops and <a href="/experiences" style="color: var(--color-accent-sage); text-decoration: underline;">group activities</a>, the costs add up.</p>
+        <h2>Transparent Budgeting</h2>
+        <p>The key to a stress-free trip is transparency. Use apps like Splitwise or Tricount to track every expense in real-time. This ensures that no single person is left out of pocket and everyone can see exactly what they're paying for.</p>
+      `,
+    },
+    {
+      id: 10,
+      title: "The Ultimate Brighton Hen Do Guide",
+      excerpt: "From the best brunch spots to the wildest nightlife, here is everything you need to know for a perfect Brighton hen weekend.",
+      category: "Destination Guides",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-of-brighton-uk--cf923885-20251018100341.jpg",
+      date: "5 Dec 2024",
+      slug: "brighton-hen-do-guide",
+      content: `
+        <p>Planning a <a href="/destinations/brighton" style="color: var(--color-accent-sage); text-decoration: underline;">hen do in Brighton</a>? You've picked the perfect spot. Brighton is famous for its inclusive, high-energy atmosphere and world-class <a href="/hen-party-houses" style="color: var(--color-accent-sage); text-decoration: underline;">party houses</a>.</p>
+        <h2>Must-Do Activities</h2>
+        <p>No Brighton hen do is complete without a visit to the North Laine for shopping, a cocktail masterclass by the seafront, and of course, a stay in a <a href="/properties/brighton-manor" style="color: var(--color-accent-sage); text-decoration: underline;">luxury group house</a> with a hot tub.</p>
+      `,
+    },
+    {
+      id: 11,
+      title: "Top 10 Hen Do Activities for 2025",
+      excerpt: "Stay ahead of the trends with our curated list of the most popular hen party activities for the coming year.",
+      category: "Planning Tips",
+      image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-stock-photo-of-hen-party-ac-2ed8f30b-20251018105832.jpg",
+      date: "1 Dec 2024",
+      slug: "top-10-hen-do-activities-2025",
+      content: `
+        <p>Hen parties are evolving. For 2025, we're seeing a huge shift towards <a href="/experiences" style="color: var(--color-accent-sage); text-decoration: underline;">in-house experiences</a> and wellness-focused celebrations. Here are our top picks for the year ahead.</p>
+        <h2>1. Private Chef Dinners</h2>
+        <p>Skip the restaurant crowds and have a <a href="/experiences/private-chef" style="color: var(--color-accent-sage); text-decoration: underline;">private chef</a> prepare a gourmet meal in your <a href="/house-styles/luxury-houses" style="color: var(--color-accent-sage); text-decoration: underline;">luxury holiday home</a>.</p>
+      `,
+    },
+  ];
+
 
 export default function InspirationPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -198,17 +273,7 @@ export default function InspirationPostPage({ params }: { params: Promise<{ slug
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Inspiration", url: "/inspiration" },
-            { name: post.title, url: `/inspiration/${slug}` }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <section className="pt-32 pb-16 bg-gradient-to-br from-[var(--color-bg-primary)] to-[var(--color-bg-secondary)]">

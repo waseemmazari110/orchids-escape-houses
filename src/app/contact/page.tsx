@@ -221,16 +221,7 @@ export default function ContactPage() {
 
   return (
     <>
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Contact", url: "/contact" }
-          ]
-        }}
-      />
-      <UKServiceSchema type="faq" data={{ faqs }} />
+            <UKServiceSchema type="faq" data={{ faqs }} />
 
       <div className="min-h-screen bg-[var(--color-bg-primary)]">
         <Header />

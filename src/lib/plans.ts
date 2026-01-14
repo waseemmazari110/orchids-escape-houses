@@ -21,9 +21,9 @@ export const getPlanPriceId = (planId: PlanId, interval: 'monthly' | 'yearly' = 
 export const PLANS = {
   bronze: {
     id: 'bronze',
-    name: 'Bronze Listing (Basic)',
-    price: 99.99,
-    monthlyPrice: 9.99,
+    name: 'Essential Listing',
+    price: 450,
+    monthlyPrice: 45,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC_YEARLY || 'price_1SlA97I0J9sqa21Cs4lB88Zd',
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC_MONTHLY || 'price_1SlA8rI0J9sqa21Cpr3kyVzE',
     features: [
@@ -36,13 +36,13 @@ export const PLANS = {
   },
   silver: {
     id: 'silver',
-    name: 'Silver Listing (Premium)',
-    price: 149.99,
-    monthlyPrice: 14.99,
+    name: 'Professional Listing',
+    price: 650,
+    monthlyPrice: 65,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_YEARLY || 'price_1SlAAMI0J9sqa21CgTlHU0xg',
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_MONTHLY || 'price_1SlA9zI0J9sqa21C5otPYqAU',
     features: [
-      "Everything in Bronze",
+      "Everything in Essential",
       "Professional page build & support",
       "Social media promotion (inc Late Deals)",
       "Enhanced search visibility",
@@ -51,13 +51,13 @@ export const PLANS = {
   },
   gold: {
     id: 'gold',
-    name: 'Gold Listing (Enterprise)',
-    price: 199.99,
-    monthlyPrice: 19.99,
+    name: 'Premium Listing',
+    price: 850,
+    monthlyPrice: 85,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY || 'price_1SlABDI0J9sqa21CMj7l3PUz',
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY || 'price_1SlAAtI0J9sqa21CYrz1BcfW',
     features: [
-      "Everything in Silver",
+      "Everything in Professional",
       "Themed blog feature",
       "3 x Holiday Focus page inclusion",
       "Homepage featured placement",

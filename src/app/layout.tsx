@@ -29,9 +29,6 @@ const playfair = Playfair_Display({
       },
       description: "Luxury large group accommodation across the UK with hot tubs, pools, and stylish interiors. Expert group holiday planning for 10 to 30 guests.",
       metadataBase: new URL("https://www.groupescapehouses.co.uk"),
-      alternates: {
-        canonical: "https://www.groupescapehouses.co.uk",
-      },
       openGraph: {
         title: "Large Group Accommodation Across the UK | Group Escape Houses",
         description: "Luxury large group accommodation across the UK with hot tubs, pools, and stylish interiors.",

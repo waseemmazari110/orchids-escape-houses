@@ -185,56 +185,75 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
         />
 
           {/* Name */}
-          <div>
-            <Label htmlFor="name" className="text-sm font-medium mb-2 block">
-              Your name
-            </Label>
-            <Input
-              id="name"
-              name="name"
-              required
-              defaultValue={session?.user?.name || ""}
-              placeholder="Jane Smith"
-              className="rounded-xl min-h-[48px] text-base"
-            />
-          </div>
-  
-          {/* Email */}
-          <div>
-            <Label htmlFor="email" className="text-sm font-medium mb-2 block">
-              Email address
-            </Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              defaultValue={session?.user?.email || ""}
-              placeholder="jane@example.com"
-              className="rounded-xl min-h-[48px] text-base"
-            />
-          </div>
-  
-          {/* Phone */}
-          <div>
-            <Label htmlFor="phone" className="text-sm font-medium mb-2 block">
-              Phone number
-            </Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              required
-              placeholder="07123 456789"
-              className="rounded-xl min-h-[48px] text-base"
-            />
-          </div>
-  
-          {/* Dates */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="checkin" className="text-base font-semibold mb-2 block">
-                Arrival date
+              <Label htmlFor="name" className="text-sm font-medium mb-2 block">
+                Your name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                required
+                defaultValue={session?.user?.name || ""}
+                autoComplete="name"
+                className="rounded-xl min-h-[48px] text-base"
+              />
+            </div>
+    
+            {/* Email */}
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium mb-2 block">
+                Email address
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                defaultValue={session?.user?.email || ""}
+                autoComplete="email"
+                className="rounded-xl min-h-[48px] text-base"
+              />
+            </div>
+          </div>
+    
+          {/* Phone & Group Size */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="phone" className="text-sm font-medium mb-2 block">
+                Phone number
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                autoComplete="tel"
+                className="rounded-xl min-h-[48px] text-base"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="groupSize" className="text-sm font-medium mb-2 block">
+                Group size
+              </Label>
+              <Input
+                id="groupSize"
+                name="groupSize"
+                type="number"
+                min="1"
+                required
+                autoComplete="off"
+                className="rounded-xl min-h-[48px] text-base"
+              />
+            </div>
+          </div>
+    
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="checkin" className="text-sm font-medium mb-2 block">
+                Arrival
               </Label>
               <div className="relative">
                 <Input
@@ -242,14 +261,14 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
                   name="checkin"
                   type="date"
                   required
-                  className="rounded-xl text-base py-6 min-h-[48px]"
+                  className="rounded-xl text-base py-6 min-h-[48px] pr-10"
                 />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-[var(--color-accent-sage)]" />
+                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" />
               </div>
             </div>
             <div>
-              <Label htmlFor="checkout" className="text-base font-semibold mb-2 block">
-                Departure date
+              <Label htmlFor="checkout" className="text-sm font-medium mb-2 block">
+                Departure
               </Label>
               <div className="relative">
                 <Input
@@ -257,29 +276,13 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
                   name="checkout"
                   type="date"
                   required
-                  className="rounded-xl text-base py-6 min-h-[48px]"
+                  className="rounded-xl text-base py-6 min-h-[48px] pr-10"
                 />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-[var(--color-accent-sage)]" />
+                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" />
               </div>
             </div>
           </div>
-  
-          {/* Group Size */}
-          <div>
-            <Label htmlFor="groupSize" className="text-sm font-medium mb-2 block">
-              Group size
-            </Label>
-            <Input
-              id="groupSize"
-              name="groupSize"
-              type="number"
-              min="1"
-              required
-              placeholder="12"
-              className="rounded-xl min-h-[48px] text-base"
-            />
-          </div>
-  
+    
           {/* Occasion */}
           <div>
             <Label htmlFor="occasion" className="text-sm font-medium mb-2 block">
@@ -288,7 +291,7 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
             <Input
               id="occasion"
               name="occasion"
-              placeholder="Hen party"
+              autoComplete="off"
               className="rounded-xl min-h-[48px] text-base"
             />
           </div>
@@ -358,7 +361,6 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
               id="message"
               name="message"
               rows={4}
-              placeholder="Tell us more about your celebration..."
               className="rounded-xl min-h-[120px] text-base"
             />
           </div>

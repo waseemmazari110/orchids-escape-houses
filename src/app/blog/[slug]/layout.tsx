@@ -75,17 +75,7 @@ export default async function BlogPostLayout({
 
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Blog", url: "/blog" },
-            { name: post.title, url: `/blog/${slug}` }
-          ]
-        }}
-      />
-        <UKServiceSchema 
+              <UKServiceSchema 
           type="article"
           data={{
             title: post.title,

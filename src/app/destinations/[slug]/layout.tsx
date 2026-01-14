@@ -40,17 +40,7 @@ export default async function DestinationDetailLayout({
 
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Destinations", url: "/destinations" },
-            { name: slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' '), url: `/destinations/${slug}` }
-          ]
-        }} 
-      />
-      {properties.length > 0 && (
+            {properties.length > 0 && (
         <UKServiceSchema 
           type="itemList" 
           data={{ items: properties }} 

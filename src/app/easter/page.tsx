@@ -111,16 +111,7 @@ export default function EasterPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Easter", url: "/easter" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">

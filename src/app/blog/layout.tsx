@@ -23,16 +23,7 @@ export default function BlogLayout({
 }) {
   return (
     <>
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Blog", url: "/blog" }
-          ]
-        }}
-      />
-      {children}
+            {children}
     </>
   );
 }

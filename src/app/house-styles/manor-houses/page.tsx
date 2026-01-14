@@ -45,17 +45,7 @@ export default function ManorHousesPage() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema 
-        type="breadcrumb" 
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "House Styles", url: "/house-styles-and-features" },
-            { name: "Manor Houses", url: "/house-styles/manor-houses" }
-          ]
-        }}
-      />
-
+      
       <Header />
       
       {/* Hero Section */}

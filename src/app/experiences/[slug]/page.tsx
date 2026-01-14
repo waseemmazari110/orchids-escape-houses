@@ -61,17 +61,7 @@ export default async function ExperienceDetailPage({ params }: { params: Promise
       <div className="min-h-screen bg-[var(--color-bg-primary)]">
         <Header />
 
-        <UKServiceSchema 
-          type="breadcrumb" 
-          data={{
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: "Experiences", url: "/experiences" },
-              { name: experience.title, url: `/experiences/${slug}` }
-            ]
-          }}
-        />
-
+        
         <div className="pt-24">
 
         {/* Hero Image */}

@@ -63,16 +63,7 @@ export default function SpaPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <UKServiceSchema
-        type="breadcrumb"
-        data={{
-          breadcrumbs: [
-            { name: "Home", url: "/" },
-            { name: "Spa Treatments", url: "/spa-treatments" }
-          ]
-        }}
-      />
-      <Header />
+            <Header />
 
       {/* Hero */}
       <motion.section

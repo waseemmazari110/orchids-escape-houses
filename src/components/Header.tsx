@@ -135,6 +135,8 @@ export default function Header() {
     { title: "Decorations & Balloons", slug: "decorations-balloons" },
   ];
 
+  const isChoosePlanPage = typeof window !== 'undefined' && window.location.pathname === '/choose-plan';
+
   return (
     <>
       <header

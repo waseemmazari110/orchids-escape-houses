@@ -67,16 +67,7 @@ export default function WhyListWithUs() {
           type="faq" 
           data={{ faqs }} 
         />
-        <UKServiceSchema 
-          type="breadcrumb" 
-          data={{
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: "Why List With Us", url: "/why-list-with-escape-houses" }
-            ]
-          }}
-        />
-        <Header />
+                <Header />
 
 
       <main>
