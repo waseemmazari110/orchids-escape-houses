@@ -256,7 +256,108 @@ export async function sendContactEmail(data: ContactEmailData) {
 }
 
 export async function sendWelcomeEmail(email: string, name: string) {
-  // ... existing code
+}
+
+interface OwnerSignupNotificationData {
+  name: string;
+  email: string;
+  phone?: string;
+  propertyName?: string;
+  propertyWebsite?: string;
+  planId?: string;
+}
+
+export async function sendOwnerSignupNotification(data: OwnerSignupNotificationData) {
+  try {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #89A38F; color: white; padding: 20px; text-align: center; }
+            .content { background: #f9f9f9; padding: 30px; }
+            .field { margin-bottom: 15px; }
+            .label { font-weight: bold; color: #1F2937; }
+            .value { color: #374151; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>New Owner Sign Up</h1>
+            </div>
+            <div class="content">
+              <p style="font-size: 16px; margin-bottom: 20px;">A new property owner has registered on Group Escape Houses:</p>
+              
+              <div class="field">
+                <span class="label">Name:</span> 
+                <span class="value">${data.name}</span>
+              </div>
+              
+              <div class="field">
+                <span class="label">Email:</span> 
+                <span class="value">${data.email}</span>
+              </div>
+              
+              ${data.phone ? `
+                <div class="field">
+                  <span class="label">Phone:</span> 
+                  <span class="value">${data.phone}</span>
+                </div>
+              ` : ''}
+              
+              ${data.propertyName ? `
+                <div class="field">
+                  <span class="label">Property Name:</span> 
+                  <span class="value">${data.propertyName}</span>
+                </div>
+              ` : ''}
+              
+              ${data.propertyWebsite ? `
+                <div class="field">
+                  <span class="label">Property Website:</span> 
+                  <span class="value"><a href="${data.propertyWebsite}">${data.propertyWebsite}</a></span>
+                </div>
+              ` : ''}
+              
+              ${data.planId ? `
+                <div class="field">
+                  <span class="label">Selected Plan:</span> 
+                  <span class="value">${data.planId.charAt(0).toUpperCase() + data.planId.slice(1)}</span>
+                </div>
+              ` : ''}
+            </div>
+            <div class="footer">
+              <p>Group Escape Houses<br>11a North Street, Brighton BN41 1DH</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
+      to: ['hello@groupescapehouses.co.uk'],
+      subject: `New Owner Sign Up: ${data.name} - ${data.propertyName || 'Property Owner'}`,
+      html: htmlContent,
+      replyTo: data.email,
+    });
+
+    if (error) {
+      console.error('❌ Failed to send owner signup notification:', error);
+      throw error;
+    }
+
+    console.log('✅ Owner signup notification sent successfully:', emailData?.id);
+    return emailData;
+  } catch (error) {
+    console.error('Owner signup notification error:', error);
+    throw error;
+  }
 }
 
 export async function sendMagicLinkEmail(email: string, url: string) {

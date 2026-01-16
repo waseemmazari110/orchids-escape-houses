@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 import { SignInModal } from "./auth/SignInModal";
 import MobileMenu from "./MobileMenu";
 
-export default function Header() {
+export default function Header({ hideListingButton = false }: { hideListingButton?: boolean }) {
   const router = useRouter();
   const { data: session, isPending, refetch } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -134,8 +134,6 @@ export default function Header() {
     { title: "Games & Activities Pack", slug: "games-activities-pack" },
     { title: "Decorations & Balloons", slug: "decorations-balloons" },
   ];
-
-  const isChoosePlanPage = typeof window !== 'undefined' && window.location.pathname === '/choose-plan';
 
   return (
     <>
@@ -393,15 +391,17 @@ export default function Header() {
                 <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[var(--color-accent-sage)] transition-all duration-200 group-hover:w-full group-hover:left-0"></span>
               </Link>
 
-              {/* List Your Property */}
-              <Link
-                href="/register-your-property"
-                className="text-[14px] font-semibold text-[var(--color-accent-sage)] hover:text-[var(--color-accent-gold)] transition-colors relative group py-7 flex-1 flex justify-center px-2 whitespace-nowrap"
-                style={{ fontFamily: "var(--font-body)" }}
-              >
-                List Your Property
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[var(--color-accent-gold)] transition-all duration-200 group-hover:w-full group-hover:left-0"></span>
-              </Link>
+                {/* List Your Property */}
+                {!hideListingButton && (
+                  <Link
+                    href="/register-your-property"
+                    className="text-[14px] font-semibold text-[var(--color-accent-sage)] hover:text-[var(--color-accent-gold)] transition-colors relative group py-7 flex-1 flex justify-center px-2 whitespace-nowrap"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    List Your Property
+                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[var(--color-accent-gold)] transition-all duration-200 group-hover:w-full group-hover:left-0"></span>
+                  </Link>
+                )}
             </nav>
 
             {/* Auth & CTA Buttons - Desktop */}
@@ -521,6 +521,7 @@ export default function Header() {
           destinations={destinations}
           occasions={occasions}
           experiences={experiences}
+          hideListingButton={hideListingButton}
         />
 
         <SignInModal 

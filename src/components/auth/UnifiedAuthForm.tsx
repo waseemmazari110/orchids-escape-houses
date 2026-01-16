@@ -34,6 +34,15 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
   const emailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedRemember = localStorage.getItem("rememberMe") === "true";
+    if (savedEmail && savedRemember) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  useEffect(() => {
     if (mode === "initial") {
       emailInputRef.current?.focus();
       trackEvent(AuthEvents.VIEW_SIGNUP_PAGE);
@@ -97,6 +106,14 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
         toast.error(error.message || "Invalid credentials");
         setIsLoading(false);
         return;
+      }
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberMe");
       }
 
       trackEvent(AuthEvents.LOGIN_SUCCESS);

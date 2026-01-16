@@ -28,10 +28,10 @@ export default function CookieConsent() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-2 md:p-6 animate-fade-up">
-      <div className="max-w-[1200px] mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-1 md:p-4 animate-fade-up">
+      <div className="max-w-[1000px] mx-auto">
         <div
-          className="rounded-xl md:rounded-2xl shadow-2xl p-4 md:p-8 relative"
+          className="rounded-lg md:rounded-xl shadow-2xl p-3 md:p-5 relative"
           style={{ 
             background: "var(--color-text-primary)",
             color: "var(--color-bg-primary)"
@@ -39,16 +39,16 @@ export default function CookieConsent() {
         >
           <button
             onClick={declineCookies}
-            className="absolute top-3 right-3 w-6 h-6 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+            className="absolute top-2 right-2 w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
             aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
 
-          <div className="flex flex-col md:flex-row gap-3 md:gap-6 items-start md:items-center justify-between pr-6 md:pr-8">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-6 items-start md:items-center justify-between pr-4 md:pr-6">
             <div className="flex-1">
               <h3 
-                className="text-lg md:text-2xl mb-1 md:mb-2 font-semibold"
+                className="text-sm md:text-lg mb-0.5 md:mb-1 font-semibold"
                 style={{ 
                   fontFamily: "var(--font-display)",
                   color: "var(--color-accent-gold)"
@@ -56,7 +56,7 @@ export default function CookieConsent() {
               >
                 We Use Cookies
               </h3>
-              <p className="text-xs md:text-base text-[var(--color-bg-secondary)] leading-tight md:leading-relaxed">
+              <p className="text-[10px] md:text-xs text-[var(--color-bg-secondary)] leading-tight md:leading-normal">
                 We use cookies to enhance your browsing experience, analyse site traffic, and provide personalised content. By clicking "Accept", you consent to our use of cookies.{" "}
                 <Link 
                   href="/privacy" 
@@ -70,10 +70,9 @@ export default function CookieConsent() {
             <div className="flex flex-row gap-2 w-full md:w-auto mt-2 md:mt-0">
               <Button
                 onClick={declineCookies}
-                variant="outline"
-                className="flex-1 md:flex-none rounded-lg md:rounded-xl px-4 md:px-6 py-1.5 md:py-3 text-xs md:text-sm font-medium border-2 transition-all hover:bg-white/10"
+                variant="ghost"
+                className="flex-1 md:flex-none rounded-md md:rounded-lg px-3 md:px-5 py-1 md:py-1.5 text-[10px] md:text-xs font-medium border border-white/20 transition-all hover:bg-white/10"
                 style={{
-                  borderColor: "var(--color-accent-sage)",
                   color: "var(--color-bg-primary)"
                 }}
               >
@@ -81,7 +80,7 @@ export default function CookieConsent() {
               </Button>
               <Button
                 onClick={acceptCookies}
-                className="flex-1 md:flex-none rounded-lg md:rounded-xl px-4 md:px-8 py-1.5 md:py-3 text-xs md:text-sm font-semibold transition-all hover:shadow-lg"
+                className="flex-1 md:flex-none rounded-md md:rounded-lg px-3 md:px-6 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold transition-all hover:shadow-lg"
                 style={{
                   background: "var(--color-accent-sage)",
                   color: "white"

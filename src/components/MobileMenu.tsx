@@ -16,6 +16,7 @@ interface MobileMenuProps {
   destinations: any[];
   occasions: any[];
   experiences: any[];
+  hideListingButton?: boolean;
 }
 
 export default function MobileMenu({
@@ -29,6 +30,7 @@ export default function MobileMenu({
   destinations,
   occasions,
   experiences,
+  hideListingButton = false,
 }: MobileMenuProps) {
   const [isStylesOpen, setIsStylesOpen] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
@@ -216,12 +218,14 @@ export default function MobileMenu({
               </div>
             </nav>
 
-            <nav className="space-y-3.5 md:pt-0 pt-6">
-              <Link href="/how-it-works" className="block text-xl font-medium" onClick={onClose}>How It Works</Link>
-              <Link href="/register-your-property" className="block text-xl font-medium text-[var(--color-accent-sage)]" onClick={onClose}>List Your Property</Link>
-              <Link href="/our-story" className="block text-xl font-medium" onClick={onClose}>Our Story</Link>
-              <Link href="/contact" className="block text-xl font-medium" onClick={onClose}>Contact Us</Link>
-            </nav>
+              <nav className="space-y-3.5 md:pt-0 pt-6">
+                <Link href="/how-it-works" className="block text-xl font-medium" onClick={onClose}>How It Works</Link>
+                {!hideListingButton && (
+                  <Link href="/register-your-property" className="block text-xl font-medium text-[var(--color-accent-sage)]" onClick={onClose}>List Your Property</Link>
+                )}
+                <Link href="/our-story" className="block text-xl font-medium" onClick={onClose}>Our Story</Link>
+                <Link href="/contact" className="block text-xl font-medium" onClick={onClose}>Contact Us</Link>
+              </nav>
         </div>
       </div>
 

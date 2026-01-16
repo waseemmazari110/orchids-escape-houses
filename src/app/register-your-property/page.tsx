@@ -40,25 +40,6 @@ const faqs = [
   }
 ];
 
-import ReviewSlider from "@/components/ReviewSlider";
-
-const ownerReviews = [
-  {
-    name: "Sarah Mitchell",
-    rating: 5,
-    comment: "Our professional listing paid for itself in the first week. The quality of enquiries from large groups is much higher than other platforms.",
-    date: "Manor House Owner",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-portrait-photograph-of-a-co-c2a10f6e-20251127184832.jpg"
-  },
-  {
-    name: "James Thornton",
-    rating: 5,
-    comment: "I love the direct enquiry model. No commission and I get to talk to my guests before they book. Highly recommend the Professional plan.",
-    date: "Estate Owner",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/professional-portrait-photograph-of-a-fr-81c7fcec-20251127184832.jpg"
-  }
-];
-
 export default function RegisterYourProperty() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -426,7 +407,7 @@ export default function RegisterYourProperty() {
             <Button 
               asChild
               size="lg"
-              className="rounded-2xl px-12 py-8 text-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all mb-16"
+              className="rounded-2xl px-12 py-8 text-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all"
               style={{ background: "var(--color-accent-sage)" }}
             >
               <Link href="/owner-sign-up">
@@ -434,11 +415,6 @@ export default function RegisterYourProperty() {
                 <ArrowRight className="w-6 h-6 ml-2" />
               </Link>
             </Button>
-
-            <div className="pt-24 border-t border-gray-100">
-              <h3 className="text-2xl font-bold mb-12" style={{ fontFamily: "var(--font-display)" }}>Trusted by Property Owners</h3>
-              <ReviewSlider reviews={ownerReviews} />
-            </div>
           </div>
         </section>
       </main>

@@ -7,6 +7,7 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import crypto from "crypto";
 import { verifyPassword, makeSignature } from "better-auth/crypto";
+import { sendWelcomeEmail, sendMagicLinkEmail, sendOwnerSignupNotification } from "@/lib/email";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -71,6 +72,16 @@ export const auth = betterAuth({
 			create: {
 				after: async (user) => {
 					await sendWelcomeEmail(user.email, user.name);
+					if (user.role === "owner") {
+						await sendOwnerSignupNotification({
+							name: user.name || "",
+							email: user.email,
+							phone: user.phone || undefined,
+							propertyName: user.company_name || undefined,
+							propertyWebsite: user.property_website || undefined,
+							planId: user.plan_id || undefined,
+						});
+					}
 				}
 			}
 		}

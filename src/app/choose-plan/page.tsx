@@ -148,108 +148,97 @@ function ChoosePlanContent() {
       </div>
 
       {/* Trust Signals Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 bg-white p-8 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--color-accent-sage)] to-[var(--color-accent-gold)]"></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
         {[
-          { icon: Award, label: "UK's Specialist Platform", sub: "Built specifically for large groups" },
-          { icon: Zap, label: "Direct Enquiries", sub: "Guests book with you directly" },
-          { icon: ShieldCheck, label: "Zero Commission", sub: "Keep 100% of your booking fee" },
-          { icon: Star, label: "5-Star Owner Support", sub: "Expert help from our UK team" }
+          { icon: Award, label: "Specialist Platform", sub: "UK's #1 for groups" },
+          { icon: Zap, label: "Direct Enquiries", sub: "No middleman" },
+          { icon: ShieldCheck, label: "Zero Commission", sub: "Keep 100% revenue" },
+          { icon: Star, label: "Expert Support", sub: "We build your page" }
         ].map((item, i) => (
-          <div key={i} className="flex flex-col items-center text-center group">
-            <div className="w-12 h-12 rounded-2xl bg-[var(--color-accent-sage)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-accent-sage)] group-hover:text-white transition-all duration-300">
-              <item.icon className="w-6 h-6 text-[var(--color-accent-sage)] group-hover:text-white transition-colors" />
+          <div key={i} className="flex flex-col items-center text-center">
+            <div className="w-10 h-10 rounded-full bg-[var(--color-accent-sage)]/10 flex items-center justify-center mb-3">
+              <item.icon className="w-5 h-5 text-[var(--color-accent-sage)]" />
             </div>
-            <div className="font-bold text-sm text-[var(--color-text-primary)]">{item.label}</div>
-            <div className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-dark)] mt-1">{item.sub}</div>
+            <div className="font-bold text-sm">{item.label}</div>
+            <div className="text-xs text-[var(--color-neutral-dark)]">{item.sub}</div>
           </div>
         ))}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 mb-16 items-stretch">
+      <div className="grid md:grid-cols-3 gap-8 mb-16">
         {plans.map((plan) => (
           <div 
             key={plan.id}
             onClick={() => setSelectedPlan(plan.id)}
-            className={`cursor-pointer rounded-[2.5rem] p-8 border-2 transition-all duration-500 relative flex flex-col group ${
+            className={`cursor-pointer rounded-3xl p-8 border-2 transition-all relative flex flex-col group ${
               selectedPlan === plan.id 
-                ? "bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] scale-[1.05] z-20 border-[var(--color-accent-sage)]" 
-                : "border-gray-200 bg-white/40 hover:border-[var(--color-accent-sage)]/40 opacity-90"
+                ? "bg-white shadow-2xl scale-[1.03] z-10 border-[var(--color-accent-sage)]" 
+                : "border-gray-200 bg-white/50 hover:border-[var(--color-accent-sage)]/30 opacity-80"
             }`}
           >
             {plan.popular && (
               <div 
-                className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[var(--color-accent-gold)] text-white px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.25em] shadow-xl z-30"
+                className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--color-accent-gold)] text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg"
               >
-                Recommended
+                Most Popular
               </div>
             )}
             
-            <div className="mb-8 text-center">
-              <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>{plan.name}</h3>
-              <p className="text-[var(--color-neutral-dark)] text-sm leading-relaxed min-h-[3rem] px-4">{plan.description}</p>
+            <div className="mb-8">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>{plan.name}</h3>
+                {selectedPlan === plan.id && (
+                  <div className="w-6 h-6 bg-[var(--color-accent-sage)] rounded-full flex items-center justify-center shadow-inner">
+                    <Check className="w-4 h-4 text-white" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[var(--color-neutral-dark)] text-sm leading-relaxed">{plan.description}</p>
             </div>
             
-            <div className={`mb-8 p-8 rounded-3xl border transition-all duration-500 text-center ${
-              selectedPlan === plan.id 
-                ? "bg-[var(--color-bg-primary)] border-[var(--color-accent-sage)]/20 shadow-inner" 
-                : "bg-gray-50/50 border-gray-100"
-            }`}>
-              <div className="flex flex-col items-center">
+            <div className="mb-8 p-6 bg-[var(--color-bg-primary)] rounded-2xl border border-gray-100">
+              <div className="flex flex-col">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-bold tracking-tight">{plan.price}</span>
-                  <span className="text-[var(--color-neutral-dark)] font-semibold text-sm">/ yr</span>
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-[var(--color-neutral-dark)] font-medium text-sm">+ VAT {plan.period}</span>
                 </div>
-                <div className="mt-3 py-1 px-3 bg-white/80 rounded-full text-[10px] font-bold text-[var(--color-accent-sage)] border border-[var(--color-accent-sage)]/10">
-                   ONLY £{plan.monthlyPrice} PER MONTH
-                </div>
-                <div className="text-[10px] text-gray-400 mt-4 font-medium tracking-widest uppercase opacity-60">
-                  EXCL. VAT
+                <div className="text-[10px] text-gray-400 mt-2 font-medium tracking-wide uppercase">
+                  Approx. £{Math.round(parseInt(plan.price.replace('£', '')) * 1.2)} inc. VAT
                 </div>
               </div>
             </div>
             
-            <ul className="space-y-5 mb-10 flex-grow px-2">
+            <ul className="space-y-4 mb-8 flex-grow">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <div className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${selectedPlan === plan.id ? "bg-[var(--color-accent-sage)]" : "bg-gray-100"}`}>
+                  <div className={`mt-1 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${selectedPlan === plan.id ? "bg-[var(--color-accent-sage)]/20" : "bg-gray-100"}`}>
                     <Check 
-                      className={`w-3 h-3 ${selectedPlan === plan.id ? "text-white" : "text-gray-400"}`}
+                      className={`w-3 h-3 ${selectedPlan === plan.id ? "text-[var(--color-accent-sage)]" : "text-gray-400"}`}
                     />
                   </div>
-                  <span className={`text-sm leading-tight ${selectedPlan === plan.id ? "font-semibold text-[var(--color-text-primary)]" : "text-[var(--color-neutral-dark)]"}`}>{feature}</span>
+                  <span className={`text-sm ${selectedPlan === plan.id ? "font-medium text-[var(--color-text-primary)]" : "text-[var(--color-neutral-dark)]"}`}>{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <div className={`mt-auto pt-6 border-t border-gray-100 flex items-center justify-center gap-2 transition-all duration-500 ${selectedPlan === plan.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 group-hover:opacity-40 group-hover:translate-y-2"}`}>
-               <span className="text-xs font-black text-[var(--color-accent-sage)] uppercase tracking-[0.2em]">Active Selection</span>
-               <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent-sage)] animate-pulse" />
+            <div className={`mt-auto pt-6 border-t border-gray-100 flex items-center justify-between ${selectedPlan === plan.id ? "opacity-100" : "opacity-0 group-hover:opacity-40 transition-opacity"}`}>
+               <span className="text-xs font-bold text-[var(--color-accent-sage)] uppercase tracking-widest">Select Plan</span>
+               <ArrowRight className="w-4 h-4 text-[var(--color-accent-sage)]" />
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col items-center gap-10 mb-24 relative">
-        {/* Money Back Guarantee Badge */}
-        <div className="absolute -top-12 right-0 hidden lg:block animate-bounce-slow">
-           <div className="w-24 h-24 rounded-full bg-white border-2 border-[var(--color-accent-gold)] flex flex-col items-center justify-center p-2 shadow-lg transform rotate-12">
-             <ShieldCheck className="w-8 h-8 text-[var(--color-accent-gold)] mb-1" />
-             <span className="text-[8px] font-black text-center leading-tight uppercase tracking-tighter">Secure<br/>Payment</span>
-           </div>
-        </div>
-
-        <div className="text-center w-full max-w-xl">
+      <div className="flex flex-col items-center gap-8 mb-24">
+        <div className="text-center">
           <Button 
             onClick={handleProceed}
             disabled={loading}
             size="lg"
-            className="w-full rounded-2xl py-10 text-2xl font-bold text-white shadow-[0_25px_50px_-12px_rgba(150,173,148,0.4)] hover:shadow-[0_30px_60px_-15px_rgba(150,173,148,0.6)] transition-all bg-[var(--color-accent-sage)] hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
+            className="rounded-2xl px-16 py-8 text-2xl font-bold text-white shadow-[0_20px_40px_-15px_rgba(150,173,148,0.5)] hover:shadow-[0_25px_50px_-12px_rgba(150,173,148,0.6)] transition-all bg-[var(--color-accent-sage)] hover:scale-[1.02] active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
-            {loading ? <><Loader2 className="w-6 h-6 mr-3 animate-spin" /> Finalizing...</> : <><CreditCard className="w-6 h-6 mr-3" /> Get Started Now</>}
+            {loading ? <><Loader2 className="w-6 h-6 mr-3 animate-spin" /> Preparing...</> : <><CreditCard className="w-6 h-6 mr-3" /> Continue to Secure Payment</>}
           </Button>
-          <p className="mt-4 text-xs font-bold text-[var(--color-accent-sage)] uppercase tracking-[0.2em]">Instant Access to Your Dashboard</p>
         </div>
         
         <div className="flex flex-col items-center gap-4 text-center">
@@ -299,7 +288,7 @@ function ChoosePlanContent() {
 export default function ChoosePlan() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <Header />
+      <Header hideListingButton={true} />
       <main className="pt-32 pb-20 px-6">
         <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--color-accent-sage)]" /></div>}>
           <ChoosePlanContent />
