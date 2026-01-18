@@ -60,7 +60,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <UKServiceSchema type="website" />
       <UKServiceSchema type="faq" data={{ faqs: homeFaqs }} />
       <Header />
 

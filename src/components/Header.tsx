@@ -421,7 +421,7 @@ export default function Header({ hideListingButton = false }: { hideListingButto
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
               ) : isInitialized && session?.user ? (
                 <>
-                  {session.user.role === "guest" && (
+                  {(session.user as any).role === "guest" && (
                     <Link
                       href="/account/dashboard"
                       className="p-2 hover:bg-gray-100 rounded-full transition-colors relative group"
@@ -433,12 +433,12 @@ export default function Header({ hideListingButton = false }: { hideListingButto
                   )}
                   <div className="flex items-center gap-3">
                       <Link
-                        href={session.user.role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                        href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
                         className="flex items-center gap-2 px-4 py-2 bg-[var(--color-bg-secondary)] rounded-xl hover:bg-gray-100 transition-all"
                       >
                         <UserIcon className="w-4 h-4 text-[var(--color-accent-sage)]" />
                         <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                          {session.user.role === "owner" ? "Owner Dashboard" : "My Account"}
+                          {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
                         </span>
                       </Link>
                     <button

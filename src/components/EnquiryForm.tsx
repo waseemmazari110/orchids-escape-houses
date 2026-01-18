@@ -366,7 +366,7 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
           </div>
 
           {/* Save Quote for logged in users */}
-          {session?.user && session.user.role === "guest" && (
+          {session?.user && (session.user as any).role === "guest" && (
             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
               <input
                 type="checkbox"

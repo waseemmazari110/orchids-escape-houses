@@ -2,6 +2,7 @@
 
 import { authClient } from "@/lib/auth-client";
 import { trackEvent, AuthEvents } from "@/lib/analytics";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 

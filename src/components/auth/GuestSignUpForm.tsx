@@ -75,10 +75,10 @@ export function GuestSignUpForm() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await authClient.signUp.email({
+      const { data, error } = await (authClient.signUp.email as any)({
         email,
         password,
-        name: name || undefined,
+        name: name || "User",
         role: "guest",
       });
 

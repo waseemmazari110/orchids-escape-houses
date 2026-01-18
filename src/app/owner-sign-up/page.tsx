@@ -41,7 +41,7 @@ function SignUpForm() {
     setLoading(true);
     
     try {
-      const { data, error } = await authClient.signUp.email({
+      const { data, error } = await (authClient.signUp.email as any)({
         email: formData.email,
         password: formData.password,
         name: formData.name,

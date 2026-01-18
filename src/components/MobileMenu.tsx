@@ -237,17 +237,17 @@ export default function MobileMenu({
           <>
             <div className="flex items-center justify-between p-4 bg-white/90 rounded-xl">
                 <Link 
-                  href={session.user.role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                  href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
                   className="flex items-center gap-2"
                   onClick={onClose}
                 >
                 <UserIcon className="w-5 h-5 text-[var(--color-accent-sage)]" />
                 <span className="font-medium">
-                  {session.user.role === "owner" ? "Owner Dashboard" : "My Account"}
+                  {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
                 </span>
               </Link>
               <div className="flex items-center gap-2">
-                {session.user.role === "guest" && (
+                {(session.user as any).role === "guest" && (
                   <Link href="/account/dashboard" onClick={onClose} className="p-2">
                     <Heart className="w-5 h-5 text-[var(--color-accent-sage)]" />
                   </Link>

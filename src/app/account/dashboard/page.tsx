@@ -17,7 +17,7 @@ export default async function GuestDashboardPage() {
     redirect("/login");
   }
 
-  if (session.user.role === "owner") {
+  if ((session.user as any).role === "owner") {
     redirect("/owner/dashboard");
   }
 

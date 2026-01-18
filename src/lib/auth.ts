@@ -50,7 +50,7 @@ export const auth = betterAuth({
 				},
 			}
 		} : {}),
-	},
+	} as any,
 	session: {
 		expiresIn: 60 * 60 * 24 * 30,
 		updateAge: 60 * 60 * 24,
@@ -72,14 +72,14 @@ export const auth = betterAuth({
 			create: {
 				after: async (user) => {
 					await sendWelcomeEmail(user.email, user.name);
-					if (user.role === "owner") {
+					if ((user as any).role === "owner") {
 						await sendOwnerSignupNotification({
 							name: user.name || "",
 							email: user.email,
-							phone: user.phone || undefined,
-							propertyName: user.company_name || undefined,
-							propertyWebsite: user.property_website || undefined,
-							planId: user.plan_id || undefined,
+							phone: (user as any).phone ? String((user as any).phone) : undefined,
+							propertyName: (user as any).company_name ? String((user as any).company_name) : undefined,
+							propertyWebsite: (user as any).property_website ? String((user as any).property_website) : undefined,
+							planId: (user as any).plan_id ? String((user as any).plan_id) : undefined,
 						});
 					}
 				}

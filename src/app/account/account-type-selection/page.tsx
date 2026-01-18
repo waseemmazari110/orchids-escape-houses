@@ -25,12 +25,15 @@ export default function AccountTypeSelectionPage() {
   const handleSelect = async (role: "customer" | "owner") => {
     setIsLoading(true);
     try {
-      const { error } = await authClient.user.update({
-        role: role,
+      const response = await fetch("/api/account/update-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
       });
 
-      if (error) {
-        toast.error(error.message || "Failed to update account type");
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error.error || "Failed to update account type");
         setIsLoading(false);
         return;
       }

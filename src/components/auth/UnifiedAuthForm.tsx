@@ -134,7 +134,7 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
     }
     setIsLoading(true);
     try {
-      const { error } = await authClient.signIn.magicLink({
+      const { error } = await (authClient.signIn as any).magicLink({
         email,
         callbackURL: "/account/dashboard",
       });
@@ -167,7 +167,7 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
   const handleFinalSignUp = async (role: "customer" | "owner") => {
     setIsLoading(true);
     try {
-      const { data, error } = await authClient.signUp.email({
+      const { data, error } = await (authClient.signUp.email as any)({
         email,
         password,
         name: name || undefined,
