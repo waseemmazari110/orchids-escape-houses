@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense, useRef } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -197,7 +197,6 @@ function OwnerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refresh, isRefreshing } = useRefresh();
-  const planCheckDone = useRef(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<OwnerStats | null>(null);
@@ -330,12 +329,6 @@ function OwnerDashboardContent() {
 
   useEffect(() => {
     async function loadDashboard() {
-      // Prevent multiple plan checks
-      if (planCheckDone.current) {
-        return;
-      }
-      planCheckDone.current = true;
-
       try {
         const session = await authClient.getSession();
         
@@ -344,59 +337,40 @@ function OwnerDashboardContent() {
           return;
         }
 
-        // Function to check plan with retries
-        const checkPlanWithRetries = async (maxRetries = 5, delayMs = 1000) => {
-          for (let i = 0; i < maxRetries; i++) {
-            const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
-            if (profileRes.ok) {
-              const profileData = await profileRes.json();
-              console.log(`Plan check attempt ${i + 1}: planId=${profileData.planId}, paymentStatus=${profileData.paymentStatus}`);
-              
-              const hasPlan = profileData.planId && (profileData.paymentStatus === 'active' || profileData.paymentStatus === 'completed');
-              
-              if (hasPlan) {
-                console.log('Plan found! Loading dashboard...');
-                return { success: true, data: profileData };
-              }
-            }
-            
-            // Wait before retrying (except on last attempt)
-            if (i < maxRetries - 1) {
-              console.log(`Plan not found, retrying in ${delayMs}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delayMs));
-            }
+        // Fetch fresh user profile data from database (includes custom fields)
+        const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          
+          // Check if user has purchased a plan
+          const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
+          
+          if (!hasPlan) {
+            // Redirect to choose-plan if no plan purchased
+            router.push('/choose-plan?error=purchase_plan_first');
+            return;
           }
           
-          return { success: false, data: null };
-        };
-
-        // Check plan with up to 5 retries (5-6 seconds total)
-        const planCheck = await checkPlanWithRetries(5, 1200);
-        
-        const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
-        if (!profileRes.ok) {
-          throw new Error('Failed to fetch profile');
+          setUser({
+            id: profileData.id,
+            name: profileData.name || session.data.user.email.split('@')[0],
+            email: profileData.email,
+            role: profileData.role || 'owner',
+            phone: profileData.phone,
+            planId: profileData.planId,
+            paymentStatus: profileData.paymentStatus,
+            company_name: profileData.companyName,
+            property_website: profileData.propertyWebsite,
+          } as any);
+        } else {
+          // Fallback to session data if profile fetch fails
+          setUser({
+            id: session.data.user.id,
+            name: session.data.user.name || session.data.user.email.split('@')[0],
+            email: session.data.user.email,
+            role: (session.data.user as any).role || 'owner',
+          });
         }
-
-        const profileData = await profileRes.json();
-        
-        // If plan check failed, redirect to choose-plan
-        if (!planCheck.success) {
-          console.log('No plan found after retries, redirecting to choose-plan');
-          router.push('/choose-plan?redirect=dashboard');
-          return;
-        }
-
-        // Set user from the successful plan check data
-        setUser({
-          id: profileData.id,
-          name: profileData.name || session.data.user.email.split('@')[0],
-          email: profileData.email,
-          role: profileData.role || 'owner',
-          phone: profileData.phone,
-          company_name: profileData.companyName,
-          property_website: profileData.propertyWebsite,
-        } as any);
 
         // Fetch stats
         const statsRes = await fetch('/api/owner/stats', { cache: 'no-store' });

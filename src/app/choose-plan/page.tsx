@@ -6,7 +6,7 @@ import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Loader2, ArrowLeft, CreditCard, Star, ShieldCheck, Zap, Award } from "lucide-react";
+import { Check, ArrowRight, Loader2, ArrowLeft, CreditCard, Star, ShieldCheck, Zap, Award, AlertCircle } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import ReviewSlider from "@/components/ReviewSlider";
@@ -92,6 +92,7 @@ function ChoosePlanContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPlan = searchParams.get("plan") || "bronze";
+  const errorParam = searchParams.get("error");
   const [selectedPlan, setSelectedPlan] = useState(initialPlan);
   const [loading, setLoading] = useState(false);
   const { data: session, isPending } = authClient.useSession();
@@ -135,6 +136,17 @@ function ChoosePlanContent() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Error Message */}
+      {errorParam === 'purchase_plan_first' && (
+        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Purchase a Plan Required</p>
+            <p className="text-sm">You need to purchase a plan to access your owner dashboard. Select a plan below and complete payment to get started.</p>
+          </div>
+        </div>
+      )}
+
       <div className="text-center mb-16">
         <button 
           onClick={() => router.push("/owner-sign-up")}
