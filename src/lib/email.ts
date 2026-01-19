@@ -2,6 +2,12 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Use verified sender email. For development, use Resend's default. For production, verify your custom domain in Resend.
+const SENDER_EMAIL = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev';
+
+// Admin email for notifications. In testing mode, this should be your verified Resend email.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'mazariwaseem110@gmail.com';
+
 interface EnquiryEmailData {
   name: string;
   email: string;
@@ -132,8 +138,8 @@ export async function sendEnquiryEmail(data: EnquiryEmailData) {
     `;
 
     const { data: emailData, error } = await resend.emails.send({
-      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
-      to: ['hello@groupescapehouses.co.uk'],
+      from: SENDER_EMAIL,
+      to: [ADMIN_EMAIL],
       subject: `New Enquiry: ${data.propertyTitle || 'Property Enquiry'} - ${data.name}`,
       html: htmlContent,
       replyTo: data.email,
@@ -235,8 +241,8 @@ export async function sendContactEmail(data: ContactEmailData) {
     `;
 
     const { data: emailData, error } = await resend.emails.send({
-      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
-      to: ['hello@groupescapehouses.co.uk'],
+      from: SENDER_EMAIL,
+      to: [ADMIN_EMAIL],
       subject: `New Contact Form: ${data.name} - ${data.groupSize} guests`,
       html: htmlContent,
       replyTo: data.email,
@@ -340,8 +346,8 @@ export async function sendOwnerSignupNotification(data: OwnerSignupNotificationD
     `;
 
     const { data: emailData, error } = await resend.emails.send({
-      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
-      to: ['hello@groupescapehouses.co.uk'],
+      from: SENDER_EMAIL,
+      to: [ADMIN_EMAIL],
       subject: `New Owner Sign Up: ${data.name} - ${data.propertyName || 'Property Owner'}`,
       html: htmlContent,
       replyTo: data.email,
@@ -397,7 +403,7 @@ export async function sendMagicLinkEmail(email: string, url: string) {
     `;
 
     const { data: emailData, error } = await resend.emails.send({
-      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
+      from: SENDER_EMAIL,
       to: [email],
       subject: 'Your Group Escape Houses Login Link',
       html: htmlContent,
@@ -506,8 +512,8 @@ export async function sendPartnerRegistrationEmail(data: PartnerRegistrationData
     `;
 
     const { data: emailData, error } = await resend.emails.send({
-      from: 'Group Escape Houses <enquiries@groupescapehouses.co.uk>',
-      to: ['hello@groupescapehouses.co.uk'],
+      from: SENDER_EMAIL,
+      to: [ADMIN_EMAIL],
       subject: `Accommodation listing submission: ${data.propertyName || (data.firstName + ' ' + data.lastName)}`,
       html: htmlContent,
       replyTo: data.email,

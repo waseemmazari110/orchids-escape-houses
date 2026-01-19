@@ -158,9 +158,6 @@ interface UserProfile {
   name: string;
   email: string;
   role: string;
-  phone?: string;
-  planId?: string;
-  paymentStatus?: string;
 }
 
 interface PendingProperty {
@@ -204,7 +201,7 @@ function OwnerDashboardContent() {
   const [upcomingCheckIns, setUpcomingCheckIns] = useState<CheckIn[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<"overview" | "bookings" | "properties" | "approvals" | "payments" | "availability" | "subscription" | "settings">("overview");
+  const [activeView, setActiveView] = useState<"overview" | "bookings" | "properties" | "approvals" | "payments" | "availability">("overview");
   const [pendingProperties, setPendingProperties] = useState<PendingProperty[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [statusCounts, setStatusCounts] = useState<StatusCounts>({ pending: 0, approved: 0, rejected: 0, all: 0 });
@@ -215,20 +212,9 @@ function OwnerDashboardContent() {
   const [propertyAvailability, setPropertyAvailability] = useState<PropertyAvailability | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [deletingPropertyId, setDeletingPropertyId] = useState<number | null>(null);
-  
-  // Profile editing states
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileFormData, setProfileFormData] = useState({
-    name: '',
-    phone: '',
-    company_name: '',
-    property_website: ''
-  });
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const purpleButtonClass = "bg-\[#89A38F\] text-white hover:bg-\[#7a9080\] active:bg-\[#7a9080\]";
-  const purpleButtonSoftClass = "bg-\[#E3EBE7\] text-black hover:bg-\[#D0DED5\] active:bg-\[#D0DED5\]";
+  const purpleButtonClass = "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-700";
+  const purpleButtonSoftClass = "bg-purple-100 text-black hover:bg-purple-200 active:bg-purple-200";
 
   // Set active view from URL parameter on mount
   useEffect(() => {
@@ -337,28 +323,13 @@ function OwnerDashboardContent() {
           return;
         }
 
-        // Fetch fresh user profile data from database (includes custom fields)
-        const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          setUser({
-            id: profileData.id,
-            name: profileData.name || session.data.user.email.split('@')[0],
-            email: profileData.email,
-            role: profileData.role || 'owner',
-            phone: profileData.phone,
-            company_name: profileData.companyName,
-            property_website: profileData.propertyWebsite,
-          } as any);
-        } else {
-          // Fallback to session data if profile fetch fails
-          setUser({
-            id: session.data.user.id,
-            name: session.data.user.name || session.data.user.email.split('@')[0],
-            email: session.data.user.email,
-            role: (session.data.user as any).role || 'owner',
-          });
-        }
+        // Set user from session data
+        setUser({
+          id: session.data.user.id,
+          name: session.data.user.name || session.data.user.email.split('@')[0],
+          email: session.data.user.email,
+          role: (session.data.user as any).role || 'owner',
+        });
 
         // Fetch stats
         const statsRes = await fetch('/api/owner/stats', { cache: 'no-store' });
@@ -472,84 +443,13 @@ function OwnerDashboardContent() {
     }
   }, [activeView, statusFilter, selectedPropertyId]);
 
-  // Populate profile form when user loads
-  useEffect(() => {
-    if (user) {
-      setProfileFormData({
-        name: user.name || '',
-        phone: (user as any).phone || '',
-        company_name: (user as any).company_name || '',
-        property_website: (user as any).property_website || ''
-      });
-    }
-  }, [user]);
-
-  const handleSaveProfile = async () => {
-    if (!profileFormData.name.trim()) {
-      setProfileMessage({ type: 'error', text: 'Name is required' });
-      setTimeout(() => setProfileMessage(null), 3000);
-      return;
-    }
-
-    try {
-      setSavingProfile(true);
-      const response = await fetch('/api/owner/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profileFormData),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        setProfileMessage({ type: 'error', text: data.error || 'Failed to save profile' });
-      } else {
-        setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
-        
-        // Update user state immediately with all form data
-        setUser((prev) => prev ? {
-          ...prev,
-          name: profileFormData.name,
-          email: prev.email,
-          role: prev.role,
-          id: prev.id,
-          phone: profileFormData.phone,
-          company_name: profileFormData.company_name,
-          property_website: profileFormData.property_website,
-        } as any : null);
-        
-        setIsEditingProfile(false);
-        setTimeout(() => setProfileMessage(null), 3000);
-      }
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      setProfileMessage({ type: 'error', text: 'Failed to save profile. Please try again.' });
-      setTimeout(() => setProfileMessage(null), 3000);
-    } finally {
-      setSavingProfile(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditingProfile(false);
-    if (user) {
-      setProfileFormData({
-        name: user.name || '',
-        phone: (user as any).phone || '',
-        company_name: (user as any).company_name || '',
-        property_website: (user as any).property_website || ''
-      });
-    }
-    setProfileMessage(null);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="relative">
-            <div className="animate-spin rounded-full h-20 w-20 border-4 border-purple-200 border-t-\[#89A38F\] mx-auto"></div>
-            <Sparkles className="w-8 h-8 text-\[#89A38F\] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-purple-200 border-t-indigo-600 mx-auto"></div>
+            <Sparkles className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
           </div>
           <p className="mt-6 text-black font-semibold text-lg">Loading your dashboard...</p>
           <p className="text-sm text-black mt-2">Please wait</p>
@@ -566,11 +466,11 @@ function OwnerDashboardContent() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return 'bg-\[#F5F3F0\] text-black border-\[#D0DED5\]';
+        return 'bg-emerald-50 text-black border-emerald-200';
       case 'pending':
         return 'bg-amber-50 text-black border-amber-200';
       case 'completed':
-        return 'bg-\[#F5F3F0\] text-black border-\[#D0DED5\]';
+        return 'bg-blue-50 text-black border-blue-200';
       case 'cancelled':
         return 'bg-rose-50 text-black border-rose-200';
       default:
@@ -587,7 +487,7 @@ function OwnerDashboardContent() {
             <Icon className="w-6 h-6 text-black" />
           </div>
           {trend && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-\[#E3EBE7\] text-black`}>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-black`}>
               {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
               {trend}
             </div>
@@ -606,7 +506,7 @@ function OwnerDashboardContent() {
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 text-black">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-\[#E3EBE7\] flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shadow-lg">
               <Home className="w-7 h-7 text-black" />
             </div>
             <div>
@@ -629,7 +529,7 @@ function OwnerDashboardContent() {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
                 activeView === item.view
                   ? `${purpleButtonSoftClass} shadow-lg`
-                  : `text-black hover:bg-\[#F5F3F0\]`
+                  : `text-black hover:bg-purple-50`
               }`}
             >
               <item.icon className={`w-5 h-5 ${activeView === item.view ? 'text-black' : 'text-black group-hover:text-black'}`} />
@@ -644,8 +544,8 @@ function OwnerDashboardContent() {
               onClick={() => { setActiveView('approvals'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl font-semibold transition-all duration-200 ${
                 activeView === 'approvals'
-                  ? 'bg-\[#D0DED5\] text-black shadow-xl ring-1 ring-\[#BDD1C3\]'
-                  : 'bg-\[#D0DED5\] text-black hover:bg-\[#BDD1C3\] shadow-lg ring-1 ring-\[#BDD1C3\]'
+                  ? 'bg-purple-200 text-black shadow-xl ring-1 ring-purple-300'
+                  : 'bg-purple-200 text-black hover:bg-purple-300 shadow-lg ring-1 ring-purple-300'
               }`}
             >
               <ShieldCheck className="w-5 h-5" />
@@ -672,33 +572,33 @@ function OwnerDashboardContent() {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
                 activeView === "payments"
                   ? `${purpleButtonSoftClass} shadow-lg`
-                  : 'text-black hover:bg-\[#F5F3F0\]'
+                  : 'text-black hover:bg-purple-50'
               }`}
             >
               <CreditCard className="w-5 h-5" />
               <span>Payments</span>
             </button>
-            <button
-              onClick={() => setActiveView('subscription')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-\[#F5F3F0\] transition-all font-medium w-full text-left"
+            <Link
+              href="/owner/subscription"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-purple-50 transition-all font-medium"
             >
-              <span className="w-5 h-5 flex items-center justify-center font-bold text-\[#89A38F\]">£</span>
+              <DollarSign className="w-5 h-5" />
               <span>Subscription</span>
-            </button>
-            <button
-              onClick={() => setActiveView('settings')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-\[#F5F3F0\] transition-all font-medium w-full text-left"
+            </Link>
+            <Link
+              href="/owner/settings"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-purple-50 transition-all font-medium"
             >
               <Settings className="w-5 h-5" />
               <span>Settings</span>
-            </button>
+            </Link>
           </div>
         </nav>
 
         {/* User Profile Section */}
         <div className="border-t border-gray-200 p-4 text-black">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 mb-3">
-            <div className="w-12 h-12 rounded-full bg-\[#E3EBE7\] flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center shadow-lg">
               <span className="text-base font-bold text-black">
                 {user?.name?.charAt(0)?.toUpperCase() || 'O'}
               </span>
@@ -724,7 +624,7 @@ function OwnerDashboardContent() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b border-gray-200 text-black">
         <div className="flex items-center justify-between px-4 py-4 text-black">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-\[#E3EBE7\] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
               <Home className="w-6 h-6 text-black" />
             </div>
             <div>
@@ -734,7 +634,7 @@ function OwnerDashboardContent() {
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-\[#F5F3F0\] transition-colors"
+            className="p-2 rounded-lg hover:bg-purple-50 transition-colors"
           >
             {isMobileMenuOpen ? (
               <X className="w-6 h-6 text-black" />
@@ -764,7 +664,7 @@ function OwnerDashboardContent() {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
                       activeView === item.view
                         ? purpleButtonSoftClass
-                        : 'text-black hover:bg-\[#F5F3F0\]'
+                        : 'text-black hover:bg-purple-50'
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
@@ -774,7 +674,7 @@ function OwnerDashboardContent() {
                 
                 <button
                   onClick={() => { setActiveView('approvals'); setIsMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 rounded-xl font-semibold bg-\[#D0DED5\] text-black shadow-md"
+                  className="w-full flex items-center gap-3 px-4 py-4 rounded-xl font-semibold bg-purple-200 text-black shadow-md"
                 >
                   <ShieldCheck className="w-5 h-5" />
                   <span>Property Approvals</span>
@@ -786,26 +686,28 @@ function OwnerDashboardContent() {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium ${
                       activeView === 'payments'
                         ? purpleButtonSoftClass
-                        : 'text-black hover:bg-\[#F5F3F0\]'
+                        : 'text-black hover:bg-purple-50'
                     }`}
                   >
                     <CreditCard className="w-5 h-5" />
                     <span>Payments</span>
                   </button>
-                  <button
-                    onClick={() => { setActiveView('subscription'); setIsMobileMenuOpen(false); }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-\[#F5F3F0\] w-full text-left"
+                  <Link
+                    href="/owner/subscription"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-purple-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <span className="w-5 h-5 flex items-center justify-center font-bold text-\[#89A38F\]">£</span>
+                    <DollarSign className="w-5 h-5" />
                     <span>Subscription</span>
-                  </button>
-                  <button
-                    onClick={() => { setActiveView('settings'); setIsMobileMenuOpen(false); }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-\[#F5F3F0\] w-full text-left"
+                  </Link>
+                  <Link
+                    href="/owner/settings"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-black hover:bg-purple-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Settings className="w-5 h-5" />
                     <span>Settings</span>
-                  </button>
+                  </Link>
                   
                   <div className="pt-4 mt-4 border-t border-gray-200">
                     <button
@@ -849,7 +751,7 @@ function OwnerDashboardContent() {
                   </p>
                 </div>
                 <div className="hidden lg:flex items-center gap-3">
-                  <button className="p-2 rounded-xl bg-purple-50 hover:bg-\[#E3EBE7\] transition-colors relative">
+                  <button className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 transition-colors relative">
                     <Bell className="w-5 h-5 text-black" />
                     {statusCounts.pending > 0 && (
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-100 rounded-full text-xs text-black flex items-center justify-center font-bold">
@@ -880,7 +782,7 @@ function OwnerDashboardContent() {
                     value={stats?.activeProperties ?? properties.filter(p => p.isPublished).length}
                     trend={stats?.propertiesGrowth || '+0%'}
                     trendUp={true}
-                    color="bg-\[#89A38F\]-100"
+                    color="bg-emerald-100"
                   />
                   <StatCard
                     icon={TrendingUp}
@@ -888,7 +790,7 @@ function OwnerDashboardContent() {
                     value={`£${(stats?.revenue || 0).toLocaleString()}`}
                     trend={stats?.revenueGrowth || '+0%'}
                     trendUp={true}
-                    color="bg-\[#E3EBE7\]"
+                    color="bg-purple-100"
                   />
                   <StatCard
                     icon={Users}
@@ -932,7 +834,7 @@ function OwnerDashboardContent() {
                       <div className="space-y-3">
                         {recentBookings.map((booking) => (
                           <div key={booking.id} className="flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 hover:shadow-md transition-all">
-                            <div className="w-12 h-12 rounded-xl bg-\[#E3EBE7\] flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
                               <Users className="w-6 h-6 text-black" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -952,7 +854,7 @@ function OwnerDashboardContent() {
                   {/* Upcoming Check-ins */}
                   <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-md">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-\[#89A38F\]-100 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
                         <Clock className="w-5 h-5 text-black" />
                       </div>
                       <h2 className="text-xl font-bold text-black">Upcoming</h2>
@@ -972,7 +874,7 @@ function OwnerDashboardContent() {
                             key={checkIn.id} 
                             className={`flex items-start gap-3 ${index < upcomingCheckIns.length - 1 ? 'pb-4 border-b border-gray-100' : ''}`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-\[#89A38F\]-100 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
                               <span className="text-xs font-bold text-black">
                                 {checkIn.guestName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                               </span>
@@ -998,7 +900,7 @@ function OwnerDashboardContent() {
                   <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-md">
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-\[#E3EBE7\] flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
                           <Building className="w-5 h-5 text-black" />
                         </div>
                         <h2 className="text-xl font-bold text-black">Your Properties</h2>
@@ -1040,7 +942,7 @@ function OwnerDashboardContent() {
                               {/* Status Badge */}
                               <div className="absolute top-3 right-3">
                                 {isApproved && (
-                                  <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-\[#89A38F\]-100 text-black shadow-lg">
+                                  <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-emerald-100 text-black shadow-lg">
                                     ✓ Approved
                                   </span>
                                 )}
@@ -1158,7 +1060,7 @@ function OwnerDashboardContent() {
                           <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 border-b border-gray-200">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-\[#D0DED5\] flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center">
                                   <Users className="w-5 h-5 text-purple-700" />
                                 </div>
                                 <div>
@@ -1177,7 +1079,7 @@ function OwnerDashboardContent() {
                             <div className="space-y-2">
                               <h4 className="text-xs font-semibold text-gray-500 uppercase">Property</h4>
                               <div className="flex items-start gap-2">
-                                <Building className="w-4 h-4 text-\[#89A38F\] mt-1" />
+                                <Building className="w-4 h-4 text-purple-600 mt-1" />
                                 <div>
                                   <p className="font-semibold text-gray-900">{booking.propertyName}</p>
                                   {booking.propertyLocation && (
@@ -1325,8 +1227,8 @@ function OwnerDashboardContent() {
             {activeView === "properties" && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-md text-black">
                 <div className="p-12 text-center">
-                  <div className="w-24 h-24 rounded-2xl bg-\[#E3EBE7\] flex items-center justify-center mx-auto mb-6">
-                    <Building className="w-12 h-12 text-\[#89A38F\]" />
+                  <div className="w-24 h-24 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-12 h-12 text-purple-600" />
                   </div>
                   
                   <h2 className="text-3xl font-bold text-black mb-3">Property Management</h2>
@@ -1430,7 +1332,7 @@ function OwnerDashboardContent() {
                                   </span>
                                 )}
                                 {property.status === 'approved' && (
-                                  <span className="px-4 py-2 rounded-full bg-\[#89A38F\]-100 text-\[#89A38F\]-700 border border-emerald-300 text-sm font-semibold flex items-center gap-2">
+                                  <span className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300 text-sm font-semibold flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4" />
                                     Approved
                                   </span>
@@ -1507,14 +1409,14 @@ function OwnerDashboardContent() {
                 {loadingPayments ? (
                   <div className="bg-white rounded-2xl p-16 text-center border border-gray-200 shadow-md text-black">
                     <div className="relative inline-block">
-                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-\[#89A38F\]"></div>
-                      <Sparkles className="w-6 h-6 text-\[#89A38F\] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-indigo-600"></div>
+                      <Sparkles className="w-6 h-6 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                     </div>
                     <p className="mt-4 text-black font-semibold">Loading payments...</p>
                   </div>
                 ) : paymentHistory.length === 0 ? (
                   <div className="bg-white rounded-2xl p-16 text-center border border-gray-200 shadow-md text-black">
-                    <div className="w-20 h-20 rounded-2xl bg-\[#E3EBE7\] flex items-center justify-center mx-auto mb-4">
+                    <div className="w-20 h-20 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
                       <CreditCard className="w-10 h-10 text-purple-500" />
                     </div>
                     <h3 className="text-lg font-bold text-black mb-2">No payments yet</h3>
@@ -1532,7 +1434,7 @@ function OwnerDashboardContent() {
                         <div className="flex items-start gap-4">
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                             payment.status === 'succeeded' || payment.status === 'paid'
-                              ? 'bg-\[#89A38F\]-100'
+                              ? 'bg-emerald-100'
                               : payment.status === 'pending'
                               ? 'bg-amber-100'
                               : 'bg-rose-100'
@@ -1596,14 +1498,14 @@ function OwnerDashboardContent() {
                 {loadingAvailability ? (
                   <div className="bg-white rounded-2xl p-16 text-center border border-gray-200 shadow-md text-black">
                     <div className="relative inline-block">
-                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-\[#89A38F\]"></div>
-                      <Sparkles className="w-6 h-6 text-\[#89A38F\] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-indigo-600"></div>
+                      <Sparkles className="w-6 h-6 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                     </div>
                     <p className="mt-4 text-black font-semibold">Loading availability...</p>
                   </div>
                 ) : !propertyAvailability ? (
                   <div className="bg-white rounded-2xl p-16 text-center border border-gray-200 shadow-md text-black">
-                    <div className="w-20 h-20 rounded-2xl bg-\[#E3EBE7\] flex items-center justify-center mx-auto mb-4">
+                    <div className="w-20 h-20 rounded-2xl bg-purple-100 flex items-center justify-center mx-auto mb-4">
                       <Calendar className="w-10 h-10 text-purple-500" />
                     </div>
                     <h3 className="text-lg font-bold text-black mb-2">No Property Selected</h3>
@@ -1638,7 +1540,7 @@ function OwnerDashboardContent() {
                       {/* Status Legend */}
                       <div className="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-200">
                         {[
-                          { label: 'Available / Empty', color: 'bg-\[#89A38F\]-100 border-emerald-300' },
+                          { label: 'Available / Empty', color: 'bg-emerald-100 border-emerald-300' },
                           { label: 'Booked', color: 'bg-rose-100 border-rose-300' },
                           { label: 'Reserved / Blocked', color: 'bg-amber-100 border-amber-300' },
                         ].map((item) => (
@@ -1689,7 +1591,7 @@ function OwnerDashboardContent() {
                                 className={`
                                   relative aspect-square p-2 rounded-xl text-sm font-semibold flex items-center justify-center transition-all
                                   ${status === 'past' ? 'bg-gray-50 text-black' : ''}
-                                  ${status === 'available' ? 'bg-\[#89A38F\]-100 text-black border-2 border-emerald-300 hover:shadow-md cursor-pointer' : ''}
+                                  ${status === 'available' ? 'bg-emerald-100 text-black border-2 border-emerald-300 hover:shadow-md cursor-pointer' : ''}
                                   ${status === 'booked' ? 'bg-rose-100 text-black border-2 border-rose-300 hover:shadow-md' : ''}
                                   ${status === 'reserved' ? 'bg-amber-100 text-black border-2 border-amber-300 hover:shadow-md' : ''}
                                   ${date.toDateString() === today.toDateString() ? 'ring-2 ring-indigo-600 ring-offset-2 ring-offset-gray-50' : ''}
@@ -1755,7 +1657,7 @@ function OwnerDashboardContent() {
                               {propertyAvailability.availability?.filter(a => !a.available).length || 0}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-\[#F5F3F0\] rounded-xl">
+                          <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-xl">
                             <span className="text-sm font-medium text-black">Available Dates</span>
                             <span className="font-bold text-black text-lg">
                               {propertyAvailability.availability?.filter(a => a.available).length || 'All'}
@@ -1776,179 +1678,6 @@ function OwnerDashboardContent() {
                 )}
               </div>
             )}
-
-            {/* Subscription View */}
-            {activeView === "subscription" && (
-              <div className="space-y-8">
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-md">
-                  <h2 className="text-2xl font-bold text-black mb-6">Subscription Management</h2>
-                  <div className="space-y-6">
-                    <div className="p-6 bg-\[#F5F3F0\] rounded-xl border border-\[#D0DED5\]">
-                      <p className="text-sm text-black mb-2">Current Plan</p>
-                      <p className="text-2xl font-bold text-\[#89A38F\] capitalize">{user?.planId || 'Not selected'}</p>
-                      <p className="text-sm text-black mt-4">Status: <span className="font-semibold text-\[#89A38F\]">{user?.paymentStatus === 'active' ? '✓ Active' : 'Pending'}</span></p>
-                    </div>
-                    <button onClick={() => setActiveView('payments')} className="w-full px-6 py-3 bg-\[#89A38F\] text-white rounded-xl hover:bg-\[#7a9080\] transition-all font-semibold">
-                      View Payment History
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Settings View */}
-            {activeView === "settings" && (
-              <div className="space-y-8">
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-md">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-black">Account Settings</h2>
-                    {!isEditingProfile && (
-                      <button
-                        onClick={() => setIsEditingProfile(true)}
-                        className={`px-6 py-2 rounded-lg font-medium transition-all ${purpleButtonClass}`}
-                      >
-                        Edit Profile
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Success/Error Message */}
-                  {profileMessage && (
-                    <div className={`mb-6 p-4 rounded-lg ${
-                      profileMessage.type === 'success'
-                        ? 'bg-green-50 text-green-700 border border-green-200'
-                        : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                      {profileMessage.text}
-                    </div>
-                  )}
-
-                  {!isEditingProfile ? (
-                    // View Mode
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Name</p>
-                          <p className="text-lg font-semibold text-black">{user?.name || 'N/A'}</p>
-                        </div>
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Email</p>
-                          <p className="text-lg font-semibold text-black">{user?.email || 'N/A'}</p>
-                        </div>
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Phone</p>
-                          <p className="text-lg font-semibold text-black">{(user as any)?.phone || 'Not set'}</p>
-                        </div>
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Account Role</p>
-                          <p className="text-lg font-semibold text-black capitalize">{user?.role || 'N/A'}</p>
-                        </div>
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Company Name</p>
-                          <p className="text-lg font-semibold text-black">{(user as any)?.company_name || 'Not set'}</p>
-                        </div>
-                        <div className="p-4 bg-\[#F5F3F0\] rounded-xl">
-                          <p className="text-sm text-black mb-2">Website</p>
-                          <p className="text-lg font-semibold text-black break-all">{(user as any)?.property_website ? (
-                            <a href={(user as any)?.property_website} target="_blank" rel="noopener noreferrer" className="text-\[#89A38F\] hover:underline">
-                              {(user as any)?.property_website}
-                            </a>
-                          ) : 'Not set'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    // Edit Mode
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Name *</label>
-                          <input
-                            type="text"
-                            value={profileFormData.name}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, name: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-\[#89A38F\] focus:border-transparent"
-                            placeholder="Your name"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Phone</label>
-                          <input
-                            type="tel"
-                            value={profileFormData.phone}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, phone: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-\[#89A38F\] focus:border-transparent"
-                            placeholder="+44 (0)1234 567890"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Email</label>
-                          <input
-                            type="email"
-                            value={user?.email || ''}
-                            disabled
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-                          />
-                          <p className="text-xs text-gray-600 mt-1">Email cannot be changed</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Account Role</label>
-                          <input
-                            type="text"
-                            value={user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'N/A'}
-                            disabled
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-                          />
-                          <p className="text-xs text-gray-600 mt-1">Role cannot be changed</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Company Name</label>
-                          <input
-                            type="text"
-                            value={profileFormData.company_name}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, company_name: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-\[#89A38F\] focus:border-transparent"
-                            placeholder="Your company name"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-black mb-2">Website</label>
-                          <input
-                            type="url"
-                            value={profileFormData.property_website}
-                            onChange={(e) => setProfileFormData({ ...profileFormData, property_website: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-\[#89A38F\] focus:border-transparent"
-                            placeholder="https://example.com"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-4 pt-4 border-t border-gray-200">
-                        <button
-                          onClick={handleSaveProfile}
-                          disabled={savingProfile}
-                          className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                            savingProfile
-                              ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                              : purpleButtonClass
-                          }`}
-                        >
-                          {savingProfile ? 'Saving...' : 'Save Changes'}
-                        </button>
-                        <button
-                          onClick={handleCancelEdit}
-                          disabled={savingProfile}
-                          className={`px-6 py-2 rounded-lg font-medium transition-all ${purpleButtonSoftClass}`}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -1963,8 +1692,8 @@ export default function OwnerDashboard() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="relative">
-              <div className="animate-spin rounded-full h-20 w-20 border-4 border-purple-200 border-t-\[#89A38F\] mx-auto"></div>
-              <Sparkles className="w-8 h-8 text-\[#89A38F\] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+              <div className="animate-spin rounded-full h-20 w-20 border-4 border-purple-200 border-t-indigo-600 mx-auto"></div>
+              <Sparkles className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
             </div>
             <p className="mt-6 text-gray-700 font-semibold text-lg">Loading your dashboard...</p>
           </div>
@@ -1975,4 +1704,3 @@ export default function OwnerDashboard() {
     </ProtectedRoute>
   );
 }
-

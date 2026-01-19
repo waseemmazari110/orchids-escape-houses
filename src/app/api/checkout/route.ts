@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
             quantity: 1,
           },
         ],
-      success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/owner-dashboard`,
       cancel_url: `${origin}/payment/cancel`,
       customer_email: session.user.email,
       metadata: {

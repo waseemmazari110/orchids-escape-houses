@@ -72,16 +72,25 @@ export const auth = betterAuth({
 		user: {
 			create: {
 				after: async (user) => {
-					await sendWelcomeEmail(user.email, user.name);
+					try {
+						await sendWelcomeEmail(user.email, user.name);
+					} catch (error) {
+						console.error("Failed to send welcome email:", error);
+					}
+					
 					if ((user as any).role === "owner") {
-						await sendOwnerSignupNotification({
-							name: user.name || "",
-							email: user.email,
-							phone: (user as any).phone ? String((user as any).phone) : undefined,
-							propertyName: (user as any).company_name ? String((user as any).company_name) : undefined,
-							propertyWebsite: (user as any).property_website ? String((user as any).property_website) : undefined,
-							planId: (user as any).plan_id ? String((user as any).plan_id) : undefined,
-						});
+						try {
+							await sendOwnerSignupNotification({
+								name: user.name || "",
+								email: user.email,
+								phone: (user as any).phone ? String((user as any).phone) : undefined,
+								propertyName: (user as any).company_name ? String((user as any).company_name) : undefined,
+								propertyWebsite: (user as any).property_website ? String((user as any).property_website) : undefined,
+								planId: (user as any).plan_id ? String((user as any).plan_id) : undefined,
+							});
+						} catch (error) {
+							console.error("Failed to send owner signup notification:", error);
+						}
 					}
 				}
 			}

@@ -74,6 +74,9 @@ export const user = sqliteTable("user", {
 	role: text().default("guest").notNull(),
 	phone: text(),
 	companyName: text("company_name"),
+	propertyWebsite: text("property_website"),
+	planId: text("plan_id"),
+	paymentStatus: text("payment_status").default("pending"),
 },
 (table) => [
 	uniqueIndex("user_email_unique").on(table.email),
