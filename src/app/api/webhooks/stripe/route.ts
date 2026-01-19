@@ -56,17 +56,21 @@ export async function POST(request: NextRequest) {
 
       if (!metadata) {
         console.warn('No metadata found in event:', event.type);
+        console.warn('Session/Invoice/Sub metadata:', sessionOrInvoiceOrSub.metadata);
+        console.warn('Subscription metadata:', subscription?.metadata);
         return NextResponse.json({ received: true });
       }
 
       const { userId, planId, propertyId } = metadata;
 
       if (!userId || !planId) {
-        console.error('Missing userId or planId in metadata');
+        console.error('Missing userId or planId in metadata', { userId, planId });
         return NextResponse.json({ error: 'Missing required metadata' }, { status: 400 });
       }
 
-      await db
+      console.log(`Webhook: Updating user ${userId} with plan ${planId} and paymentStatus=active`);
+      
+      const updateResult = await db
         .update(userTable)
         .set({
           paymentStatus: 'active',
@@ -75,7 +79,20 @@ export async function POST(request: NextRequest) {
         })
         .where(eq(userTable.id, userId));
 
-      console.log(`Updated user ${userId} with plan ${planId} and payment_status active`);
+      console.log(`Webhook: Update result for user ${userId}:`, updateResult);
+      
+      // Verify the update was successful
+      const verifyUser = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.id, userId));
+      
+      if (verifyUser.length) {
+        console.log(`Webhook: Verified user ${userId} now has:`, {
+          planId: verifyUser[0].planId,
+          paymentStatus: verifyUser[0].paymentStatus,
+        });
+      }
 
       if (propertyId) {
         const updateData: any = {

@@ -337,40 +337,77 @@ function OwnerDashboardContent() {
           return;
         }
 
-        // Fetch fresh user profile data from database (includes custom fields)
-        const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
+        // Retry logic to wait for webhook to process
+        let profileData: any = null;
+        let attempts = 0;
+        const maxAttempts = 10; // Try for up to 5 seconds (500ms * 10)
+        
+        while (attempts < maxAttempts) {
+          const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
+          if (profileRes.ok) {
+            profileData = await profileRes.json();
+            
+            // Check if user has purchased a plan
+            const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
+            
+            console.log(`Attempt ${attempts + 1}:`, {
+              planId: profileData.planId,
+              paymentStatus: profileData.paymentStatus,
+              hasPlan,
+            });
+            
+            if (hasPlan) {
+              // Successfully got a plan, break out of retry loop
+              break;
+            }
+            
+            // If this is the first check, might just need to wait for webhook
+            if (profileData.planId && profileData.paymentStatus !== 'active') {
+              // Plan is selected but not yet activated - wait and retry
+              console.log('Plan selected but not active yet, waiting for webhook...');
+              attempts++;
+              if (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                continue;
+              }
+            }
+          }
           
-          // Check if user has purchased a plan
-          const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
-          
-          if (!hasPlan) {
-            // Redirect to choose-plan if no plan purchased
+          // If we get here without a plan, redirect
+          if (!profileData?.planId) {
             router.push('/choose-plan?error=purchase_plan_first');
             return;
           }
           
-          setUser({
-            id: profileData.id,
-            name: profileData.name || session.data.user.email.split('@')[0],
-            email: profileData.email,
-            role: profileData.role || 'owner',
-            phone: profileData.phone,
-            planId: profileData.planId,
-            paymentStatus: profileData.paymentStatus,
-            company_name: profileData.companyName,
-            property_website: profileData.propertyWebsite,
-          } as any);
-        } else {
-          // Fallback to session data if profile fetch fails
-          setUser({
-            id: session.data.user.id,
-            name: session.data.user.name || session.data.user.email.split('@')[0],
-            email: session.data.user.email,
-            role: (session.data.user as any).role || 'owner',
-          });
+          attempts++;
+          if (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
         }
+        
+        if (!profileData) {
+          router.push('/choose-plan?error=purchase_plan_first');
+          return;
+        }
+        
+        // Final check after all retries
+        const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
+        if (!hasPlan) {
+          router.push('/choose-plan?error=purchase_plan_first');
+          return;
+        }
+        
+        setUser({
+          id: profileData.id,
+          name: profileData.name || session.data.user.email.split('@')[0],
+          email: profileData.email,
+          role: profileData.role || 'owner',
+          phone: profileData.phone,
+          planId: profileData.planId,
+          paymentStatus: profileData.paymentStatus,
+          company_name: profileData.companyName,
+          property_website: profileData.propertyWebsite,
+        } as any);
 
         // Fetch stats
         const statsRes = await fetch('/api/owner/stats', { cache: 'no-store' });

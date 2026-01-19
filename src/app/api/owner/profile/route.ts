@@ -116,7 +116,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(user[0]);
+    const userData = user[0];
+    console.log('GET /api/owner/profile for user:', userId);
+    console.log('User data from DB:', {
+      id: userData.id,
+      email: userData.email,
+      planId: userData.planId,
+      paymentStatus: userData.paymentStatus,
+      name: userData.name,
+      phone: userData.phone,
+    });
+
+    return NextResponse.json(userData);
   } catch (error) {
     console.error("Error fetching profile:", error);
     return NextResponse.json(
