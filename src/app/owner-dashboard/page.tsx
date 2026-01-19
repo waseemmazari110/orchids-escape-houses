@@ -337,10 +337,13 @@ function OwnerDashboardContent() {
           return;
         }
 
+        // Check if we just completed a payment (webhook might still be processing)
+        const isPaymentCompleted = searchParams.get('payment_completed') === 'true';
+        
         // Retry logic to wait for webhook to process
         let profileData: any = null;
         let attempts = 0;
-        const maxAttempts = 10; // Try for up to 5 seconds (500ms * 10)
+        const maxAttempts = isPaymentCompleted ? 15 : 10; // Extra retries if just paid (7.5 seconds total)
         
         while (attempts < maxAttempts) {
           const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
@@ -350,24 +353,26 @@ function OwnerDashboardContent() {
             // Check if user has purchased a plan
             const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
             
-            console.log(`Attempt ${attempts + 1}:`, {
+            console.log(`[Dashboard] Attempt ${attempts + 1}/${maxAttempts}:`, {
               planId: profileData.planId,
               paymentStatus: profileData.paymentStatus,
               hasPlan,
+              isPaymentCompleted,
             });
             
             if (hasPlan) {
               // Successfully got a plan, break out of retry loop
+              console.log(`[Dashboard] Plan found! User can access dashboard.`);
               break;
             }
             
             // If this is the first check, might just need to wait for webhook
             if (profileData.planId && profileData.paymentStatus !== 'active') {
               // Plan is selected but not yet activated - wait and retry
-              console.log('Plan selected but not active yet, waiting for webhook...');
+              console.log('[Dashboard] Plan selected but not active yet, waiting for webhook...');
               attempts++;
               if (attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, isPaymentCompleted ? 500 : 500));
                 continue;
               }
             }
@@ -375,13 +380,14 @@ function OwnerDashboardContent() {
           
           // If we get here without a plan, redirect
           if (!profileData?.planId) {
+            console.log('[Dashboard] No plan found, redirecting to choose-plan');
             router.push('/choose-plan?error=purchase_plan_first');
             return;
           }
           
           attempts++;
           if (attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, isPaymentCompleted ? 500 : 500));
           }
         }
         
@@ -393,6 +399,10 @@ function OwnerDashboardContent() {
         // Final check after all retries
         const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
         if (!hasPlan) {
+          console.log('[Dashboard] After retries, plan still not active:', {
+            planId: profileData.planId,
+            paymentStatus: profileData.paymentStatus,
+          });
           router.push('/choose-plan?error=purchase_plan_first');
           return;
         }
