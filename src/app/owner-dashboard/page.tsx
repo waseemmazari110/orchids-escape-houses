@@ -346,7 +346,8 @@ function OwnerDashboardContent() {
         const maxAttempts = isPaymentCompleted ? 15 : 10; // Extra retries if just paid (7.5 seconds total)
         
         while (attempts < maxAttempts) {
-          const profileRes = await fetch('/api/owner/profile', { cache: 'no-store' });
+          // Use payment-status endpoint which checks Stripe directly
+          const profileRes = await fetch('/api/owner/payment-status', { cache: 'no-store' });
           if (profileRes.ok) {
             profileData = await profileRes.json();
             
@@ -355,7 +356,9 @@ function OwnerDashboardContent() {
             
             console.log(`[Dashboard] Attempt ${attempts + 1}/${maxAttempts}:`, {
               planId: profileData.planId,
-              paymentStatus: profileData.paymentStatus,
+              dbPaymentStatus: profileData.paymentStatus,
+              stripePaymentStatus: profileData.stripePaymentStatus,
+              subscriptionStatus: profileData.subscriptionStatus,
               hasPlan,
               isPaymentCompleted,
             });
@@ -366,10 +369,10 @@ function OwnerDashboardContent() {
               break;
             }
             
-            // If this is the first check, might just need to wait for webhook
+            // If this is the first check, might just need to wait for webhook/stripe
             if (profileData.planId && profileData.paymentStatus !== 'active') {
               // Plan is selected but not yet activated - wait and retry
-              console.log('[Dashboard] Plan selected but not active yet, waiting for webhook...');
+              console.log('[Dashboard] Plan selected but payment not active yet, waiting...');
               attempts++;
               if (attempts < maxAttempts) {
                 await new Promise(resolve => setTimeout(resolve, isPaymentCompleted ? 500 : 500));
@@ -401,7 +404,8 @@ function OwnerDashboardContent() {
         if (!hasPlan) {
           console.log('[Dashboard] After retries, plan still not active:', {
             planId: profileData.planId,
-            paymentStatus: profileData.paymentStatus,
+            dbPaymentStatus: profileData.paymentStatus,
+            stripePaymentStatus: profileData.stripePaymentStatus,
           });
           router.push('/choose-plan?error=purchase_plan_first');
           return;
