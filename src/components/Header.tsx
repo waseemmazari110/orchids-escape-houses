@@ -24,6 +24,7 @@ export default function Header({ hideListingButton = false }: { hideListingButto
   const [isOccasionsOpen, setIsOccasionsOpen] = useState(false);
   const [isExperiencesOpen, setIsExperiencesOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [hasActivePlan, setHasActivePlan] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,31 @@ export default function Header({ hideListingButton = false }: { hideListingButto
       setIsInitialized(true);
     }
   }, [isPending, isInitialized]);
+
+  // Check if owner has an active plan
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === "owner") {
+      const checkPlan = async () => {
+        try {
+          // Add a small delay to allow webhook to process
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const res = await fetch("/api/owner/profile", { cache: "no-store" });
+          if (res.ok) {
+            const data = await res.json();
+            const hasplan = data.planId && (data.paymentStatus === "active" || data.paymentStatus === "completed");
+            setHasActivePlan(hasplan);
+            console.log('Header plan check:', { planId: data.planId, paymentStatus: data.paymentStatus, hasplan });
+          }
+        } catch (error) {
+          console.error("Error checking plan status:", error);
+        }
+      };
+      checkPlan();
+    } else {
+      setHasActivePlan(false);
+    }
+  }, [session?.user]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -432,15 +458,49 @@ export default function Header({ hideListingButton = false }: { hideListingButto
                     </Link>
                   )}
                   <div className="flex items-center gap-3">
+                    {(session.user as any).role === "owner" ? (
+                      <>
+                        <div className="relative group">
+                          <button
+                            onClick={() => {
+                              if (hasActivePlan) {
+                                router.push("/owner-dashboard");
+                              } else {
+                                router.push("/choose-plan?redirect=dashboard");
+                              }
+                            }}
+                            disabled={!hasActivePlan}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                              hasActivePlan
+                                ? "bg-[var(--color-bg-secondary)] hover:bg-gray-100 cursor-pointer"
+                                : "bg-gray-100 text-gray-500 cursor-not-allowed opacity-60"
+                            }`}
+                            title={hasActivePlan ? "Go to Owner Dashboard" : "Purchase a plan to access dashboard"}
+                          >
+                            <UserIcon className="w-4 h-4 text-[var(--color-accent-sage)]" />
+                            <span className="text-sm font-medium text-[var(--color-text-primary)]">
+                              Owner Dashboard
+                            </span>
+                          </button>
+                          {!hasActivePlan && (
+                            <div className="absolute bottom-full right-0 mb-2 w-48 bg-gray-900 text-white text-xs rounded-lg py-2 px-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none">
+                              Purchase a plan to access your dashboard
+                              <div className="absolute top-full right-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
                       <Link
-                        href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                        href="/account/dashboard"
                         className="flex items-center gap-2 px-4 py-2 bg-[var(--color-bg-secondary)] rounded-xl hover:bg-gray-100 transition-all"
                       >
                         <UserIcon className="w-4 h-4 text-[var(--color-accent-sage)]" />
                         <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                          {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
+                          My Account
                         </span>
                       </Link>
+                    )}
                     <button
                       onClick={handleSignOut}
                       className="p-2 hover:text-red-600 transition-colors"
@@ -522,6 +582,7 @@ export default function Header({ hideListingButton = false }: { hideListingButto
           occasions={occasions}
           experiences={experiences}
           hideListingButton={hideListingButton}
+          hasActivePlan={hasActivePlan}
         />
 
         <SignInModal 

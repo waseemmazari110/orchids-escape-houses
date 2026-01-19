@@ -17,6 +17,7 @@ interface MobileMenuProps {
   occasions: any[];
   experiences: any[];
   hideListingButton?: boolean;
+  hasActivePlan?: boolean;
 }
 
 export default function MobileMenu({
@@ -31,6 +32,7 @@ export default function MobileMenu({
   occasions,
   experiences,
   hideListingButton = false,
+  hasActivePlan = false,
 }: MobileMenuProps) {
   const [isStylesOpen, setIsStylesOpen] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
@@ -236,16 +238,34 @@ export default function MobileMenu({
         ) : session?.user ? (
           <>
             <div className="flex items-center justify-between p-4 bg-white/90 rounded-xl">
+              {(session.user as any).role === "owner" ? (
+                <button
+                  onClick={() => {
+                    if (hasActivePlan) {
+                      window.location.href = "/owner-dashboard";
+                    } else {
+                      window.location.href = "/choose-plan?redirect=dashboard";
+                    }
+                    onClose();
+                  }}
+                  disabled={!hasActivePlan}
+                  className={`flex items-center gap-2 flex-1 ${
+                    hasActivePlan ? "cursor-pointer" : "opacity-60 cursor-not-allowed"
+                  }`}
+                >
+                  <UserIcon className="w-5 h-5 text-[var(--color-accent-sage)]" />
+                  <span className="font-medium">Owner Dashboard</span>
+                </button>
+              ) : (
                 <Link 
-                  href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                  href="/account/dashboard"
                   className="flex items-center gap-2"
                   onClick={onClose}
                 >
-                <UserIcon className="w-5 h-5 text-[var(--color-accent-sage)]" />
-                <span className="font-medium">
-                  {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
-                </span>
-              </Link>
+                  <UserIcon className="w-5 h-5 text-[var(--color-accent-sage)]" />
+                  <span className="font-medium">My Account</span>
+                </Link>
+              )}
               <div className="flex items-center gap-2">
                 {(session.user as any).role === "guest" && (
                   <Link href="/account/dashboard" onClick={onClose} className="p-2">
