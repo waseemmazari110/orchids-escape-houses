@@ -24,6 +24,7 @@ export const auth = betterAuth({
 	trustedOrigins: [
 		"https://www.groupescapehouses.co.uk",
 		"https://groupescapehouses.co.uk",
+		"https://orchids-escape-houses.vercel.app",
 		"http://localhost:3000",
 		"http://127.0.0.1:3000",
 		"http://192.168.1.232:3000",
