@@ -27,6 +27,15 @@ const eslintConfig = [
       'import/no-useless-path-segments': 'error',
     },
   },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    rules: {},
+    settings: {
+      'import/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx'],
+      },
+    },
+  },
 ]
  
 export default eslintConfig

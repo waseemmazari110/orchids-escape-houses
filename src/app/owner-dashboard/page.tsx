@@ -112,14 +112,19 @@ interface Property {
   title: string;
   slug?: string;
   location: string;
+  address?: string;
+  town?: string;
   heroImage: string;
+  images?: string[];
   isPublished: boolean;
   sleepsMax?: number;
+  max_guests?: number;
   bedrooms?: number;
   bathrooms?: number;
   priceFromWeekend?: number;
   priceFromMidweek?: number;
-  status?: 'pending' | 'approved' | 'rejected';
+  base_price?: number;
+  status?: 'pending' | 'approved' | 'rejected' | 'Active' | 'Draft' | 'Pending' | string;
   statusInfo?: {
     status: string;
     approvedAt?: string;
@@ -324,6 +329,39 @@ function OwnerDashboardContent() {
       alert('Failed to delete property. Please try again.');
     } finally {
       setDeletingPropertyId(null);
+    }
+  };
+
+  // Handle property status change
+  const handleStatusChange = async (propertyId: number, newStatus: string) => {
+    try {
+      console.log(`Changing property ${propertyId} status to ${newStatus}`);
+      
+      const res = await fetch(`/api/properties?id=${propertyId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      console.log('API Response:', data);
+      
+      if (!res.ok) {
+        alert(data?.error || 'Failed to update property status');
+        return;
+      }
+
+      // Update properties array with new status - this will trigger stats recalculation
+      setProperties((prev) => {
+        const updated = prev.map((p) => 
+          p.id === propertyId ? { ...p, status: newStatus } : p
+        );
+        console.log('Updated properties:', updated);
+        return updated;
+      });
+    } catch (e) {
+      console.error('Failed to update property status:', e);
+      alert('Failed to update property status. Please try again.');
     }
   };
 
@@ -940,7 +978,7 @@ function OwnerDashboardContent() {
                   <StatCard
                     icon={Building}
                     label="Active Properties"
-                    value={stats?.activeProperties ?? properties.filter(p => p.isPublished).length}
+                    value={properties.filter(p => (p.status || 'Active').toLowerCase() === 'active').length}
                     trend={stats?.propertiesGrowth || '+0%'}
                     trendUp={true}
                     color="bg-\[#89A38F\]-100"
@@ -1386,33 +1424,146 @@ function OwnerDashboardContent() {
 
             {/* Properties View */}
             {activeView === "properties" && (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-md text-black">
-                <div className="p-12 text-center">
-                  <div className="w-24 h-24 rounded-2xl bg-\[#E3EBE7\] flex items-center justify-center mx-auto mb-6">
-                    <Building className="w-12 h-12 text-\[#89A38F\]" />
-                  </div>
-                  
-                  <h2 className="text-3xl font-bold text-black mb-3">Property Management</h2>
-                  <p className="text-gray-600 text-lg mb-8 max-w-xl mx-auto">
-                    Add new properties or manage your existing listings. View, edit, and update property details, images, pricing, and availability.
-                  </p>
-                  
-                  <div className="flex flex-wrap items-center justify-center gap-4">
-                    <Link href="/owner/properties/new">
-                      <button className={`px-8 py-4 rounded-xl font-bold text-lg transition-all ${purpleButtonClass} flex items-center gap-3`}>
-                        <Plus className="w-6 h-6" />
-                        Add New Property
-                      </button>
-                    </Link>
-                    
-                    <Link href="/owner/properties">
-                      <button className={`px-8 py-4 rounded-xl font-bold text-lg transition-all ${purpleButtonSoftClass} flex items-center gap-3 border-2 border-purple-300`}>
-                        <Building className="w-6 h-6" />
-                        Manage Properties
-                      </button>
-                    </Link>
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="mb-8">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-black" style={{ fontFamily: "var(--font-display)" }}>
+                      Your Properties
+                    </h1>
+                    <p className="text-gray-600 text-lg mt-2">
+                      Manage and edit your property listings
+                    </p>
                   </div>
                 </div>
+
+                {/* Properties Grid or Empty State */}
+                {properties.length === 0 ? (
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+                    <AlertCircle className="w-16 h-16 text-\[#C6A76D\] mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold text-black mb-3">No Properties Yet</h2>
+                    <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                      Start by creating your first property listing. It only takes a few minutes!
+                    </p>
+                    <Link href="/owner/properties/new">
+                      <button className={`${purpleButtonClass} px-8 py-4 rounded-xl text-white font-bold flex items-center gap-3 mx-auto`}>
+                        <Plus className="w-5 h-5" />
+                        Create First Property
+                      </button>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {/* Properties Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                      {properties.map((property) => {
+                        const imageUrl = property.heroImage || property.images?.[0];
+                        const price = property.priceFromMidweek || property.base_price || 0;
+                        const maxGuests = property.sleepsMax || property.max_guests;
+                        const displayLocation = property.location || `${property.address || ''}${property.town ? ', ' + property.town : ''}`.trim();
+                        
+                        return (
+                          <div 
+                            key={property.id} 
+                            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+                          >
+                            {/* Property Image */}
+                            {imageUrl && (
+                              <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+                                <img 
+                                  src={imageUrl} 
+                                  alt={property.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700 capitalize">
+                                  {property.status || 'Active'}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Property Details */}
+                            <div className="p-4">
+                              <div className="flex justify-between items-start mb-2">
+                                <h3 className="text-lg font-bold text-black flex-1">{property.title}</h3>
+                                <select
+                                  value={property.status || 'Active'}
+                                  onChange={(e) => handleStatusChange(property.id, e.target.value)}
+                                  className="ml-2 px-3 py-1 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#89A38F]"
+                                >
+                                  <option value="Active">Active</option>
+                                  <option value="Draft">Draft</option>
+                                  <option value="Pending">Pending</option>
+                                </select>
+                              </div>
+                              
+                              {displayLocation && (
+                                <p className="text-gray-600 text-sm mb-3">{displayLocation}</p>
+                              )}
+                              
+                              {/* Stats */}
+                              <div className="flex gap-4 mb-4 text-sm text-gray-600">
+                                {property.bedrooms && (
+                                  <span className="flex items-center gap-1">
+                                    <span>🛏️ {property.bedrooms} beds</span>
+                                  </span>
+                                )}
+                                {maxGuests && (
+                                  <span className="flex items-center gap-1">
+                                    <span>👥 {maxGuests} guests</span>
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* Price */}
+                              <p className="text-lg font-bold text-\[#C6A76D\] mb-4">
+                                £{price.toFixed(2)} / night
+                              </p>
+                              
+                              {/* Actions */}
+                              <div className="flex gap-2">
+                                <Link href={`/owner/properties/${property.id}/edit`}>
+                                  <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <Edit2 className="w-4 h-4" />
+                                    Edit
+                                  </button>
+                                </Link>
+                                <button 
+                                  onClick={() => {
+                                    if (confirm('Are you sure you want to delete this property?')) {
+                                      handleDeleteProperty(property.id);
+                                    }
+                                  }}
+                                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="bg-white rounded-2xl border border-gray-100 p-8">
+                      <div className="flex flex-wrap gap-4 justify-center">
+                        <Link href="/owner/properties/new">
+                          <button className={`${purpleButtonClass} px-8 py-4 rounded-xl text-white font-bold flex items-center gap-3`}>
+                            <Plus className="w-5 h-5" />
+                            Add New Property
+                          </button>
+                        </Link>
+                        <button 
+                          onClick={() => window.location.reload()}
+                          className="px-8 py-4 rounded-xl border border-gray-300 text-gray-700 font-bold flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                        >
+                          🔄 Refresh
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

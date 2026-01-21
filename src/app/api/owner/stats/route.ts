@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       totalBookings,
       bookingsGrowth: "+12%",
-      activeProperties: ownerProperties.filter(p => p.isPublished === 1).length,
+      activeProperties: ownerProperties.filter(p => p.status === 'Active' || p.status === 'active').length,
       propertiesGrowth: "+5%",
       revenue: totalRevenue,
       revenueGrowth: "+8%",

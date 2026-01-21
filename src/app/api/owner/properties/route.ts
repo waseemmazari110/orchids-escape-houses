@@ -12,15 +12,17 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user) {
+      console.log("[DEBUG] No session user");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id;
+    console.log("[DEBUG] Fetching properties for user:", userId);
     const url = new URL(request.url);
     const status = url.searchParams.get("status");
 
-    // Get owner's properties
-    let conditions: any[] = [eq(properties.ownerId, userId)];
+    // Get owner's properties - ONLY filter by this user's ID
+    const conditions: any[] = [eq(properties.ownerId, userId)];
 
     if (status && status !== "all") {
       conditions.push(eq(properties.status, status));
@@ -31,7 +33,33 @@ export async function GET(request: NextRequest) {
       .from(properties)
       .where(and(...conditions));
 
-    return NextResponse.json({ properties: ownerProperties });
+    console.log("[DEBUG] Found", ownerProperties.length, "properties for user", userId);
+    ownerProperties.forEach(p => {
+      console.log(`[DEBUG] Property: ${p.title} - ownerId: ${p.ownerId}`);
+    });
+    // Convert snake_case to camelCase and ensure proper boolean conversion for isPublished
+    const formattedProperties = ownerProperties.map(p => ({
+      ...p,
+      isPublished: Boolean(p.isPublished),
+      ownerId: p.ownerId,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      heroImage: p.heroImage,
+      heroVideo: p.heroVideo,
+      floorplanUrl: p.floorplanUrl,
+      mapLat: p.mapLat,
+      mapLng: p.mapLng,
+      ownerContact: p.ownerContact,
+      houseRules: p.houseRules,
+      checkInOut: p.checkInOut,
+      icalUrl: p.icalUrl,
+      priceFromMidweek: p.priceFromMidweek,
+      priceFromWeekend: p.priceFromWeekend,
+      sleepsMin: p.sleepsMin,
+      sleepsMax: p.sleepsMax,
+    }));
+
+    return NextResponse.json({ properties: formattedProperties });
   } catch (error) {
     console.error("Error fetching properties:", error);
     return NextResponse.json(
