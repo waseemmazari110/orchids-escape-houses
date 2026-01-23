@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { user as userTable, properties as propertiesTable } from '@/db/schema';
-import { eq, like, or, sql, and } from 'drizzle-orm';
+import { user as userTable, properties as propertiesTable } from '../../../../../drizzle/schema';
+import { eq, like, or, sql, and, count } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
@@ -24,10 +24,6 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(userTable.role, role));
     }
 
-    if (paymentStatus && paymentStatus !== 'all') {
-      conditions.push(eq(userTable.paymentStatus, paymentStatus));
-    }
-
     if (search) {
       conditions.push(
         or(
@@ -47,14 +43,14 @@ export async function GET(request: NextRequest) {
 
     const usersWithProperties = await Promise.all(
       users.map(async (u) => {
-        const propertyCount = await db
-          .select({ count: sql<number>`count(*)` })
+        const propertyResult = await db
+          .select({ count: count() })
           .from(propertiesTable)
           .where(eq(propertiesTable.ownerId, u.id));
 
         return {
           ...u,
-          propertyCount: propertyCount[0]?.count || 0,
+          propertyCount: propertyResult[0]?.count || 0,
         };
       })
     );

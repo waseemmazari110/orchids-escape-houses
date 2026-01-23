@@ -402,13 +402,6 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    // Log admin overrides
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (session?.user && (session.user as any).role === 'admin' && body.status && body.status !== existingProperty[0].status) {
-      console.log(`[ADMIN OVERRIDE] User ${session.user.email} changed property ${id} status from ${existingProperty[0].status} to ${body.status}`);
-      // In a real app, we might store this in an audit_logs table.
-    }
-
     if (body.title !== undefined) updates.title = body.title.trim();
     if (body.slug !== undefined) updates.slug = body.slug.trim();
     if (body.location !== undefined) updates.location = body.location.trim();

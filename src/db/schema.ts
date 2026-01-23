@@ -124,6 +124,7 @@ export const properties = sqliteTable('properties', {
   featured: integer('featured', { mode: 'boolean' }).default(false),
   isPublished: integer('is_published', { mode: 'boolean' }).default(false),
   status: text('status').notNull().default('pending'),
+  rejectionReason: text('rejection_reason'),
   plan: text('plan'),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),

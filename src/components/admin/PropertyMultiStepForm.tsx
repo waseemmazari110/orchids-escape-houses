@@ -228,13 +228,14 @@ export function PropertyMultiStepForm({ propertyId, initialData }: PropertyMulti
     if (!formData.address.trim()) requiredFieldsErrors.address = "Address is required";
     if (formData.max_guests < 1) requiredFieldsErrors.max_guests = "Max guests is required";
     if (formData.base_price <= 0) requiredFieldsErrors.base_price = "Base price is required";
+    if (!formData.town.trim()) requiredFieldsErrors.town = "Town is required";
 
     if (Object.keys(requiredFieldsErrors).length > 0) {
       setErrors(requiredFieldsErrors);
       toast.error("Please fill in all required fields");
       // Jump to first step with error
       if (requiredFieldsErrors.title || requiredFieldsErrors.property_type) setCurrentStep(1);
-      else if (requiredFieldsErrors.address) setCurrentStep(2);
+      else if (requiredFieldsErrors.address || requiredFieldsErrors.town) setCurrentStep(2);
       else if (requiredFieldsErrors.max_guests) setCurrentStep(3);
       else if (requiredFieldsErrors.base_price) setCurrentStep(6);
       return;
@@ -242,19 +243,47 @@ export function PropertyMultiStepForm({ propertyId, initialData }: PropertyMulti
 
     setIsLoading(true);
     try {
+      // Map form data to API schema
+      const slug = (formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-')).replace(/[^a-z0-9-]/g, '');
+      
+      const mappedData = {
+        title: formData.title,
+        slug: slug,
+        location: formData.town,
+        region: formData.county || formData.town,
+        sleepsMin: Math.floor(formData.max_guests * 0.6),
+        sleepsMax: Math.ceil(formData.max_guests),
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        priceFromMidweek: formData.base_price,
+        priceFromWeekend: formData.weekend_price || formData.base_price,
+        description: formData.description,
+        heroImage: formData.images[0] || 'https://via.placeholder.com/800x600',
+        checkInOut: `${formData.check_in_time} - ${formData.check_out_time}`,
+        mapLat: formData.latitude || undefined,
+        mapLng: formData.longitude || undefined,
+        houseRules: formData.house_rules || '',
+        status: 'active'
+      };
+
+      console.log('Sending property data:', JSON.stringify(mappedData, null, 2));
+
       if (propertyId) {
         // Update existing property
-        await GEH_API.put(`/properties/${propertyId}`, { ...formData, status: "active" });
+        await GEH_API.put(`/properties/${propertyId}`, mappedData);
         toast.success("Property published successfully");
         router.push("/admin/properties");
       } else {
         // Create new property
-        await GEH_API.post("/properties", { ...formData, status: "active" });
+        const response = await GEH_API.post("/properties", mappedData);
+        console.log('API Response:', response);
         toast.success("Property published successfully");
         router.push("/admin/properties");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to publish property");
+      console.error('Publish error:', error);
+      const errorMessage = error?.message || error?.error || JSON.stringify(error) || "Failed to publish property";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -708,18 +737,18 @@ export function PropertyMultiStepForm({ propertyId, initialData }: PropertyMulti
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pb-24 md:pb-8">
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
+      <div className="mb-8 overflow-x-auto px-2 md:px-0 -mx-2 md:mx-0">
+        <div className="flex justify-between items-center min-w-max md:min-w-0 gap-1 md:gap-0">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
             
             return (
-              <div key={step.id} className="flex-1">
-                <div className="flex items-center">
+              <div key={step.id} className="flex-1 min-w-fit md:flex-1">
+                <div className="flex items-center justify-center md:justify-start">
                   <button
                     onClick={() => setCurrentStep(step.id)}
                     className={`relative flex flex-col items-center group ${
@@ -727,7 +756,7 @@ export function PropertyMultiStepForm({ propertyId, initialData }: PropertyMulti
                     }`}
                   >
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                      className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-all ${
                         isActive
                           ? "border-[var(--color-accent-sage)] bg-[var(--color-accent-sage)] text-white"
                           : isCompleted
@@ -735,17 +764,10 @@ export function PropertyMultiStepForm({ propertyId, initialData }: PropertyMulti
                           : "border-gray-300 bg-white"
                       }`}
                     >
-                      {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                      {isCompleted ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <Icon className="w-4 h-4 md:w-5 md:h-5" />}
                     </div>
-                    <span className="text-xs mt-2 font-medium hidden lg:block">{step.name}</span>
+                    <span className="text-xs mt-1 md:mt-2 font-medium hidden lg:block whitespace-nowrap">{step.name}</span>
                   </button>
-                  {index < STEPS.length - 1 && (
-                    <div
-                      className={`flex-1 h-0.5 mx-2 ${
-                        currentStep > step.id ? "bg-green-600" : "bg-gray-300"
-                      }`}
-                    />
-                  )}
                 </div>
               </div>
             );

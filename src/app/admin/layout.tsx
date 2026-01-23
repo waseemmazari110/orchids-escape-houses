@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+// Force dynamic rendering for all admin routes
+export const dynamic = 'force-dynamic';
 
 export default function AdminLayout({
   children,

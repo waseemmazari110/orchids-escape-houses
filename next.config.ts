@@ -58,6 +58,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.istockphoto.com',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.groupescapehouses.co.uk',
+        pathname: '/**',
       }
     ],
     formats: ['image/avif', 'image/webp'],
