@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { payments, subscriptions, user } from "../../../../../../drizzle/schema";
+import { payments, subscriptions, user } from "@/db/schema";
 import { eq, desc, isNull, isNotNull, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         userRole: user.role,
         amount: payments.amount,
         currency: payments.currency,
-        status: payments.paymentStatus,
+        paymentStatus: payments.paymentStatus,
         paymentMethod: payments.paymentMethod,
         paymentMethodBrand: payments.paymentMethodBrand,
         paymentMethodLast4: payments.paymentMethodLast4,
@@ -63,28 +63,61 @@ export async function GET(request: NextRequest) {
       )
       .orderBy(desc(payments.createdAt));
 
+    // Filter out incomplete records (where core payment data is missing)
+    const validTransactions = ownerTransactions
+      .filter((t) => t && t.id && t.userId && t.amount !== null && t.paymentStatus)
+      .map((t) => {
+        // Build a clean, serializable object
+        const obj: Record<string, any> = {};
+        if (t.id) obj.id = t.id;
+        if (t.userId) obj.userId = t.userId;
+        if (t.userName) obj.userName = t.userName;
+        if (t.userEmail) obj.userEmail = t.userEmail;
+        if (t.userRole) obj.userRole = t.userRole;
+        if (t.amount !== null && t.amount !== undefined) obj.amount = t.amount;
+        if (t.currency) obj.currency = t.currency;
+        if (t.paymentStatus) obj.paymentStatus = t.paymentStatus;
+        if (t.paymentMethod) obj.paymentMethod = t.paymentMethod;
+        if (t.paymentMethodBrand) obj.paymentMethodBrand = t.paymentMethodBrand;
+        if (t.paymentMethodLast4) obj.paymentMethodLast4 = t.paymentMethodLast4;
+        if (t.description) obj.description = t.description;
+        if (t.billingReason) obj.billingReason = t.billingReason;
+        if (t.createdAt) obj.createdAt = t.createdAt;
+        if (t.stripePaymentIntentId) obj.stripePaymentIntentId = t.stripePaymentIntentId;
+        if (t.stripeSubscriptionId) obj.stripeSubscriptionId = t.stripeSubscriptionId;
+        if (t.receiptUrl) obj.receiptUrl = t.receiptUrl;
+        if (t.subscriptionId) obj.subscriptionId = t.subscriptionId;
+        if (t.planName) obj.planName = t.planName;
+        if (t.planType) obj.planType = t.planType;
+        if (t.subscriptionStatus) obj.subscriptionStatus = t.subscriptionStatus;
+        if (t.subscriptionInterval) obj.subscriptionInterval = t.subscriptionInterval;
+        if (t.currentPeriodEnd) obj.currentPeriodEnd = t.currentPeriodEnd;
+        return obj;
+      });
+
     console.log("📊 Owner Transactions API Response:", {
-      count: ownerTransactions.length,
-      sample: ownerTransactions[0],
+      count: validTransactions.length,
+      sample: validTransactions[0],
     });
 
     // Calculate statistics
     const stats = {
-      totalTransactions: ownerTransactions.length,
-      totalRevenue: ownerTransactions
-        .filter((t) => t.status === "succeeded")
-        .reduce((sum, t) => sum + (t.amount || 0), 0),
+      totalTransactions: validTransactions.length,
+      totalRevenue: validTransactions
+        .filter((t) => t.paymentStatus === "succeeded")
+        .reduce((sum, t) => sum + ((t.amount as number) || 0), 0),
       activeSubscriptions: new Set(
-        ownerTransactions
+        validTransactions
           .filter((t) => t.subscriptionStatus === "active")
           .map((t) => t.subscriptionId)
+          .filter(Boolean)
       ).size,
-      failedPayments: ownerTransactions.filter((t) => t.status === "failed" || t.status === "requires_payment_method").length,
+      failedPayments: validTransactions.filter((t) => t.paymentStatus === "failed" || t.paymentStatus === "requires_payment_method").length,
     };
 
     return NextResponse.json({
       success: true,
-      transactions: ownerTransactions,
+      transactions: validTransactions,
       stats,
       timestamp: new Date().toISOString(),
     });

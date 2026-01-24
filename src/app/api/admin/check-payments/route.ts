@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { payments as paymentsTable, user as userTable } from '../../../../../drizzle/schema';
+import { payments as paymentsTable, user as userTable } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         id: p.id,
         userId: p.userId,
         amount: p.amount,
-        status: p.paymentStatus,
+        paymentStatus: p.paymentStatus,
         stripePaymentIntentId: p.stripePaymentIntentId,
         createdAt: p.createdAt,
       })),

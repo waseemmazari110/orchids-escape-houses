@@ -1,41 +1,8 @@
-import { FlatCompat } from '@eslint/eslintrc'
- 
-const compat = new FlatCompat({
-  // import.meta.dirname is available after Node.js v20.11.0
-  baseDirectory: import.meta.dirname,
-})
- 
-const eslintConfig = [
-  ...compat.config({
-    extends: ['next'],
-    plugins: ['import'],
-  }),
+export default [
   {
+    ignores: ['**/node_modules/', '**/.next/', '**/dist/', '**/.vercel/'],
     rules: {
       'react/no-unescaped-entities': 'off',
-      '@next/next/no-img-element': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      'import/no-unresolved': 'error',
-      'import/named': 'error',
-      'import/default': 'error',
-      'import/namespace': 'error',
-      'import/no-absolute-path': 'error',
-      'import/no-dynamic-require': 'error',
-      'import/no-self-import': 'error',
-      'import/no-cycle': 'error',
-      'import/no-useless-path-segments': 'error',
-    },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {},
-    settings: {
-      'import/parsers': {
-        '@typescript-eslint/parser': ['.ts', '.tsx'],
-      },
     },
   },
 ]
- 
-export default eslintConfig

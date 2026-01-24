@@ -199,7 +199,7 @@ export default function Transactions() {
       transaction.customer.email.toLowerCase().includes(query) ||
       transaction.customer.name.toLowerCase().includes(query) ||
       transaction.description.toLowerCase().includes(query) ||
-      (transaction.stripePaymentIntentId && transaction.stripePaymentIntentId.toLowerCase().includes(query))
+      (transaction.stripeId && transaction.stripeId.toLowerCase().includes(query))
     );
   });
 
@@ -352,7 +352,7 @@ export default function Transactions() {
                       <div className="text-sm font-semibold text-gray-900">
                         {formatAmount(transaction.amount, transaction.currency)}
                       </div>
-                      {transaction.refundAmount > 0 && (
+                      {transaction.refundAmount !== undefined && transaction.refundAmount > 0 && (
                         <div className="text-xs text-red-600">
                           Refunded: {formatAmount(transaction.refundAmount, transaction.currency)}
                         </div>

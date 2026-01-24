@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db";
-import { payments, user, bookings } from "../../../../../drizzle/schema";
+import { payments, user, bookings } from "@/db/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 
 export async function GET(request: Request) {

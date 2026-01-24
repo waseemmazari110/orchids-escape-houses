@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { db } from '@/db';
-import { payments, user, bookings } from '../../../../../drizzle/schema';
+import { payments, user, bookings } from '@/db/schema';
 import { desc, isNotNull } from 'drizzle-orm';
 
 /**
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
             sample: allPayments.slice(0, 3).map(p => ({
               id: p.id,
               amount: p.amount,
-              status: p.paymentStatus,
+              paymentStatus: p.paymentStatus,
               bookingId: p.bookingId,
               createdAt: p.createdAt,
             })),
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
         amount: 100.00,
         currency: 'GBP',
         paymentStatus: 'succeeded',
-        paymentMethod: 'card',
+        method: 'card',
         paymentMethodBrand: 'visa',
         paymentMethodLast4: '4242',
         description: 'Test payment - DB health check',

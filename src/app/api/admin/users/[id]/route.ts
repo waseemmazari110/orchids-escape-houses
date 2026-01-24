@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { user as userTable } from '../../../../../../drizzle/schema';
+import { user as userTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';

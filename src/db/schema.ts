@@ -285,6 +285,51 @@ export const savedProperties = sqliteTable('saved_properties', {
   createdAt: text('created_at').notNull(),
 });
 
+// Payments table (for tracking payment transactions)
+export const payments = sqliteTable('payments', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  bookingId: integer('booking_id').references(() => bookings.id, { onDelete: 'set null' }),
+  subscriptionId: integer('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
+  amount: real('amount').notNull(),
+  currency: text('currency').default('GBP'),
+  paymentStatus: text('payment_status').notNull().default('pending'),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeChargeId: text('stripe_charge_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  method: text('method'), // 'stripe', 'card', etc
+  paymentMethod: text('payment_method'),
+  paymentMethodBrand: text('payment_method_brand'),
+  paymentMethodLast4: text('payment_method_last4'),
+  description: text('description'),
+  billingReason: text('billing_reason'), // 'booking_deposit', 'booking_balance', etc
+  receiptEmail: text('receipt_email'),
+  receiptUrl: text('receipt_url'),
+  failureMessage: text('failure_message'),
+  processedAt: text('processed_at'),
+  metadata: text('metadata', { mode: 'json' }),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+// Subscriptions table (for tracking owner memberships)
+export const subscriptions = sqliteTable('subscriptions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  planId: text('plan_id').notNull(),
+  planName: text('plan_name'),
+  planType: text('plan_type'), // 'standard', 'premium', etc
+  amount: real('amount'),
+  interval: text('interval'), // 'month', 'year', etc
+  status: text('status').notNull().default('active'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  currentPeriodStart: text('current_period_start'),
+  currentPeriodEnd: text('current_period_end'),
+  canceledAt: text('canceled_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 // Saved quotes table
 export const savedQuotes = sqliteTable('saved_quotes', {
   id: integer('id').primaryKey({ autoIncrement: true }),

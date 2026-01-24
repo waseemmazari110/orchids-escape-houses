@@ -63,6 +63,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.groupescapehouses.co.uk',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd2u1z1lopyfwlx.cloudfront.net',
+        pathname: '/**',
       }
     ],
     formats: ['image/avif', 'image/webp'],

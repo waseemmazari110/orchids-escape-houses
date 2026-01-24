@@ -52,41 +52,67 @@ export async function GET(request: Request) {
       all: allCount[0]?.count || 0,
     };
 
-    // Fetch properties based on status filter
-    let propertiesQuery = db
-      .select({
-        id: properties.id,
-        title: properties.title,
-        slug: properties.slug,
-        location: properties.location,
-        region: properties.region,
-        status: properties.status,
-        ownerId: properties.ownerId,
-        featured: properties.featured,
-        isPublished: properties.isPublished,
-        createdAt: properties.createdAt,
-        updatedAt: properties.updatedAt,
-        heroImage: properties.heroImage,
-        sleepsMin: properties.sleepsMin,
-        sleepsMax: properties.sleepsMax,
-        bedrooms: properties.bedrooms,
-        bathrooms: properties.bathrooms,
-        priceFromMidweek: properties.priceFromMidweek,
-        priceFromWeekend: properties.priceFromWeekend,
-        ownerName: user.name,
-        ownerEmail: user.email,
-      })
-      .from(properties)
-      .leftJoin(user, eq(properties.ownerId, user.id))
-      .orderBy(desc(properties.createdAt))
-      .limit(limit);
-
-    // Apply status filter
+    // Fetch properties with status filter if needed
+    let propertiesData;
+    
     if (statusParam && statusParam !== "all") {
-      propertiesQuery = propertiesQuery.where(eq(properties.status, statusParam as any));
+      propertiesData = await db
+        .select({
+          id: properties.id,
+          title: properties.title,
+          slug: properties.slug,
+          location: properties.location,
+          region: properties.region,
+          status: properties.status,
+          ownerId: properties.ownerId,
+          featured: properties.featured,
+          isPublished: properties.isPublished,
+          createdAt: properties.createdAt,
+          updatedAt: properties.updatedAt,
+          heroImage: properties.heroImage,
+          sleepsMin: properties.sleepsMin,
+          sleepsMax: properties.sleepsMax,
+          bedrooms: properties.bedrooms,
+          bathrooms: properties.bathrooms,
+          priceFromMidweek: properties.priceFromMidweek,
+          priceFromWeekend: properties.priceFromWeekend,
+          ownerName: user.name,
+          ownerEmail: user.email,
+        })
+        .from(properties)
+        .leftJoin(user, eq(properties.ownerId, user.id))
+        .where(eq(properties.status, statusParam as any))
+        .orderBy(desc(properties.createdAt))
+        .limit(limit);
+    } else {
+      propertiesData = await db
+        .select({
+          id: properties.id,
+          title: properties.title,
+          slug: properties.slug,
+          location: properties.location,
+          region: properties.region,
+          status: properties.status,
+          ownerId: properties.ownerId,
+          featured: properties.featured,
+          isPublished: properties.isPublished,
+          createdAt: properties.createdAt,
+          updatedAt: properties.updatedAt,
+          heroImage: properties.heroImage,
+          sleepsMin: properties.sleepsMin,
+          sleepsMax: properties.sleepsMax,
+          bedrooms: properties.bedrooms,
+          bathrooms: properties.bathrooms,
+          priceFromMidweek: properties.priceFromMidweek,
+          priceFromWeekend: properties.priceFromWeekend,
+          ownerName: user.name,
+          ownerEmail: user.email,
+        })
+        .from(properties)
+        .leftJoin(user, eq(properties.ownerId, user.id))
+        .orderBy(desc(properties.createdAt))
+        .limit(limit);
     }
-
-    const propertiesData = await propertiesQuery;
 
     return Response.json({ 
       properties: propertiesData,
