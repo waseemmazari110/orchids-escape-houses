@@ -20,6 +20,7 @@ interface EnquiryEmailData {
   message?: string;
   propertyTitle?: string;
   propertySlug?: string;
+  recipientEmail?: string;
 }
 
 interface ContactEmailData {
@@ -137,10 +138,15 @@ export async function sendEnquiryEmail(data: EnquiryEmailData) {
       </html>
     `;
 
+    // In Resend testing mode, all emails must go to the verified address
+    // In production with a verified domain, emails can go to any recipient
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const recipient = isDevelopment ? ADMIN_EMAIL : (data.recipientEmail || ADMIN_EMAIL);
+    
     const { data: emailData, error } = await resend.emails.send({
       from: SENDER_EMAIL,
-      to: [ADMIN_EMAIL],
-      subject: `New Enquiry: ${data.propertyTitle || 'Property Enquiry'} - ${data.name}`,
+      to: [recipient],
+      subject: `New Enquiry: ${data.propertyTitle || 'Property Enquiry'} - ${data.name}${isDevelopment && data.recipientEmail ? ` [Would send to: ${data.recipientEmail}]` : ''}`,
       html: htmlContent,
       replyTo: data.email,
     });

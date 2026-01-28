@@ -26,17 +26,30 @@ export async function getFeaturedProperties(limit = 3) {
       .orderBy(desc(properties.createdAt))
       .limit(limit);
 
-    return results.map(prop => ({
-      id: prop.id.toString(),
-      title: prop.title,
-      location: prop.location,
-      sleeps: prop.sleepsMax,
-      bedrooms: prop.bedrooms,
-      priceFrom: prop.priceFromWeekend,
-      image: validateImageUrl(prop.heroImage),
-      features: [],
-      slug: prop.slug,
-    }));
+    return results.map(prop => {
+      // Safely parse images if it exists and is a string
+      let images = [];
+      if (prop.images) {
+        try {
+          images = typeof prop.images === 'string' ? JSON.parse(prop.images) : prop.images;
+        } catch (e) {
+          console.warn(`Failed to parse images for property ${prop.id}:`, e);
+          images = [];
+        }
+      }
+
+      return {
+        id: prop.id.toString(),
+        title: prop.title,
+        location: prop.location,
+        sleeps: prop.sleepsMax,
+        bedrooms: prop.bedrooms,
+        priceFrom: prop.priceFromWeekend,
+        image: validateImageUrl(prop.heroImage),
+        features: [],
+        slug: prop.slug,
+      };
+    });
   } catch (error) {
     console.error('Error fetching properties:', error);
     return [];

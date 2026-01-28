@@ -68,6 +68,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'd2u1z1lopyfwlx.cloudfront.net',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'st.perplexity.ai',
+        pathname: '/**',
       }
     ],
     formats: ['image/avif', 'image/webp'],

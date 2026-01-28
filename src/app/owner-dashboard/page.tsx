@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useRefresh } from "@/hooks/useRefresh";
+import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -375,77 +376,38 @@ function OwnerDashboardContent() {
           return;
         }
 
-        // Check if we just completed a payment (webhook might still be processing)
-        const isPaymentCompleted = searchParams.get('payment_completed') === 'true';
+        // Check if payment was successful and submit property
+        const paymentSuccess = searchParams.get('payment');
+        const propertyId = searchParams.get('propertyId');
         
-        // Retry logic to wait for webhook to process
-        let profileData: any = null;
-        let attempts = 0;
-        const maxAttempts = isPaymentCompleted ? 15 : 10; // Extra retries if just paid (7.5 seconds total)
-        
-        while (attempts < maxAttempts) {
-          // Use payment-status endpoint which checks Stripe directly
-          const profileRes = await fetch('/api/owner/payment-status', { cache: 'no-store' });
-          if (profileRes.ok) {
-            profileData = await profileRes.json();
-            
-            // Check if user has purchased a plan
-            const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
-            
-            console.log(`[Dashboard] Attempt ${attempts + 1}/${maxAttempts}:`, {
-              planId: profileData.planId,
-              dbPaymentStatus: profileData.paymentStatus,
-              stripePaymentStatus: profileData.stripePaymentStatus,
-              subscriptionStatus: profileData.subscriptionStatus,
-              hasPlan,
-              isPaymentCompleted,
+        if (paymentSuccess === 'success' && propertyId) {
+          try {
+            const submitRes = await fetch('/api/properties/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ propertyId: parseInt(propertyId) }),
             });
             
-            if (hasPlan) {
-              // Successfully got a plan, break out of retry loop
-              console.log(`[Dashboard] Plan found! User can access dashboard.`);
-              break;
+            if (submitRes.ok) {
+              toast.success('Property submitted for admin approval!');
+              // Redirect to approvals tab
+              router.push('/owner-dashboard?view=approvals');
             }
-            
-            // If this is the first check, might just need to wait for webhook/stripe
-            if (profileData.planId && profileData.paymentStatus !== 'active') {
-              // Plan is selected but not yet activated - wait and retry
-              console.log('[Dashboard] Plan selected but payment not active yet, waiting...');
-              attempts++;
-              if (attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, isPaymentCompleted ? 500 : 500));
-                continue;
-              }
-            }
-          }
-          
-          // If we get here without a plan, redirect
-          if (!profileData?.planId) {
-            console.log('[Dashboard] No plan found, redirecting to choose-plan');
-            router.push('/choose-plan?error=purchase_plan_first');
-            return;
-          }
-          
-          attempts++;
-          if (attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, isPaymentCompleted ? 500 : 500));
+          } catch (error) {
+            console.error('Failed to submit property:', error);
           }
         }
+
+        // Fetch owner profile data
+        const profileRes = await fetch('/api/owner/payment-status', { cache: 'no-store' });
+        let profileData: any = null;
         
+        if (profileRes.ok) {
+          profileData = await profileRes.json();
+        }
+
         if (!profileData) {
-          router.push('/choose-plan?error=purchase_plan_first');
-          return;
-        }
-        
-        // Final check after all retries
-        const hasPlan = profileData.planId && profileData.paymentStatus === 'active';
-        if (!hasPlan) {
-          console.log('[Dashboard] After retries, plan still not active:', {
-            planId: profileData.planId,
-            dbPaymentStatus: profileData.paymentStatus,
-            stripePaymentStatus: profileData.stripePaymentStatus,
-          });
-          router.push('/choose-plan?error=purchase_plan_first');
+          console.error('[Dashboard] Failed to fetch profile data');
           return;
         }
         
@@ -509,12 +471,13 @@ function OwnerDashboardContent() {
   // Fetch properties for approvals tab
   const fetchPendingProperties = async () => {
     try {
-      const response = await fetch(`/api/owner/properties?status=${statusFilter}`, { cache: 'no-store' });
+      // Always fetch ALL properties to calculate accurate counts
+      const response = await fetch(`/api/owner/properties?status=all`, { cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
         const allProps = data.properties || [];
         
-        // Calculate status counts
+        // Calculate status counts from ALL properties
         const counts = {
           pending: allProps.filter((p: Property & { status?: string }) => p.status === 'pending').length,
           approved: allProps.filter((p: Property & { status?: string }) => p.status === 'approved').length,
@@ -523,7 +486,7 @@ function OwnerDashboardContent() {
         };
         setStatusCounts(counts);
         
-        // Filter by status if not 'all'
+        // Filter display by status if not 'all'
         const filtered = statusFilter === 'all' ? allProps : allProps.filter((p: Property & { status?: string }) => p.status === statusFilter);
         setPendingProperties(filtered as PendingProperty[]);
       }
@@ -978,7 +941,7 @@ function OwnerDashboardContent() {
                   <StatCard
                     icon={Building}
                     label="Active Properties"
-                    value={properties.filter(p => (p.status || 'Active').toLowerCase() === 'active').length}
+                    value={stats?.activeProperties || 0}
                     trend={stats?.propertiesGrowth || '+0%'}
                     trendUp={true}
                     color="bg-\[#89A38F\]-100"
@@ -1445,7 +1408,7 @@ function OwnerDashboardContent() {
                     <p className="text-gray-600 mb-8 max-w-md mx-auto">
                       Start by creating your first property listing. It only takes a few minutes!
                     </p>
-                    <Link href="/owner/properties/new">
+                    <Link href="/choose-plan">
                       <button className={`${purpleButtonClass} px-8 py-4 rounded-xl text-white font-bold flex items-center gap-3 mx-auto`}>
                         <Plus className="w-5 h-5" />
                         Create First Property
@@ -1548,7 +1511,7 @@ function OwnerDashboardContent() {
                     {/* Action Buttons */}
                     <div className="bg-white rounded-2xl border border-gray-100 p-8">
                       <div className="flex flex-wrap gap-4 justify-center">
-                        <Link href="/owner/properties/new">
+                        <Link href="/choose-plan">
                           <button className={`${purpleButtonClass} px-8 py-4 rounded-xl text-white font-bold flex items-center gap-3`}>
                             <Plus className="w-5 h-5" />
                             Add New Property
@@ -1655,6 +1618,11 @@ function OwnerDashboardContent() {
                                     Rejected
                                   </span>
                                 )}
+                                {!['pending', 'approved', 'rejected'].includes(property.status || '') && (
+                                  <span className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 border border-gray-300 text-sm font-semibold flex items-center gap-2">
+                                    {property.status || 'Unknown'}
+                                  </span>
+                                )}
                               </div>
                             </div>
 
@@ -1699,7 +1667,7 @@ function OwnerDashboardContent() {
                                 </button>
                               </Link>
                               {property.status === 'rejected' && (
-                                <Link href={`/owner/properties`}>
+                                <Link href={`/owner/properties/${property.id}/edit`}>
                                   <button className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${purpleButtonClass}`}>
                                     Edit & Resubmit
                                   </button>

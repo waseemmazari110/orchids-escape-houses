@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
             quantity: 1,
           },
         ],
-      success_url: `${origin}/owner-dashboard?payment_completed=true`,
-      cancel_url: `${origin}/payment/cancel`,
+      success_url: `${origin}/owner/properties/new?payment_completed=true&plan=${planId}`,
+      cancel_url: `${origin}/choose-plan`,
       customer_email: session.user.email,
       metadata: {
         userId: session.user.id,

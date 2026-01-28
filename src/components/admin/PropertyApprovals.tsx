@@ -47,7 +47,7 @@ interface Property {
   slug: string;
   location: string;
   region: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'pending_approval' | 'live' | 'draft';
   rejectionReason?: string;
   approvedBy?: string;
   approvedAt?: string;
@@ -154,12 +154,13 @@ export default function PropertyApprovals() {
     try {
       console.log('Approving property:', propertyId);
       
-      const response = await fetch(`/api/admin/properties/${propertyId}/approve`, {
+      const response = await fetch(`/api/admin/properties/approve`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ propertyId }),
       });
 
       console.log('Approval response status:', response.status);
@@ -233,11 +234,14 @@ export default function PropertyApprovals() {
     try {
       console.log('Rejecting property:', selectedProperty.id, 'with reason:', trimmedReason);
       
-      const response = await fetch(`/api/admin/properties/${selectedProperty.id}/reject`, {
+      const response = await fetch(`/api/admin/properties/reject`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: trimmedReason }),
+        body: JSON.stringify({ 
+          propertyId: selectedProperty.id,
+          reason: trimmedReason 
+        }),
       });
 
       console.log('Rejection response status:', response.status);
@@ -675,7 +679,7 @@ function PropertyCard({
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2 border-t border-gray-100">
-          {property.status === 'pending' && (
+          {(property.status === 'pending' || property.status === 'pending_approval') && (
             <>
               <Button
                 onClick={(e) => {
@@ -718,7 +722,7 @@ function PropertyCard({
             </>
           )}
           
-          {property.status === 'approved' && (
+          {(property.status === 'approved' || property.status === 'live') && (
             <Button
               onClick={(e) => {
                 e.stopPropagation();

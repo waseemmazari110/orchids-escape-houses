@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 
 interface UpdateProfileData {
   name?: string;
-  phone?: string;
+  phoneNumber?: string;
   company_name?: string;
   property_website?: string;
 }
@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
     // Build update object with correct schema field names (camelCase)
     const updateData: Record<string, any> = {};
     if (data.name !== undefined) updateData.name = data.name.trim();
-    if (data.phone !== undefined) updateData.phone = data.phone && data.phone.trim() ? data.phone.trim() : null;
+    if (data.phoneNumber !== undefined) updateData.phoneNumber = data.phoneNumber && data.phoneNumber.trim() ? data.phoneNumber.trim() : null;
     if (data.company_name !== undefined) updateData.companyName = data.company_name && data.company_name.trim() ? data.company_name.trim() : null;
     if (data.property_website !== undefined) updateData.propertyWebsite = data.property_website && data.property_website.trim() ? data.property_website.trim() : null;
 

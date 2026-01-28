@@ -15,6 +15,7 @@ interface BookingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   propertyId: string;
+  propertySlug: string;
   propertyTitle: string;
   priceFrom: number;
 }
@@ -23,6 +24,7 @@ export default function BookingModal({
   open,
   onOpenChange,
   propertyId,
+  propertySlug,
   propertyTitle,
   priceFrom,
 }: BookingModalProps) {
@@ -44,55 +46,25 @@ export default function BookingModal({
       return;
     }
 
-    setIsProcessing(true);
-
-    try {
-      // Step 1: Create booking quote
-      const quoteResponse = await GEH_API.post("/bookings/quote", {
-        property_id: propertyId,
-        check_in: format(checkInDate, "yyyy-MM-dd"),
-        check_out: format(checkOutDate, "yyyy-MM-dd"),
-        guests: guests,
-      }) as any;
-
-      if (!quoteResponse.success || !quoteResponse.data?.booking_id) {
-        throw new Error("Failed to create booking quote");
-      }
-
-      const bookingId = quoteResponse.data.booking_id;
-
-      // Step 2: Create checkout session
-      const checkoutResponse = await GEH_API.post("/payments/checkout-session", {
-        booking_id: bookingId,
-        success_url: `${window.location.origin}/booking/confirmed?bid=${bookingId}`,
-        cancel_url: window.location.href,
-      }) as any;
-
-      if (!checkoutResponse.success || !checkoutResponse.data?.session?.url) {
-        throw new Error("Failed to create checkout session");
-      }
-
-      // Step 3: Redirect to Stripe checkout
-      const sessionUrl = checkoutResponse.data.session.url;
-      
-      // Check if we're in an iframe
-      const isInIframe = window.self !== window.top;
-      
-      if (isInIframe) {
-        // Post message to parent to open in new tab
-        window.parent.postMessage(
-          { type: "OPEN_EXTERNAL_URL", data: { url: sessionUrl } },
-          "*"
-        );
-      } else {
-        // Direct redirect
-        window.location.href = sessionUrl;
-      }
-
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to process booking");
-      setIsProcessing(false);
+    // Since this is a commission-free platform, redirect to enquiry form
+    // Pre-fill the dates in the enquiry form
+    const checkIn = format(checkInDate, "yyyy-MM-dd");
+    const checkOut = format(checkOutDate, "yyyy-MM-dd");
+    
+    // Close the modal
+    onOpenChange(false);
+    
+    // Scroll to enquiry form or redirect to property page with enquiry open
+    const enquirySection = document.querySelector('#enquiry-form') || document.querySelector('[data-enquiry-form]');
+    
+    if (enquirySection) {
+      enquirySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Store booking details for pre-filling the form
+      sessionStorage.setItem('booking_dates', JSON.stringify({ checkIn, checkOut, guests }));
+      toast.success("Please complete the enquiry form below to book this property");
+    } else {
+      // If no enquiry form on current page, redirect to property page
+      window.location.href = `/properties/${propertySlug}?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}#enquiry`;
     }
   };
 

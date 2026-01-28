@@ -107,12 +107,16 @@ function ChoosePlanContent() {
     setLoading(true);
     try {
       const propertyId = searchParams.get("propertyId");
-      const response = await fetch("/api/checkout", {
+      const propertyTitle = searchParams.get("propertyTitle");
+      
+      // Create checkout session
+      const response = await fetch("/api/checkout/property-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           planId: selectedPlan,
-          propertyId: propertyId 
+          propertyId: propertyId ? parseInt(propertyId) : null,
+          propertyTitle: propertyTitle || ""
         }),
       });
 
@@ -134,29 +138,23 @@ function ChoosePlanContent() {
 
   if (isPending) return <div className="flex justify-center py-40"><Loader2 className="w-10 h-10 animate-spin text-[var(--color-accent-sage)]" /></div>;
 
+  const propertyId = searchParams.get("propertyId");
+  const propertyTitle = searchParams.get("propertyTitle");
+
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Error Message */}
-      {errorParam === 'purchase_plan_first' && (
-        <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <div>
-            <p className="font-semibold">Purchase a Plan Required</p>
-            <p className="text-sm">You need to purchase a plan to access your owner dashboard. Select a plan below and complete payment to get started.</p>
-          </div>
-        </div>
-      )}
-
       <div className="text-center mb-16">
         <button 
-          onClick={() => router.push("/owner-sign-up")}
+          onClick={() => router.push("/owner-dashboard?view=properties")}
           className="inline-flex items-center text-[var(--color-accent-sage)] hover:text-[var(--color-accent-sage)]/80 mb-8 font-semibold transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-          Back to registration
+          Back to Dashboard
         </button>
-        <h2 className="text-4xl lg:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-display)" }}>Choose Your Listing Plan</h2>
-        <p className="text-xl text-[var(--color-neutral-dark)] max-w-2xl mx-auto">Select the membership that best fits your marketing goals. Zero commission on all bookings.</p>
+        <h2 className="text-4xl lg:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-display)" }}>Choose Your Property Membership</h2>
+        <p className="text-xl text-[var(--color-neutral-dark)] max-w-2xl mx-auto">
+          Select a plan for your property. After payment, you'll add your property details.
+        </p>
       </div>
 
       {/* Trust Signals Strip */}

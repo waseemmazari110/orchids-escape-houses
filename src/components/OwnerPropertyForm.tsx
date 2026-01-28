@@ -84,9 +84,11 @@ const PROPERTY_TYPES = [
 interface OwnerPropertyFormProps {
   propertyId?: string;
   initialData?: Partial<PropertyFormData>;
+  paidPlanId?: string;
+  paymentIntentId?: string;
 }
 
-export function OwnerPropertyForm({ propertyId, initialData }: OwnerPropertyFormProps) {
+export function OwnerPropertyForm({ propertyId, initialData, paidPlanId, paymentIntentId }: OwnerPropertyFormProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -339,8 +341,22 @@ export function OwnerPropertyForm({ propertyId, initialData }: OwnerPropertyForm
     setIsLoading(true);
     try {
       const publishData = convertFormDataToAPI(formData, {
-        isPublished: 1  // Only set isPublished, keep the selected status
+        isPublished: 1,  // Set as published
+        status: 'published'  // Send status so API converts to pending_approval
       });
+
+      // Add payment information if provided (from pre-payment flow)
+      if (paidPlanId) {
+        const now = new Date();
+        const expiresAt = new Date();
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+        
+        publishData.plan_id = paidPlanId;
+        publishData.payment_status = 'paid';
+        publishData.stripe_payment_intent_id = paymentIntentId;
+        publishData.plan_purchased_at = now.toISOString();
+        publishData.plan_expires_at = expiresAt.toISOString();
+      }
 
       if (propertyId) {
         // Update existing property
@@ -355,8 +371,8 @@ export function OwnerPropertyForm({ propertyId, initialData }: OwnerPropertyForm
           throw new Error(error.error || "Failed to update property");
         }
         
-        toast.success("Property published successfully");
-        router.push("/owner-dashboard?view=properties");
+        toast.success("Property submitted for approval! Our team will review it shortly.");
+        router.push("/owner-dashboard?view=approvals");
       } else {
         // Create new property
         const response = await fetch("/api/properties", {
@@ -370,8 +386,8 @@ export function OwnerPropertyForm({ propertyId, initialData }: OwnerPropertyForm
           throw new Error(error.error || "Failed to create property");
         }
         
-        toast.success("Property published successfully");
-        router.push("/owner-dashboard?view=properties");
+        toast.success("Property submitted for approval! Our team will review it shortly.");
+        router.push("/owner-dashboard?view=approvals");
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to publish property");

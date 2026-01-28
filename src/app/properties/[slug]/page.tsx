@@ -21,23 +21,39 @@ import {
 } from "lucide-react";
 import { db } from "@/db";
 import { properties, propertyFeatures, propertyImages } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import PropertyClientActions from "./PropertyClientActions";
 
 async function getProperty(slug: string) {
-  const result = await db
-    .select()
-    .from(properties)
-    .where(eq(properties.slug, slug))
-    .limit(1);
-  
-  const property = result[0] || null;
-  
-  if (property && property.status !== 'Active' && !property.isPublished) {
+  try {
+    // Use raw SQL to avoid Drizzle's automatic JSON parsing on the images field
+    const result = await db.run(sql`
+      SELECT * FROM properties WHERE slug = ${slug} LIMIT 1
+    `);
+    
+    const property = (result.rows?.[0] as any) || null;
+    
+    if (!property) return null;
+
+    // Safe parse images field if it exists and is a string
+    if (property.images && typeof property.images === 'string') {
+      try {
+        property.images = JSON.parse(property.images);
+      } catch {
+        // If parsing fails, set to empty array
+        property.images = [] as any;
+      }
+    }
+    
+    if (property.status !== 'Active' && !property.is_published) {
+      return null;
+    }
+    
+    return property as any;
+  } catch (error) {
+    console.error('Error fetching property:', error);
     return null;
   }
-  
-  return property;
 }
 
 async function getPropertyFeatures(propertyId: number) {
@@ -60,13 +76,33 @@ async function getPropertyImages(propertyId: number) {
 }
 
 async function getRelatedProperties(excludeSlug: string, location: string) {
-  const result = await db
-    .select()
-    .from(properties)
-    .where(eq(properties.isPublished, true))
-    .limit(3);
-  
-  return result.filter(p => p.slug !== excludeSlug).slice(0, 2);
+  try {
+    // Use raw SQL to avoid Drizzle's automatic JSON parsing on the images field
+    const result = await db.run(sql`
+      SELECT * FROM properties WHERE is_published = 1 LIMIT 3
+    `);
+    
+    const relatedProperties = result.rows || [];
+    
+    // Filter out the current property and parse images field safely
+    return relatedProperties
+      .filter((p: any) => p.slug !== excludeSlug)
+      .slice(0, 2)
+      .map((p: any) => {
+        // Safe parse images field if it exists and is a string
+        if (p.images && typeof p.images === 'string') {
+          try {
+            p.images = JSON.parse(p.images);
+          } catch {
+            p.images = [];
+          }
+        }
+        return p;
+      });
+  } catch (error) {
+    console.error('Error fetching related properties:', error);
+    return [];
+  }
 }
 
 function getDestinationSlug(location: string): string | null {
@@ -120,8 +156,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const title = `${property.title} | Group Stay in ${property.location}`;
-  const description = `${property.title} in ${property.location}. Sleeps ${property.sleepsMin}-${property.sleepsMax} guests with ${property.bedrooms} bedrooms and ${property.bathrooms} bathrooms. ${property.description.substring(0, 120)}...`;
+  const title = `${String(property.title) || 'Property'} | Group Stay in ${String(property.location) || 'UK'}`;
+  const description = `${String(property.title) || 'Property'} in ${String(property.location) || 'UK'}. Sleeps ${property.sleepsMin}-${property.sleepsMax} guests with ${property.bedrooms} bedrooms and ${property.bathrooms} bathrooms. ${(String(property.description) || '').substring(0, 120)}...`;
   const canonicalUrl = `https://www.groupescapehouses.co.uk/properties/${slug}`;
 
   return {
@@ -154,10 +190,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: "Group Escape Houses",
       images: [
         {
-          url: property.heroImage,
+          url: String(property.heroImage || ''),
           width: 1200,
           height: 630,
-          alt: property.title,
+          alt: String(property.title || 'Property'),
         },
       ],
     },
@@ -165,7 +201,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: "summary_large_image",
       title,
       description,
-      images: [property.heroImage],
+      images: [String(property.heroImage || '')],
     },
   };
 }
@@ -179,17 +215,17 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
   }
 
   const [features, images, relatedProperties] = await Promise.all([
-    getPropertyFeatures(property.id),
-    getPropertyImages(property.id),
-    getRelatedProperties(slug, property.location),
+    getPropertyFeatures(property.id as number),
+    getPropertyImages(property.id as number),
+    getRelatedProperties(slug, String(property.location) || ''),
   ]);
 
-  const destinationSlug = getDestinationSlug(property.location);
+  const destinationSlug = getDestinationSlug(String(property.location) || '');
   const destinationName = destinationSlug ? destinationSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : null;
 
-  const allImages = [property.heroImage, ...images.map(img => img.imageURL)];
-  const checkInTime = property.checkInOut?.split('-')[0]?.trim() || '4pm';
-  const checkOutTime = property.checkInOut?.split('-')[1]?.trim() || '10am';
+  const allImages = [property.heroImage, ...images.map(img => img.imageURL)].filter(Boolean) as string[];
+  const checkInTime = String(property.checkInOut || '')?.split('-')[0]?.trim() || '4pm';
+  const checkOutTime = String(property.checkInOut || '')?.split('-')[1]?.trim() || '10am';
 
   const houseRules = [
     `Check-in: ${checkInTime}`,
@@ -268,7 +304,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               <div className="relative aspect-[4/3] md:aspect-auto md:h-[600px] bg-gray-100">
                 <Image
                   src={allImages[0]}
-                  alt={property.title}
+                  alt={String(property.title) || 'Property'}
                   fill
                   className="object-cover"
                   priority
@@ -305,7 +341,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                   <div>
                     <p className="text-sm text-[var(--color-neutral-dark)]">Weekend from</p>
                     <p className="text-3xl font-bold" style={{ color: "var(--color-accent-pink)" }}>
-                      £{property.priceFromWeekend}
+                      £{Number(property.priceFromWeekend || 0).toFixed(2)}
                     </p>
                   </div>
                   <Button

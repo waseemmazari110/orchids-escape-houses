@@ -185,6 +185,7 @@ priority={priority}
           open={bookingModalOpen}
           onOpenChange={setBookingModalOpen}
           propertyId={id}
+          propertySlug={slug}
           propertyTitle={title}
           priceFrom={priceFrom}
         />

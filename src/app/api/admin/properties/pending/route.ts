@@ -31,12 +31,12 @@ export async function GET(request: Request) {
     const pendingCount = await db
       .select({ count: count() })
       .from(properties)
-      .where(eq(properties.status, "pending"));
+      .where(eq(properties.status, "pending_approval"));
 
     const approvedCount = await db
       .select({ count: count() })
       .from(properties)
-      .where(eq(properties.status, "approved"));
+      .where(eq(properties.status, "live"));
 
     const rejectedCount = await db
       .select({ count: count() })
@@ -56,6 +56,11 @@ export async function GET(request: Request) {
     let propertiesData;
     
     if (statusParam && statusParam !== "all") {
+      // Map UI status to database status
+      let dbStatus = statusParam;
+      if (statusParam === "pending") dbStatus = "pending_approval";
+      if (statusParam === "approved") dbStatus = "live";
+      
       propertiesData = await db
         .select({
           id: properties.id,
@@ -81,7 +86,7 @@ export async function GET(request: Request) {
         })
         .from(properties)
         .leftJoin(user, eq(properties.ownerId, user.id))
-        .where(eq(properties.status, statusParam as any))
+        .where(eq(properties.status, dbStatus as any))
         .orderBy(desc(properties.createdAt))
         .limit(limit);
     } else {
@@ -114,8 +119,16 @@ export async function GET(request: Request) {
         .limit(limit);
     }
 
+    // Map database status to UI status for display
+    const mappedProperties = propertiesData.map((prop: any) => ({
+      ...prop,
+      status: prop.status === 'live' ? 'approved' : 
+              prop.status === 'pending_approval' ? 'pending' : 
+              prop.status
+    }));
+
     return Response.json({ 
-      properties: propertiesData,
+      properties: mappedProperties,
       statusCounts 
     });
   } catch (error) {

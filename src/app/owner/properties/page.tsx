@@ -139,7 +139,7 @@ export default function OwnerPropertiesPage() {
                   Manage and edit your property listings
                 </p>
               </div>
-              <Link href="/owner/properties/new">
+              <Link href="/choose-plan">
                 <Button 
                   className="rounded-xl text-white flex items-center gap-2"
                   style={{ background: "var(--color-accent-sage)" }}
@@ -163,7 +163,7 @@ export default function OwnerPropertiesPage() {
               <p className="text-[var(--color-neutral-dark)] mb-8 max-w-md mx-auto">
                 Start by creating your first property listing. It only takes a few minutes!
               </p>
-              <Link href="/owner/properties/new">
+              <Link href="/choose-plan">
                 <Button 
                   className="rounded-xl text-white"
                   style={{ background: "var(--color-accent-sage)" }}

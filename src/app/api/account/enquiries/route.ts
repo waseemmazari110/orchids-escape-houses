@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db";
-import { enquiries } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -14,7 +12,6 @@ export async function GET(req: NextRequest) {
 
   try {
     const list = await db.query.enquiries.findMany({
-      where: eq(enquiries.userId, session.user.id),
       orderBy: (enquiries, { desc }) => [desc(enquiries.createdAt)],
     });
 

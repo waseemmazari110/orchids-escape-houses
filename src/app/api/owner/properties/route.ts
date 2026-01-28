@@ -35,29 +35,43 @@ export async function GET(request: NextRequest) {
 
     console.log("[DEBUG] Found", ownerProperties.length, "properties for user", userId);
     ownerProperties.forEach(p => {
-      console.log(`[DEBUG] Property: ${p.title} - ownerId: ${p.ownerId}`);
+      console.log(`[DEBUG] Property: ${p.title} - ownerId: ${p.ownerId} - status: ${p.status}`);
     });
-    // Convert snake_case to camelCase and ensure proper boolean conversion for isPublished
-    const formattedProperties = ownerProperties.map(p => ({
-      ...p,
-      isPublished: Boolean(p.isPublished),
-      ownerId: p.ownerId,
-      createdAt: p.createdAt,
-      updatedAt: p.updatedAt,
-      heroImage: p.heroImage,
-      heroVideo: p.heroVideo,
-      floorplanUrl: p.floorplanUrl,
-      mapLat: p.mapLat,
-      mapLng: p.mapLng,
-      ownerContact: p.ownerContact,
-      houseRules: p.houseRules,
-      checkInOut: p.checkInOut,
-      icalUrl: p.icalUrl,
-      priceFromMidweek: p.priceFromMidweek,
-      priceFromWeekend: p.priceFromWeekend,
-      sleepsMin: p.sleepsMin,
-      sleepsMax: p.sleepsMax,
-    }));
+    
+    // Convert snake_case to camelCase and map database status to UI status
+    const formattedProperties = ownerProperties.map(p => {
+      // Map database status to UI status
+      let uiStatus = p.status || 'draft';
+      const statusLower = (p.status || '').toLowerCase();
+      
+      // Map various status values to standardized UI statuses
+      if (statusLower === 'pending_approval' || statusLower === 'pending') uiStatus = 'pending';
+      if (statusLower === 'live' || statusLower === 'approved' || statusLower === 'active') uiStatus = 'approved';
+      if (statusLower === 'rejected') uiStatus = 'rejected';
+      if (statusLower === 'draft' || !p.status) uiStatus = 'draft';
+      
+      return {
+        ...p,
+        status: uiStatus, // Use mapped UI status
+        isPublished: Boolean(p.isPublished),
+        ownerId: p.ownerId,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+        heroImage: p.heroImage,
+        heroVideo: p.heroVideo,
+        floorplanUrl: p.floorplanUrl,
+        mapLat: p.mapLat,
+        mapLng: p.mapLng,
+        ownerContact: p.ownerContact,
+        houseRules: p.houseRules,
+        checkInOut: p.checkInOut,
+        icalUrl: p.icalUrl,
+        priceFromMidweek: p.priceFromMidweek,
+        priceFromWeekend: p.priceFromWeekend,
+        sleepsMin: p.sleepsMin,
+        sleepsMax: p.sleepsMax,
+      };
+    });
 
     return NextResponse.json({ properties: formattedProperties });
   } catch (error) {

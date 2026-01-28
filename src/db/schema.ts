@@ -39,9 +39,11 @@ export const user = sqliteTable("user", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
-    role: text("role").notNull().default("customer"),
+    role: text("role").notNull().default("guest"),
+    // Possible values: 'guest', 'owner', 'admin'
     phoneNumber: text("phone"),
     propertyName: text("company_name"),
+    companyName: text("company_name"),
   propertyWebsite: text("property_website"),
   planId: text("plan_id"),
   paymentStatus: text("payment_status").default("pending"),
@@ -97,13 +99,45 @@ export const verification = sqliteTable("verification", {
 
 // CMS Tables
 
+// Membership Packs Configuration Table
+export const membershipPacks = sqliteTable('membership_packs', {
+  id: text('id').primaryKey(), // 'bronze', 'silver', 'gold'
+  name: text('name').notNull(), // 'Bronze', 'Silver', 'Gold'
+  description: text('description'),
+  
+  // Pricing
+  annualPrice: real('annual_price').notNull(), // £450, £650, £850
+  monthlyPrice: real('monthly_price').notNull(), // £40, £57, £75
+  vatRate: real('vat_rate').default(20.00), // 20% VAT
+  
+  // Features (stored as JSON)
+  features: text('features', { mode: 'json' }).notNull(),
+  
+  // Constraints
+  minimumCommitmentMonths: integer('minimum_commitment_months').default(12),
+  
+  // Display
+  displayOrder: integer('display_order'),
+  isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 // Properties table
 export const properties = sqliteTable('properties', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   ownerId: text('owner_id').references(() => user.id),
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
+  propertyType: text('property_type'), // 'Manor House', 'Farmhouse', etc.
   location: text('location').notNull(),
+  addressLine1: text('address_line1'),
+  addressLine2: text('address_line2'),
+  city: text('city'),
+  county: text('county'),
+  postcode: text('postcode'),
+  country: text('country').default('United Kingdom'),
   region: text('region').notNull(),
   sleepsMin: integer('sleeps_min').notNull(),
   sleepsMax: integer('sleeps_max').notNull(),
@@ -111,28 +145,69 @@ export const properties = sqliteTable('properties', {
   bathrooms: integer('bathrooms').notNull(),
   priceFromMidweek: real('price_from_midweek').notNull(),
   priceFromWeekend: real('price_from_weekend').notNull(),
+  minimumStayNights: integer('minimum_stay_nights').default(1),
   description: text('description').notNull(),
   houseRules: text('house_rules'),
   checkInOut: text('check_in_out'),
   iCalURL: text('ical_url'),
+  
+  // Media
   heroImage: text('hero_image').notNull(),
   heroVideo: text('hero_video'),
   floorplanURL: text('floorplan_url'),
+  featuredImageUrl: text('featured_image_url'),
+  images: text('images', { mode: 'json' }), // Array of image URLs
+  
+  // Location
   mapLat: real('map_lat'),
   mapLng: real('map_lng'),
+  
+  // Amenities (stored as JSON)
+  amenities: text('amenities', { mode: 'json' }),
+  
+  // Contact
   ownerContact: text('owner_contact'),
+  
+  // Membership
+  membershipPackId: text('membership_pack_id').references(() => membershipPacks.id),
+  paymentFrequency: text('payment_frequency'), // 'annual' or 'monthly'
+  
+  // Status & Lifecycle
+  status: text('status').notNull().default('draft'),
+  // Possible values: 'draft', 'pending_approval', 'live', 'rejected', 'paused', 'expired'
+  
+  paymentStatus: text('payment_status').default('unpaid'),
+  // Possible values: 'unpaid', 'paid', 'refunded', 'failed'
+  
+  // Timestamps
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  paidAt: text('paid_at'),
+  submittedForApprovalAt: text('submitted_for_approval_at'),
+  approvedAt: text('approved_at'),
+  rejectedAt: text('rejected_at'),
+  publishedAt: text('published_at'),
+  pausedAt: text('paused_at'),
+  expiredAt: text('expired_at'),
+  
+  // Admin
+  approvedByAdminId: text('approved_by_admin_id').references(() => user.id),
+  rejectionReason: text('rejection_reason'),
+  adminNotes: text('admin_notes'),
+  
+  // Analytics
+  viewCount: integer('view_count').default(0),
+  enquiryCount: integer('enquiry_count').default(0),
+  
+  // Legacy fields (for backward compatibility)
   featured: integer('featured', { mode: 'boolean' }).default(false),
   isPublished: integer('is_published', { mode: 'boolean' }).default(false),
-  status: text('status').notNull().default('pending'),
-  rejectionReason: text('rejection_reason'),
   plan: text('plan'),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
   stripePriceId: text('stripe_price_id'),
   stripeInvoiceId: text('stripe_invoice_id'),
   nextPaymentDate: text('next_payment_date'),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
 });
 
 // Property images table
@@ -289,20 +364,23 @@ export const savedProperties = sqliteTable('saved_properties', {
 export const payments = sqliteTable('payments', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  propertyId: integer('property_id').references(() => properties.id, { onDelete: 'set null' }),
   bookingId: integer('booking_id').references(() => bookings.id, { onDelete: 'set null' }),
   subscriptionId: integer('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
+  propertySubscriptionId: integer('property_subscription_id').references(() => propertySubscriptions.id, { onDelete: 'set null' }),
   amount: real('amount').notNull(),
   currency: text('currency').default('GBP'),
   paymentStatus: text('payment_status').notNull().default('pending'),
   stripePaymentIntentId: text('stripe_payment_intent_id'),
   stripeChargeId: text('stripe_charge_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
+  stripeCustomerId: text('stripe_customer_id'),
   method: text('method'), // 'stripe', 'card', etc
   paymentMethod: text('payment_method'),
   paymentMethodBrand: text('payment_method_brand'),
   paymentMethodLast4: text('payment_method_last4'),
   description: text('description'),
-  billingReason: text('billing_reason'), // 'booking_deposit', 'booking_balance', etc
+  billingReason: text('billing_reason'), // 'booking_deposit', 'booking_balance', 'property_membership', etc
   receiptEmail: text('receipt_email'),
   receiptUrl: text('receipt_url'),
   failureMessage: text('failure_message'),
@@ -312,7 +390,42 @@ export const payments = sqliteTable('payments', {
   updatedAt: text('updated_at').notNull(),
 });
 
-// Subscriptions table (for tracking owner memberships)
+// Property Subscriptions (Tracks membership periods for properties)
+export const propertySubscriptions = sqliteTable('property_subscriptions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  propertyId: integer('property_id').notNull().references(() => properties.id, { onDelete: 'cascade' }),
+  membershipPackId: text('membership_pack_id').notNull().references(() => membershipPacks.id),
+  
+  // Subscription details
+  paymentFrequency: text('payment_frequency').notNull(), // 'annual', 'monthly'
+  
+  // Pricing at time of purchase (historical record)
+  basePrice: real('base_price').notNull(),
+  vatAmount: real('vat_amount').notNull(),
+  totalPrice: real('total_price').notNull(),
+  
+  // Period
+  startDate: text('start_date').notNull(),
+  endDate: text('end_date').notNull(), // Always 12 months from start
+  
+  // Status
+  status: text('status').notNull().default('active'),
+  // Possible values: 'active', 'expired', 'cancelled', 'upgraded'
+  
+  // Payment tracking
+  stripeSubscriptionId: text('stripe_subscription_id'), // If monthly
+  stripePaymentIntentId: text('stripe_payment_intent_id'), // If annual
+  
+  // Renewal
+  autoRenew: integer('auto_renew', { mode: 'boolean' }).default(true),
+  cancelledAt: text('cancelled_at'),
+  cancellationReason: text('cancellation_reason'),
+  
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+// Subscriptions table (for tracking owner memberships - legacy)
 export const subscriptions = sqliteTable('subscriptions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
@@ -341,14 +454,38 @@ export const savedQuotes = sqliteTable('saved_quotes', {
 // Enquiries table
 export const enquiries = sqliteTable('enquiries', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  type: text('type').notNull(), // 'property' or 'experience' or 'general'
-  propertyId: integer('property_id').references(() => properties.id),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
   subject: text('subject').notNull(),
   message: text('message').notNull(),
-  recipientEmail: text('recipient_email').notNull(),
-  status: text('status').notNull().default('sent'),
+  enquiryType: text('enquiry_type').notNull().default('general'),
+  source: text('source').default('website'),
+  status: text('status').notNull().default('new'),
+  priority: text('priority').default('medium'),
+  assignedTo: text('assigned_to'),
+  propertyId: integer('property_id').references(() => properties.id, { onDelete: 'set null' }),
+  checkInDate: text('check_in_date'),
+  checkOutDate: text('check_out_date'),
+  numberOfGuests: integer('number_of_guests'),
+  occasion: text('occasion'),
+  budget: real('budget'),
+  preferredLocations: text('preferred_locations'),
+  specialRequests: text('special_requests'),
+  referralSource: text('referral_source'),
+  marketingConsent: integer('marketing_consent', { mode: 'boolean' }).default(false),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  adminNotes: text('admin_notes'),
+  internalNotes: text('internal_notes'),
+  responseTemplate: text('response_template'),
+  respondedAt: text('responded_at'),
+  respondedBy: text('responded_by'),
+  resolvedAt: text('resolved_at'),
+  metadata: text('metadata'),
   createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
 });
 
 // Spam protection tables
@@ -369,5 +506,17 @@ export const spamSubmissions = sqliteTable('spam_submissions', {
   reason: text('reason'),
   userAgent: text('user_agent'),
   payload: text('payload', { mode: 'json' }),
+  createdAt: text('created_at').notNull(),
+});
+
+// Admin Activity Log
+export const adminActivityLog = sqliteTable('admin_activity_log', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  adminId: text('admin_id').notNull().references(() => user.id),
+  action: text('action').notNull(), // 'approve_property', 'reject_property', etc.
+  entityType: text('entity_type'), // 'property', 'user', 'payment'
+  entityId: text('entity_id'),
+  details: text('details', { mode: 'json' }),
+  ipAddress: text('ip_address'),
   createdAt: text('created_at').notNull(),
 });

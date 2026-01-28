@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { bookings, properties } from "../../../../../drizzle/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 
@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id;
 
-    // Get owner's properties
-    const ownerProperties = await db
-      .select()
-      .from(properties)
-      .where(eq(properties.ownerId, userId));
-
-    const propertyIds = ownerProperties.map((p) => p.id);
+    // Get owner's properties using raw SQL to avoid JSON parsing errors
+    const ownerPropertiesResult = await db.run(sql`
+      SELECT id, owner_id as ownerId, status FROM properties WHERE owner_id = ${userId}
+    `);
+    
+    const ownerProperties = ownerPropertiesResult.rows || [];
+    const propertyIds = ownerProperties.map((p: any) => p.id);
 
     // Get bookings for owner's properties - only if owner has properties
     let ownerBookings: typeof bookings.$inferSelect[] = [];
@@ -51,7 +51,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       totalBookings,
       bookingsGrowth: "+12%",
-      activeProperties: ownerProperties.filter(p => p.status === 'Active' || p.status === 'active').length,
+      activeProperties: ownerProperties.filter((p: any) => {
+        const statusLower = (p.status || '').toLowerCase();
+        return statusLower === 'active' || statusLower === 'live' || statusLower === 'approved';
+      }).length,
       propertiesGrowth: "+5%",
       revenue: totalRevenue,
       revenueGrowth: "+8%",

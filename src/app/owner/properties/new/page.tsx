@@ -2,10 +2,96 @@
 
 import { OwnerPropertyForm } from "@/components/OwnerPropertyForm";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { toast } from "sonner";
+
+function OwnerNewPropertyPageContent() {
+  const searchParams = useSearchParams();
+  const paymentSuccess = searchParams.get("payment");
+  const planId = searchParams.get("planId");
+  const sessionId = searchParams.get("session_id");
+  
+  const [verifiedPayment, setVerifiedPayment] = useState<any>(null);
+  const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    // Verify payment if coming from Stripe
+    if (paymentSuccess === "success" && sessionId) {
+      setVerifying(true);
+      fetch(`/api/payment/verify?session_id=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setVerifiedPayment(data);
+            toast.success(`Payment successful! Your ${data.planId?.toUpperCase()} plan is active. Now complete your property details.`);
+          } else {
+            toast.error("Payment verification failed. Please contact support.");
+          }
+        })
+        .catch(err => {
+          console.error("Payment verification error:", err);
+          toast.error("Could not verify payment. Please contact support.");
+        })
+        .finally(() => setVerifying(false));
+    }
+  }, [paymentSuccess, sessionId]);
+
+  return (
+    <>
+      {/* Payment Success Banner */}
+      {verifiedPayment && (
+        <div className="mb-8 p-6 bg-green-50 border-2 border-green-200 rounded-xl">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-6 h-6 text-green-600 mt-1" />
+            <div>
+              <h3 className="font-bold text-green-900 mb-2 text-lg">Payment Successful!</h3>
+              <p className="text-green-800">
+                Your <span className="font-semibold">{verifiedPayment.planId?.toUpperCase()} Plan</span> is now active. 
+                Complete the property details below to submit for approval.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="mb-8">
+        <Link href="/owner-dashboard">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mb-4 text-[var(--color-accent-sage)] hover:text-[var(--color-accent-sage)]"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+        <h1 
+          className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] mb-3"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Add New Property
+        </h1>
+        <p className="text-[var(--color-neutral-dark)] text-lg">
+          Complete all steps to create your property listing.
+        </p>
+      </div>
+
+      {/* Multi-Step Form */}
+      <div>
+        <OwnerPropertyForm 
+          paidPlanId={verifiedPayment?.planId}
+          paymentIntentId={verifiedPayment?.paymentIntentId}
+        />
+      </div>
+    </>
+  );
+}
 
 export default function OwnerNewPropertyPage() {
   return (
@@ -14,33 +100,9 @@ export default function OwnerNewPropertyPage() {
       
       <main className="pt-24 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Link href="/owner-dashboard">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="mb-4 text-[var(--color-accent-sage)] hover:text-[var(--color-accent-sage)]"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <h1 
-              className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] mb-3"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Add New Property
-            </h1>
-            <p className="text-[var(--color-neutral-dark)] text-lg">
-              Complete all steps to create a new property listing. You can save as draft at any time.
-            </p>
-          </div>
-
-          {/* Multi-Step Form */}
-          <div>
-            <OwnerPropertyForm />
-          </div>
+          <Suspense fallback={<div>Loading...</div>}>
+            <OwnerNewPropertyPageContent />
+          </Suspense>
         </div>
       </main>
 

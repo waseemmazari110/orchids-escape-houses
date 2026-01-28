@@ -58,24 +58,35 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const property = await db
-        .select()
-        .from(properties)
-        .where(eq(properties.id, parseInt(id)))
-        .limit(1);
+      // Fetch property using raw SQL to avoid JSON parsing errors
+      const propertyResult = await db.run(sql`
+        SELECT * FROM properties WHERE id = ${parseInt(id)} LIMIT 1
+      `);
 
-      if (property.length === 0) {
+      if (!propertyResult.rows || propertyResult.rows.length === 0) {
         return NextResponse.json(
           { error: 'Property not found', code: 'NOT_FOUND' },
           { status: 404 }
         );
       }
 
+      const property = propertyResult.rows[0] as any;
+
       // Validate and fix image URL
       const validatedProperty = {
-        ...property[0],
-        heroImage: validateImageUrl(property[0].heroImage, property[0].title),
+        ...property,
+        heroImage: validateImageUrl(property.heroImage, property.title),
       };
+
+      // Safe parse images field if it exists
+      if (validatedProperty.images && typeof validatedProperty.images === 'string') {
+        try {
+          validatedProperty.images = JSON.parse(validatedProperty.images);
+        } catch {
+          // If parse fails, keep as string or wrap in array
+          validatedProperty.images = [validatedProperty.images];
+        }
+      }
 
       return NextResponse.json(validatedProperty);
     }
@@ -154,10 +165,24 @@ export async function GET(request: NextRequest) {
     const results = await query.limit(limit).offset(offset);
 
     // Validate and fix image URLs for all properties
-    const validatedResults = results.map((property: any) => ({
-      ...property,
-      heroImage: validateImageUrl(property.heroImage, property.title),
-    }));
+    const validatedResults = results.map((property: any) => {
+      const validated = {
+        ...property,
+        heroImage: validateImageUrl(property.heroImage, property.title),
+      };
+
+      // Safe parse images field if it exists
+      if (validated.images && typeof validated.images === 'string') {
+        try {
+          validated.images = JSON.parse(validated.images);
+        } catch {
+          // If parse fails, wrap in array
+          validated.images = [validated.images];
+        }
+      }
+
+      return validated;
+    });
 
     return NextResponse.json(validatedResults);
   } catch (error) {
@@ -211,28 +236,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check slug uniqueness
-    const existingProperty = await db
-      .select()
-      .from(properties)
-      .where(eq(properties.slug, body.slug.trim()))
-      .limit(1);
+    // Check slug uniqueness using raw SQL to avoid Drizzle JSON parsing issues
+    // If slug is empty or placeholder, generate one from title
+    let finalSlug = body.slug?.trim();
+    
+    if (!finalSlug || finalSlug === 'url-friendly-slug') {
+      // Generate slug from title
+      finalSlug = body.title.trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .substring(0, 50); // Limit to 50 chars
+    }
 
-    if (existingProperty.length > 0) {
+    // Check if generated slug already exists, if so append a number
+    let slugExists = true;
+    let uniqueSlug = finalSlug;
+    let counter = 1;
+    
+    while (slugExists) {
+      const existingProperty = await db.run(sql`
+        SELECT id FROM properties WHERE slug = ${uniqueSlug} LIMIT 1
+      `);
+      
+      if (!existingProperty.rows || existingProperty.rows.length === 0) {
+        slugExists = false;
+      } else {
+        // Slug exists, try with a number appended
+        uniqueSlug = `${finalSlug}-${counter}`;
+        counter++;
+      }
+    }
+
+    const finalUniqueSlug = uniqueSlug;
+    if (!finalUniqueSlug) {
       return NextResponse.json(
-        {
-          error: 'Slug already exists',
-          code: 'DUPLICATE_SLUG',
-        },
+        { error: 'Failed to generate valid slug', code: 'INVALID_SLUG' },
         { status: 400 }
       );
     }
+
     // Sanitize and prepare data - only include fields that exist in database
     const now = new Date().toISOString();
     const propertyData = {
       ownerId: session?.user?.id || null,
       title: body.title?.trim() || "Untitled Property",
-      slug: body.slug?.trim() || "",
+      slug: finalUniqueSlug,
       location: body.location?.trim() || "",
       region: body.region?.trim() || "",
       sleepsMin: body.sleepsMin ? parseInt(body.sleepsMin) : 0,
@@ -253,12 +303,10 @@ export async function POST(request: NextRequest) {
       ownerContact: body.ownerContact?.trim() || null,
       featured: body.featured ? 1 : 0,
       isPublished: body.isPublished ? 1 : 0,
-      status: body.status?.trim() || 'pending',
+      status: body.status === 'published' ? 'pending_approval' : (body.status?.trim() || 'draft'),
       createdAt: now,
       updatedAt: now,
     };
-
-    // Use raw SQL to avoid Drizzle schema issues with extra columns
     const newProperty = await db.run(sql`
       INSERT INTO properties (
         owner_id, title, slug, location, region, sleeps_min, sleeps_max, 
@@ -279,14 +327,21 @@ export async function POST(request: NextRequest) {
       )
     `);
 
-    // Get the created property
-    const createdProperty = await db
-      .select()
-      .from(properties)
-      .where(eq(properties.slug, propertyData.slug))
-      .limit(1);
+    // Get the created property using raw SQL to avoid JSON parsing errors
+    const createdPropertyResult = await db.run(sql`
+      SELECT id, owner_id as ownerId, title, slug, location, region, sleeps_min as sleepsMin,
+             sleeps_max as sleepsMax, bedrooms, bathrooms, price_from_midweek as priceFromMidweek,
+             price_from_weekend as priceFromWeekend, description, house_rules as houseRules,
+             check_in_out as checkInOut, ical_url as icalUrl, hero_image as heroImage,
+             hero_video as heroVideo, floorplan_url as floorplanUrl, map_lat as mapLat,
+             map_lng as mapLng, owner_contact as ownerContact, featured, is_published as isPublished,
+             status, created_at as createdAt, updated_at as updatedAt
+      FROM properties WHERE slug = ${propertyData.slug} LIMIT 1
+    `);
 
-    return NextResponse.json(createdProperty[0] || { id: 'success' }, { status: 201 });
+    const createdProperty = createdPropertyResult.rows?.[0] || { id: 'success' };
+
+    return NextResponse.json(createdProperty, { status: 201 });
   } catch (error) {
     console.error('POST error:', error);
     return NextResponse.json(
@@ -309,14 +364,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Check if property exists
-    const existingProperty = await db
-      .select()
-      .from(properties)
-      .where(eq(properties.id, parseInt(id)))
-      .limit(1);
+    // Check if property exists using raw SQL to avoid JSON parsing errors
+    const existingPropertyResult = await db.run(sql`
+      SELECT id FROM properties WHERE id = ${parseInt(id)} LIMIT 1
+    `);
 
-    if (existingProperty.length === 0) {
+    if (!existingPropertyResult.rows || existingPropertyResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'Property not found', code: 'NOT_FOUND' },
         { status: 404 }
@@ -378,22 +431,23 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Check slug uniqueness if provided
+    // Check slug uniqueness if provided using raw SQL to avoid JSON parsing errors
     if (body.slug) {
-      const slugCheck = await db
-        .select()
-        .from(properties)
-        .where(eq(properties.slug, body.slug.trim()))
-        .limit(1);
+      const slugCheckResult = await db.run(sql`
+        SELECT id FROM properties WHERE slug = ${body.slug.trim()} LIMIT 1
+      `);
 
-      if (slugCheck.length > 0 && slugCheck[0].id !== parseInt(id)) {
-        return NextResponse.json(
-          {
-            error: 'Slug already exists',
-            code: 'DUPLICATE_SLUG',
-          },
-          { status: 400 }
-        );
+      if (slugCheckResult.rows && slugCheckResult.rows.length > 0) {
+        const existingSlugId = slugCheckResult.rows[0].id as number;
+        if (existingSlugId !== parseInt(id)) {
+          return NextResponse.json(
+            {
+              error: 'Slug already exists',
+              code: 'DUPLICATE_SLUG',
+            },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -424,18 +478,46 @@ export async function PUT(request: NextRequest) {
     if (body.ownerContact !== undefined) updates.ownerContact = body.ownerContact?.trim() || null;
     if (body.featured !== undefined) updates.featured = body.featured;
     if (body.isPublished !== undefined) updates.isPublished = body.isPublished;
-    if (body.status !== undefined) updates.status = body.status?.trim() || 'pending';
+    
+    // Handle status updates:
+    // - If property was rejected and is being resubmitted, change back to pending_approval
+    // - Otherwise, use the provided status or keep existing
+    if (body.status !== undefined) {
+      const currentStatus = existingPropertyResult.rows[0].status;
+      
+      // If rejected property is being resubmitted, send to pending_approval again
+      if (currentStatus === 'rejected' && body.status === 'published') {
+        updates.status = 'pending_approval';
+      } else {
+        updates.status = body.status?.trim() || 'pending_approval';
+      }
+    }
     
     // Always update the updatedAt timestamp
     updates.updatedAt = new Date().toISOString();
 
-    const updated = await db
+    await db
       .update(properties)
       .set(updates)
-      .where(eq(properties.id, parseInt(id)))
-      .returning();
+      .where(eq(properties.id, parseInt(id)));
 
-    return NextResponse.json(updated[0]);
+    // Fetch the updated property using raw SQL to avoid JSON parsing errors
+    const updatedPropertyResult = await db.run(sql`
+      SELECT * FROM properties WHERE id = ${parseInt(id)} LIMIT 1
+    `);
+
+    if (updatedPropertyResult.rows && updatedPropertyResult.rows.length > 0) {
+      const updatedProperty = updatedPropertyResult.rows[0] as any;
+      // Safely parse images field
+      try {
+        updatedProperty.images = JSON.parse(updatedProperty.images || '[]');
+      } catch {
+        updatedProperty.images = [];
+      }
+      return NextResponse.json(updatedProperty);
+    }
+
+    return NextResponse.json({ error: 'Property updated but could not retrieve' }, { status: 500 });
   } catch (error) {
     console.error('PUT error:', error);
     return NextResponse.json(

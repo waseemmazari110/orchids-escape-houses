@@ -232,6 +232,11 @@ export const properties = sqliteTable("properties", {
 	rejectionReason: text("rejection_reason"),
 	approvedBy: text("approved_by").references(() => user.id, { onDelete: "set null" } ),
 	approvedAt: text("approved_at"),
+	planId: text("plan_id"),
+	paymentStatus: text("payment_status").default("pending"),
+	stripePaymentIntentId: text("stripe_payment_intent_id"),
+	planPurchasedAt: text("plan_purchased_at"),
+	planExpiresAt: text("plan_expires_at"),
 },
 (table) => [
 	uniqueIndex("properties_slug_unique").on(table.slug),

@@ -83,10 +83,10 @@ export const auth = betterAuth({
 							await sendOwnerSignupNotification({
 								name: user.name || "",
 								email: user.email,
-								phone: (user as any).phone ? String((user as any).phone) : undefined,
-								propertyName: (user as any).company_name ? String((user as any).company_name) : undefined,
-								propertyWebsite: (user as any).property_website ? String((user as any).property_website) : undefined,
-								planId: (user as any).plan_id ? String((user as any).plan_id) : undefined,
+								phone: (user as any).phoneNumber ? String((user as any).phoneNumber) : undefined,
+								propertyName: (user as any).propertyName ? String((user as any).propertyName) : undefined,
+								propertyWebsite: (user as any).propertyWebsite ? String((user as any).propertyWebsite) : undefined,
+								planId: (user as any).planId ? String((user as any).planId) : undefined,
 							});
 						} catch (error) {
 							console.error("Failed to send owner signup notification:", error);
@@ -140,32 +140,27 @@ export const auth = betterAuth({
 		additionalFields: {
 			role: {
 				type: "string",
-				defaultValue: "customer",
+				defaultValue: "guest",
 			},
 			phoneNumber: {
 				type: "string",
 				required: false,
-				map: "phone",
 			},
 			propertyName: {
 				type: "string",
 				required: false,
-				map: "company_name",
 			},
 			propertyWebsite: {
 				type: "string",
 				required: false,
-				map: "property_website",
 			},
 			planId: {
 				type: "string",
 				required: false,
-				map: "plan_id",
 			},
 			paymentStatus: {
 				type: "string",
 				defaultValue: "pending",
-				map: "payment_status",
 			}
 		}
 	},

@@ -31,9 +31,21 @@ export const metadata: Metadata = {
 async function getProperties() {
   try {
     const result = await db
-      .select()
+      .select({
+        id: properties.id,
+        title: properties.title,
+        location: properties.location,
+        sleepsMax: properties.sleepsMax,
+        bedrooms: properties.bedrooms,
+        priceFromWeekend: properties.priceFromWeekend,
+        heroImage: properties.heroImage,
+        slug: properties.slug,
+        description: properties.description,
+      })
       .from(properties)
       .where(eq(properties.isPublished, true));
+    
+    console.log(`[Properties Page] Found ${result.length} published properties`);
     
     return result.map((prop) => ({
       id: prop.id.toString(),

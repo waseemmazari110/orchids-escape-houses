@@ -163,7 +163,7 @@ const SUSPICIOUS_PATTERNS = [
   /^[a-z]{3,}\d{6,}@/i, // Pattern like abc123456@
   /^[0-9]{10,}@/i, // All numbers
   /(.)\1{4,}/, // Same character repeated 5+ times (aaaaa)
-  /^[a-z]{1,2}@/i, // Very short local part (a@, ab@)
+  /^[a-z]{1}@/i, // Single character local part only (a@)
   /^\d+@/i, // Starts with only numbers
   /^[^a-z0-9]+@/i // Starts with special characters only
 ];
@@ -517,8 +517,13 @@ export async function checkForSpam(
   const localPart = email.split('@')[0];
   const entropy = calculateEntropy(localPart);
   
-  // Too simple (entropy < 2.5, e.g., "aaa@", "111@")
-  if (entropy < 2.5) {
+  // Skip entropy check for trusted domains (e.g., gmail.com, outlook.com)
+  const isTrusted = isTrustedDomain(email);
+  
+  // Too simple (entropy < 2.0, e.g., "aaa@", "111@")
+  // Lowered from 2.5 to allow legitimate short emails like "my@"
+  // Skip check for trusted domains
+  if (!isTrusted && entropy < 1.8) {
     return {
       isSpam: true,
       reason: 'Email too simple (suspicious pattern)',
@@ -617,4 +622,24 @@ export function clearBlacklists() {
   ipBlacklist.clear();
   emailBlacklist.clear();
   console.log('🗑️ All blacklists cleared');
+}
+
+export function removeEmailFromBlacklist(email: string) {
+  const removed = emailBlacklist.delete(email.toLowerCase());
+  if (removed) {
+    console.log(`✅ Removed ${email} from email blacklist`);
+  } else {
+    console.log(`ℹ️  ${email} was not in blacklist`);
+  }
+  return removed;
+}
+
+export function removeIPFromBlacklist(ip: string) {
+  const removed = ipBlacklist.delete(ip);
+  if (removed) {
+    console.log(`✅ Removed ${ip} from IP blacklist`);
+  } else {
+    console.log(`ℹ️  ${ip} was not in blacklist`);
+  }
+  return removed;
 }

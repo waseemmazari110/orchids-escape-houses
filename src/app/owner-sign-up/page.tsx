@@ -15,8 +15,6 @@ import { Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 function SignUpForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const plan = searchParams.get("plan") || "bronze";
   
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -45,24 +43,18 @@ function SignUpForm() {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        callbackURL: "/choose-plan",
+        callbackURL: "/owner-dashboard",
         role: "owner",
         phoneNumber: formData.phone,
         propertyName: formData.propertyName,
         propertyWebsite: formData.propertyWebsite,
-        planId: plan,
-        paymentStatus: "pending"
       });
 
       if (error) {
         toast.error(error.message || "Something went wrong");
       } else {
-        toast.success("Account created successfully!");
-        // Store the registration start event
-        if (typeof window !== "undefined") {
-          console.log("register_start", { plan });
-        }
-        router.push(`/choose-plan?plan=${plan}`);
+        toast.success("Account created successfully! Redirecting to your dashboard...");
+        router.push("/owner-dashboard");
       }
     } catch (err) {
       toast.error("An unexpected error occurred");
@@ -75,8 +67,8 @@ function SignUpForm() {
   return (
     <div className="max-w-md mx-auto bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100">
       <div className="text-center mb-6 sm:mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-display)" }}>Owner Sign Up</h2>
-        <p className="text-sm sm:text-base text-[var(--color-neutral-dark)]">Create your account to list your property</p>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-display)" }}>Create Your Free Account</h2>
+        <p className="text-sm sm:text-base text-[var(--color-neutral-dark)]">Start listing your properties with no upfront cost</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -202,7 +194,7 @@ function SignUpForm() {
           {loading ? (
             <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Creating Account...</>
           ) : (
-            <><ArrowRight className="w-5 h-5 mr-2" /> Continue to Choose Plan</>
+            <><ArrowRight className="w-5 h-5 mr-2" /> Create Free Account</>
           )}
         </Button>
 
