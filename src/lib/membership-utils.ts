@@ -424,9 +424,8 @@ export function canApprove(
     return { canApprove: false, reason: 'Property must be pending approval' };
   }
 
-  if (paymentStatus !== 'paid') {
-    return { canApprove: false, reason: 'Payment must be confirmed' };
-  }
+  // Admin can approve properties regardless of payment status
+  // Payment can be handled separately or before approval
 
   return { canApprove: true };
 }
