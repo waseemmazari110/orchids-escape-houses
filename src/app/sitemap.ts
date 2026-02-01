@@ -113,7 +113,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     if (db) {
       const publishedProperties = await db
-        .select()
+        .select({
+          slug: properties.slug,
+          updatedAt: properties.updatedAt,
+        })
         .from(properties)
         .where(eq(properties.isPublished, true));
       

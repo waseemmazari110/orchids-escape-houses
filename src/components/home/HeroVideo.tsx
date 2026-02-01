@@ -35,7 +35,7 @@ export default function HeroVideo() {
         unoptimized={false}
         className={`object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
         sizes="100vw"
-        quality={85}
+        quality={80}
       />
 
       {shouldLoadVideo && (

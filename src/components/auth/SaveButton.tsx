@@ -23,13 +23,16 @@ export function SaveButton({ propertyId, className = "", variant = "icon" }: Sav
     if (session?.user) {
       const checkSaved = async () => {
         try {
+          console.log(`🔍 [SaveButton] Checking saved status for property ${propertyId}, user ${session.user.id}`);
           const res = await fetch("/api/account/save-property");
           const data = await res.json();
+          console.log(`✅ [SaveButton] Received saved properties:`, data.savedIds);
           if (data.savedIds?.includes(propertyId)) {
+            console.log(`❤️ [SaveButton] Property ${propertyId} is saved`);
             setIsSaved(true);
           }
         } catch (error) {
-          console.error("Error checking saved status:", error);
+          console.error("❌ [SaveButton] Error checking saved status:", error);
         } finally {
           setIsInitialized(true);
         }
@@ -45,6 +48,7 @@ export function SaveButton({ propertyId, className = "", variant = "icon" }: Sav
     e.stopPropagation();
 
     if (!session?.user) {
+      console.log("⚠️ [SaveButton] User not logged in");
       toast.info("Please sign in to save properties");
       router.push("/login");
       return;
@@ -52,6 +56,7 @@ export function SaveButton({ propertyId, className = "", variant = "icon" }: Sav
 
     setIsLoading(true);
     const action = isSaved ? "unsave" : "save";
+    console.log(`🔄 [SaveButton] ${action.toUpperCase()} property ${propertyId} for user ${session.user.id}`);
 
     try {
       const res = await fetch("/api/account/save-property", {
@@ -60,14 +65,20 @@ export function SaveButton({ propertyId, className = "", variant = "icon" }: Sav
         body: JSON.stringify({ propertyId, action }),
       });
 
+      console.log(`📡 [SaveButton] API Response: ${res.status} ${res.statusText}`);
+      const responseData = await res.json();
+      console.log(`📦 [SaveButton] Response data:`, responseData);
+
       if (res.ok) {
         setIsSaved(!isSaved);
+        console.log(`✅ [SaveButton] Successfully ${action}d property`);
         toast.success(isSaved ? "Property removed from saved" : "Property saved to your account");
       } else {
+        console.error(`❌ [SaveButton] API error: ${responseData.error}`);
         toast.error("Failed to update saved status");
       }
     } catch (error) {
-      console.error("Save error:", error);
+      console.error("❌ [SaveButton] Save error:", error);
       toast.error("An error occurred");
     } finally {
       setIsLoading(false);

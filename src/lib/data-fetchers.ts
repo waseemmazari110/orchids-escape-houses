@@ -20,25 +20,31 @@ function validateImageUrl(url: string | null): string {
 export async function getFeaturedProperties(limit = 3) {
   try {
     const results = await db
-      .select()
+      .select({
+        id: properties.id,
+        title: properties.title,
+        location: properties.location,
+        slug: properties.slug,
+        sleepsMax: properties.sleepsMax,
+        bedrooms: properties.bedrooms,
+        priceFromWeekend: properties.priceFromWeekend,
+        heroImage: properties.heroImage,
+      })
       .from(properties)
       .where(and(eq(properties.featured, true), eq(properties.isPublished, true)))
       .orderBy(desc(properties.createdAt))
       .limit(limit);
 
-    return results.map(prop => {
-      // Safely parse images if it exists and is a string
-      let images = [];
-      if (prop.images) {
-        try {
-          images = typeof prop.images === 'string' ? JSON.parse(prop.images) : prop.images;
-        } catch (e) {
-          console.warn(`Failed to parse images for property ${prop.id}:`, e);
-          images = [];
+    return results
+      .filter(prop => {
+        // Pre-filter to skip properties with invalid hero images
+        if (!prop.heroImage || prop.heroImage.trim() === '') {
+          console.warn(`⚠️ Skipping property ${prop.id}: No hero image`);
+          return false;
         }
-      }
-
-      return {
+        return true;
+      })
+      .map(prop => ({
         id: prop.id.toString(),
         title: prop.title,
         location: prop.location,
@@ -48,10 +54,9 @@ export async function getFeaturedProperties(limit = 3) {
         image: validateImageUrl(prop.heroImage),
         features: [],
         slug: prop.slug,
-      };
-    });
+      }));
   } catch (error) {
-    console.error('Error fetching properties:', error);
+    console.error('❌ Error fetching featured properties:', error);
     return [];
   }
 }

@@ -8,7 +8,7 @@ const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader
 const nextConfig: NextConfig = {
   images: {
     unoptimized: false,
-    qualities: [50, 65, 75, 80, 90],
+    qualities: [50, 65, 75, 80, 85, 90],
     remotePatterns: [
       {
         protocol: 'https',
