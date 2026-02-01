@@ -6,27 +6,79 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { Calendar, ExternalLink, Bookmark, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, ExternalLink, Bookmark, Loader2, X } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
+import { format } from "date-fns";
 
 interface EnquiryFormProps {
   propertyTitle?: string;
   propertySlug?: string;
+  propertyId?: string;
 }
 
-export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryFormProps) {
+export default function EnquiryForm({ propertyTitle, propertySlug, propertyId }: EnquiryFormProps) {
   const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [saveQuote, setSaveQuote] = useState(false);
   const [isSavingQuote, setIsSavingQuote] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(undefined);
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(undefined);
+  const [checkInPopoverOpen, setCheckInPopoverOpen] = useState(false);
+  const [checkOutPopoverOpen, setCheckOutPopoverOpen] = useState(false);
   
   // Spam protection state
   const [formLoadTime, setFormLoadTime] = useState<number>(0);
   const [honeypot, setHoneypot] = useState("");
   const [userInteraction, setUserInteraction] = useState({ clicks: 0, keystrokes: 0 });
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Debug: Log propertyId when component mounts or updates
+  useEffect(() => {
+    console.log('🔍 [EnquiryForm] Component mounted/updated with propertyId:', propertyId, 'Type:', typeof propertyId);
+  }, [propertyId]);
+
+  // Fetch availability when component mounts
+  useEffect(() => {
+    if (propertyId) {
+      console.log('🔍 [EnquiryForm] Fetching availability for propertyId:', propertyId);
+      fetchAvailability();
+    } else {
+      console.warn('⚠️ [EnquiryForm] propertyId is missing or falsy:', propertyId);
+    }
+  }, [propertyId]);
+
+  const fetchAvailability = async () => {
+    if (!propertyId) return;
+    try {
+      setIsLoadingAvailability(true);
+      const url = `/api/properties/${propertyId}/availability`;
+      console.log('🔍 [iCal Enquiry] Fetching availability from:', url);
+      
+      const response = await fetch(url);
+      console.log('🔍 [iCal Enquiry] API Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 [iCal Enquiry] API Response data:', data);
+        setUnavailableDates(data.unavailableDates || []);
+        console.log('✅ [iCal Enquiry] Set unavailable dates:', data.unavailableDates);
+      } else {
+        console.error('❌ [iCal Enquiry] API error - Status:', response.status, 'Text:', await response.text());
+        setUnavailableDates([]);
+      }
+    } catch (error) {
+      console.error('❌ [iCal Enquiry] Error fetching availability:', error);
+      setUnavailableDates([]);
+    } finally {
+      setIsLoadingAvailability(false);
+    }
+  };
 
   // Track form load time and user interaction
   useEffect(() => {
@@ -56,19 +108,36 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
     return name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and");
   };
 
+  const isDateDisabled = (date: Date): boolean => {
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Disable past dates and unavailable dates from iCal/bookings
+    return date < today || unavailableDates.includes(dateStr);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!checkInDate || !checkOutDate) {
+      toast.error("Please select both check-in and check-out dates");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
     const addons = formData.getAll('addons');
     
+    const checkinStr = format(checkInDate, "yyyy-MM-dd");
+    const checkoutStr = format(checkOutDate, "yyyy-MM-dd");
+    
     const payload = {
       name: formData.get('name'),
       email: formData.get('email'),
       phone: formData.get('phone'),
-      checkin: formData.get('checkin'),
-      checkout: formData.get('checkout'),
+      checkin: checkinStr,
+      checkout: checkoutStr,
       groupSize: formData.get('groupSize'),
       occasion: formData.get('occasion'),
       addons,
@@ -252,34 +321,98 @@ export default function EnquiryForm({ propertyTitle, propertySlug }: EnquiryForm
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="checkin" className="text-sm font-medium mb-2 block">
+              <Label className="text-sm font-medium mb-2 block">
                 Arrival
               </Label>
-              <div className="relative">
-                <Input
-                  id="checkin"
-                  name="checkin"
-                  type="date"
-                  required
-                  className="rounded-xl text-base py-6 min-h-[48px] pr-10"
-                />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" />
-              </div>
+              <Popover open={checkInPopoverOpen} onOpenChange={setCheckInPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal h-12 rounded-xl"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+                    <span className={checkInDate ? "text-gray-900" : "text-gray-500"}>
+                      {checkInDate ? format(checkInDate, "dd MMM yyyy") : "Select date"}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4" align="start">
+                  <div className="mb-3">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Select Arrival Date</p>
+                    {unavailableDates.length > 0 && (
+                      <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-gray-600 flex items-start gap-2">
+                        <span className="text-blue-500 mt-0.5">ℹ️</span>
+                        <span>Grayed-out dates are unavailable (booked or synced from your calendar)</span>
+                      </div>
+                    )}
+                  </div>
+                  <CalendarComponent
+                    mode="single"
+                    selected={checkInDate}
+                    onSelect={(date) => {
+                      setCheckInDate(date);
+                      setCheckInPopoverOpen(false);
+                    }}
+                    disabled={isDateDisabled}
+                    modifiersClassNames={{
+                      disabled: "text-gray-400 opacity-50 cursor-not-allowed hover:bg-transparent",
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
-              <Label htmlFor="checkout" className="text-sm font-medium mb-2 block">
+              <Label className="text-sm font-medium mb-2 block">
                 Departure
               </Label>
-              <div className="relative">
-                <Input
-                  id="checkout"
-                  name="checkout"
-                  type="date"
-                  required
-                  className="rounded-xl text-base py-6 min-h-[48px] pr-10"
-                />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" />
-              </div>
+              <Popover open={checkOutPopoverOpen} onOpenChange={setCheckOutPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal h-12 rounded-xl"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+                    <span className={checkOutDate ? "text-gray-900" : "text-gray-500"}>
+                      {checkOutDate ? format(checkOutDate, "dd MMM yyyy") : "Select date"}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4" align="start">
+                  <div className="mb-3">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Select Departure Date</p>
+                    {checkInDate && (
+                      <p className="text-xs text-gray-600 mb-2">From: <strong>{format(checkInDate, "dd MMM yyyy")}</strong></p>
+                    )}
+                    {unavailableDates.length > 0 && (
+                      <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-gray-600 flex items-start gap-2">
+                        <span className="text-blue-500 mt-0.5">ℹ️</span>
+                        <span>Grayed-out dates are unavailable</span>
+                      </div>
+                    )}
+                  </div>
+                  <CalendarComponent
+                    mode="single"
+                    selected={checkOutDate}
+                    onSelect={(date) => {
+                      if (date && checkInDate && date <= checkInDate) {
+                        toast.error("Departure date must be after arrival date");
+                        return;
+                      }
+                      setCheckOutDate(date);
+                      setCheckOutPopoverOpen(false);
+                    }}
+                    disabled={(date) => {
+                      if (checkInDate && date <= checkInDate) {
+                        return true;
+                      }
+                      return isDateDisabled(date);
+                    }}
+                    modifiersClassNames={{
+                      disabled: "text-gray-400 opacity-50 cursor-not-allowed hover:bg-transparent",
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
     

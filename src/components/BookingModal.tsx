@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar, User, Minus, Plus } from "lucide-react";
+import { Calendar, User, Minus, Plus, Loader } from "lucide-react";
 import { formatDateUKLong } from "@/lib/date-utils";
 import { format } from "date-fns";
 import { GEH_API } from "@/lib/api-client";
@@ -33,7 +33,50 @@ export default function BookingModal({
   const [guests, setGuests] = useState(2);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [guestsOpen, setGuestsOpen] = useState(false);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Fetch availability when modal opens
+  useEffect(() => {
+    if (open && propertyId) {
+      fetchAvailability();
+    }
+  }, [open, propertyId]);
+
+  const fetchAvailability = async () => {
+    try {
+      setIsLoadingAvailability(true);
+      const url = `/api/properties/${propertyId}/availability`;
+      console.log('🔍 [iCal] Fetching availability from:', url);
+      
+      const response = await fetch(url);
+      console.log('🔍 [iCal] API Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 [iCal] API Response data:', data);
+        setUnavailableDates(data.unavailableDates || []);
+        console.log('✅ [iCal] Set unavailable dates:', data.unavailableDates);
+      } else {
+        console.error('❌ [iCal] API error - Status:', response.status, 'Text:', await response.text());
+        setUnavailableDates([]);
+      }
+    } catch (error) {
+      console.error('❌ [iCal] Error fetching availability:', error);
+      setUnavailableDates([]);
+    } finally {
+      setIsLoadingAvailability(false);
+    }
+  };
+
+  const isDateDisabled = (date: Date): boolean => {
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Disable past dates and unavailable dates from iCal/bookings
+    return date < today || unavailableDates.includes(dateStr);
+  };
 
   const handleBookNow = async () => {
     if (!checkInDate || !checkOutDate) {
@@ -104,11 +147,16 @@ export default function BookingModal({
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <div className="p-4 border-b flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-700">
-                    {!checkInDate && "Select check-in date"}
-                    {checkInDate && !checkOutDate && "Select check-out date"}
-                    {checkInDate && checkOutDate && "Your dates"}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      {!checkInDate && "Select check-in date"}
+                      {checkInDate && !checkOutDate && "Select check-out date"}
+                      {checkInDate && checkOutDate && "Your dates"}
+                    </p>
+                    {isLoadingAvailability && (
+                      <Loader className="h-4 w-4 animate-spin text-[var(--color-accent-sage)]" />
+                    )}
+                  </div>
                   <button
                     onClick={() => {
                       setCheckInDate(undefined);
@@ -120,6 +168,14 @@ export default function BookingModal({
                     Clear dates
                   </button>
                 </div>
+                {unavailableDates.length > 0 && (
+                  <div className="px-4 py-2 bg-blue-50 border-b text-xs text-gray-600 flex items-start gap-2">
+                    <svg className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <span>Grayed-out dates are unavailable (booked or synced from your calendar)</span>
+                  </div>
+                )}
                 <CalendarComponent
                   mode="range"
                   selected={
@@ -145,10 +201,7 @@ export default function BookingModal({
                     }
                   }}
                   numberOfMonths={2}
-                  disabled={(date) => {
-                    const today = new Date(new Date().setHours(0, 0, 0, 0));
-                    return date < today;
-                  }}
+                  disabled={isDateDisabled}
                   modifiersClassNames={{
                     range_start: "ge-date-start",
                     range_end: "ge-date-end",

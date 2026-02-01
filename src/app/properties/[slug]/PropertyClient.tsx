@@ -95,7 +95,7 @@ export default function PropertyClient({ property, relatedProperties, slug }: Pr
               <>
                 {[...Array(4 - (property.images?.length || 1))].map((_, index) => (
                   <div key={`placeholder-${index}`} className="relative h-[190px] md:h-[290px] bg-gray-200 flex items-center justify-center">
-                    <Image src={property.heroImage} alt="placeholder" fill className="object-cover opacity-20" />
+                    {property.heroImage && <Image src={property.heroImage} alt="placeholder" fill className="object-cover opacity-20" />}
                   </div>
                 ))}
               </>
@@ -255,7 +255,7 @@ export default function PropertyClient({ property, relatedProperties, slug }: Pr
 
           {/* Right Column - Enquiry Form */}
           <div className="lg:col-span-1">
-            <EnquiryForm propertyTitle={property.title} propertySlug={slug} />
+            <EnquiryForm propertyTitle={property.title} propertySlug={slug} propertyId={String(property.id)} />
           </div>
         </div>
 
@@ -285,7 +285,7 @@ export default function PropertyClient({ property, relatedProperties, slug }: Pr
           </div>
           <Button
             asChild
-            className="rounded-2xl px-8 py-6 font-medium bg-[var(--color-accent-pink)] text-[var(--color-text-primary)]"
+            className="rounded-2xl px-8 py-6 font-medium bg-[var(--color-accent-sage)] text-white"
           >
             <a href="#enquiry">Enquire Now</a>
           </Button>

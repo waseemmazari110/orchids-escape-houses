@@ -223,7 +223,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
   const destinationSlug = getDestinationSlug(String(property.location) || '');
   const destinationName = destinationSlug ? destinationSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : null;
 
-  const allImages = [property.heroImage, ...images.map(img => img.imageURL)].filter(Boolean) as string[];
+  const allImages = [property.heroImage, ...images.map(img => img.imageURL)].filter((img): img is string => !!img && img.trim() !== '') as string[];
   const checkInTime = String(property.checkInOut || '')?.split('-')[0]?.trim() || '4pm';
   const checkOutTime = String(property.checkInOut || '')?.split('-')[1]?.trim() || '10am';
 
@@ -530,7 +530,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               {/* Right Column - Enquiry Form */}
               <div className="lg:col-span-1">
                 <div className="sticky top-28">
-                  <EnquiryForm propertyTitle={property.title} propertySlug={slug} />
+                  <EnquiryForm propertyTitle={property.title} propertySlug={slug} propertyId={String(property.id)} />
                   <BookingMessage className="mt-4" />
                 </div>
               </div>
@@ -565,8 +565,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             asChild
             className="flex-1 rounded-xl h-14 font-semibold shadow-lg active:scale-95 transition-transform"
             style={{
-              background: "var(--color-accent-pink)",
-              color: "var(--color-text-primary)",
+              background: "var(--color-accent-sage)",
+              color: "white",
             }}
           >
             <a href="#enquiry">Enquire Now</a>
