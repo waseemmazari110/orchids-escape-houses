@@ -54,6 +54,15 @@ function SignUpForm() {
         toast.error(error.message || "Something went wrong");
       } else {
         toast.success("Account created successfully! Redirecting to your dashboard...");
+        
+        // Sync owner to CRM in background (non-blocking)
+        fetch('/api/crm/sync-owner', { 
+          method: 'POST',
+          credentials: 'include'
+        }).catch(err => {
+          console.log('⚠️ CRM sync failed (non-critical):', err);
+        });
+        
         router.push("/owner-dashboard");
       }
     } catch (err) {

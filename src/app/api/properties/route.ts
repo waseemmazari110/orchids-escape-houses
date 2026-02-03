@@ -4,6 +4,7 @@ import { properties } from '@/db/schema';
 import { eq, like, and, or, desc, asc, sql } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { syncPropertyToCRM } from '@/lib/crm-sync';
 
 // Placeholder image for invalid URLs
 const PLACEHOLDER_IMAGE = 'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/8330e9be-5e47-4f2b-bda0-4162d899b6d9/generated_images/elegant-luxury-property-placeholder-imag-83731ee8-20251207154036.jpg';
@@ -340,6 +341,13 @@ export async function POST(request: NextRequest) {
     `);
 
     const createdProperty = createdPropertyResult.rows?.[0] || { id: 'success' };
+
+    // Sync property to CRM (non-blocking)
+    if (createdProperty && createdProperty.id && session?.user?.id) {
+      syncPropertyToCRM(createdProperty, session.user.id).catch(err => {
+        console.log('⚠️ CRM property sync failed (non-critical):', err);
+      });
+    }
 
     return NextResponse.json(createdProperty, { status: 201 });
   } catch (error) {

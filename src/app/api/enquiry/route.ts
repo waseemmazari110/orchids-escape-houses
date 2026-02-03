@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import { enquiries, properties } from "@/db/schema";
 import { eq, and, gt } from "drizzle-orm";
+import { syncEnquiryToCRM } from "@/lib/crm-sync";
 
 export async function POST(request: NextRequest) {
   try {
@@ -153,6 +154,24 @@ export async function POST(request: NextRequest) {
       });
     } catch (emailError) {
       console.error('Failed to send email notification:', emailError);
+    }
+
+    // Sync enquiry to CRM (non-blocking)
+    try {
+      await syncEnquiryToCRM({
+        guestEmail: email,
+        guestPhone: phone,
+        guestName: name,
+        propertyId: propertyId,
+        message: message,
+        checkin: checkin,
+        checkout: checkout,
+        groupSize: groupSize,
+        occasion: occasion,
+      });
+    } catch (crmError) {
+      console.error('CRM sync failed (non-blocking):', crmError);
+      // Don't fail the enquiry if CRM sync fails
     }
 
     return NextResponse.json(

@@ -520,3 +520,184 @@ export const adminActivityLog = sqliteTable('admin_activity_log', {
   ipAddress: text('ip_address'),
   createdAt: text('created_at').notNull(),
 });
+
+// ============================================
+// CUSTOM CRM SYSTEM TABLES
+// ============================================
+
+// CRM Contacts (Owner/Guest Contact Records)
+export const crmContacts = sqliteTable('crm_contacts', {
+  id: text('id').primaryKey(),
+  type: text('type').notNull(), // 'owner' | 'guest'
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  email: text('email').notNull().unique(),
+  phone: text('phone'),
+  address: text('address'),
+  city: text('city'),
+  postcode: text('postcode'),
+  country: text('country'),
+  
+  // Owner specific fields
+  businessName: text('business_name'),
+  taxId: text('tax_id'),
+  bankDetails: text('bank_details'), // JSON
+  
+  // Guest specific fields
+  companyName: text('company_name'),
+  eventType: text('event_type'), // 'birthday', 'wedding', 'corporate', etc
+  
+  // Common fields
+  status: text('status').notNull().default('active'), // 'active' | 'inactive' | 'blocked'
+  notes: text('notes'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  lastContactedAt: text('last_contacted_at'),
+  
+  // Foreign key
+  userId: text('user_id').unique().references(() => user.id, { onDelete: 'set null' }),
+});
+
+// CRM Properties (Property Record in CRM)
+export const crmProperties = sqliteTable('crm_properties', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id').notNull().references(() => crmContacts.id, { onDelete: 'cascade' }),
+  propertyId: integer('property_id').notNull().references(() => properties.id, { onDelete: 'cascade' }),
+  
+  // Property Info (denormalized for quick access)
+  title: text('title').notNull(),
+  location: text('location'),
+  bedrooms: integer('bedrooms'),
+  bathrooms: integer('bathrooms'),
+  maxGuests: integer('max_guests'),
+  pricePerNight: real('price_per_night'),
+  
+  // Status
+  listingStatus: text('listing_status'), // 'draft' | 'pending_approval' | 'live' | 'paused' | 'rejected'
+  membershipTier: text('membership_tier'), // 'bronze' | 'silver' | 'gold'
+  
+  // Analytics
+  viewCount: integer('view_count').notNull().default(0),
+  enquiryCount: integer('enquiry_count').notNull().default(0),
+  bookingCount: integer('booking_count').notNull().default(0),
+  totalRevenue: real('total_revenue').notNull().default(0),
+  
+  // Timeline
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  publishedAt: text('published_at'),
+  expiresAt: text('expires_at'),
+  
+  // Notes
+  internalNotes: text('internal_notes'),
+  rejectionReason: text('rejection_reason'),
+});
+
+// CRM Enquiries (All Enquiries/Interactions)
+export const crmEnquiries = sqliteTable('crm_enquiries', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id').references(() => crmContacts.id, { onDelete: 'cascade' }),
+  propertyId: text('property_id').references(() => crmProperties.id, { onDelete: 'cascade' }),
+  
+  status: text('status').notNull().default('new'),
+  message: text('message'),
+  guestEmail: text('guest_email'),
+  guestPhone: text('guest_phone'),
+  guestName: text('guest_name'),
+  createdAt: text('created_at').notNull(),
+  priority: text('priority').default('medium'),
+  source: text('source').default('form'),
+});
+
+// CRM Memberships (Membership/Subscription Tracking)
+export const crmMemberships = sqliteTable('crm_memberships', {
+  id: text('id').primaryKey(),
+  contactId: text('contact_id').notNull().references(() => crmContacts.id, { onDelete: 'cascade' }),
+  
+  // Plan Details
+  planTier: text('plan_tier').notNull(), // 'bronze' | 'silver' | 'gold'
+  planPrice: real('plan_price'),
+  billingCycle: text('billing_cycle'), // 'annual' | 'monthly'
+  
+  // Dates
+  startDate: text('start_date').notNull(),
+  endDate: text('end_date').notNull(),
+  renewalDate: text('renewal_date'),
+  cancelledDate: text('cancelled_date'),
+  
+  // Status
+  status: text('status').notNull().default('active'), // 'active' | 'expiring_soon' | 'expired' | 'cancelled' | 'suspended'
+  
+  // Payment Info
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  lastPaymentDate: text('last_payment_date'),
+  lastPaymentAmount: real('last_payment_amount'),
+  nextPaymentDate: text('next_payment_date'),
+  
+  // Auto-renewal
+  autoRenew: integer('auto_renew', { mode: 'boolean' }).notNull().default(true),
+  paymentFailureCount: integer('payment_failure_count').notNull().default(0),
+  
+  // Tracking
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  
+  // Notes
+  notes: text('notes'),
+});
+
+// CRM Interactions (Communication/Activity Log)
+export const crmInteractions = sqliteTable('crm_interactions', {
+  id: text('id').primaryKey(),
+  contactId: text('contact_id').notNull().references(() => crmContacts.id, { onDelete: 'cascade' }),
+  relatedPropertyId: text('related_property_id').references(() => crmProperties.id, { onDelete: 'set null' }),
+  relatedEnquiryId: text('related_enquiry_id').references(() => crmEnquiries.id, { onDelete: 'set null' }),
+  
+  // Interaction Type
+  type: text('type').notNull(), // 'email' | 'phone' | 'message' | 'note' | 'status_change'
+  subject: text('subject'),
+  content: text('content'),
+  
+  // Direction
+  direction: text('direction'), // 'inbound' | 'outbound' | 'internal'
+  initiatedBy: text('initiated_by'), // 'contact' | 'owner' | 'admin' | 'system'
+  
+  // Timeline
+  createdAt: text('created_at').notNull(),
+  readAt: text('read_at'),
+  
+  // Metadata
+  metadata: text('metadata'), // JSON for flexible data storage
+});
+
+// CRM Activity Log (Admin Actions & System Events)
+export const crmActivityLog = sqliteTable('crm_activity_log', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  entityType: text('entity_type').notNull(), // 'contact' | 'property' | 'enquiry' | 'membership'
+  entityId: text('entity_id').notNull(),
+  activityType: text('activity_type').notNull(), // 'created' | 'updated' | 'deleted' | 'status_changed'
+  title: text('title').notNull(),
+  description: text('description'),
+  outcome: text('outcome'),
+  performedBy: text('performed_by'),
+  metadata: text('metadata'), // JSON
+  createdAt: text('created_at').notNull(),
+});
+
+// CRM Segments (Owner Segmentation for Marketing)
+export const crmSegments = sqliteTable('crm_segments', {
+  id: text('id').primaryKey(),
+  contactId: text('contact_id').notNull().references(() => crmContacts.id, { onDelete: 'cascade' }),
+  
+  // Segment Tags
+  segment: text('segment').notNull(), // 'high_value' | 'churning' | 'at_risk' | 'premium' | 'inactive'
+  
+  // Scoring
+  lifetimeValue: real('lifetime_value'),
+  engagementScore: integer('engagement_score'), // 0-100
+  
+  // Dates
+  addedAt: text('added_at').notNull(),
+  removedAt: text('removed_at'),
+});

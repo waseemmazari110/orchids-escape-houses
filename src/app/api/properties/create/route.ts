@@ -10,6 +10,7 @@ import { db } from '@/db';
 import { properties } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { syncPropertyToCRM } from '@/lib/crm-sync';
 
 export async function POST(req: NextRequest) {
   try {
@@ -86,6 +87,13 @@ export async function POST(req: NextRequest) {
       createdAt: now,
       updatedAt: now,
     }).returning();
+
+    // Sync property to CRM (non-blocking)
+    if (newProperty[0]) {
+      syncPropertyToCRM(newProperty[0], session.user.id).catch(err => {
+        console.log('⚠️ CRM property sync failed (non-critical):', err);
+      });
+    }
 
     return NextResponse.json({
       success: true,

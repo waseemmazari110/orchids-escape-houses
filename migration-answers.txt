@@ -1,0 +1,13 @@
+create table
+create table
+create table
+create table
+create table
+create table
+create table
+create table
+create table
+create table
+create column
+create column
+create column
