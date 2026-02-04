@@ -605,8 +605,6 @@ export const crmEnquiries = sqliteTable('crm_enquiries', {
   guestPhone: text('guest_phone'),
   guestName: text('guest_name'),
   createdAt: text('created_at').notNull(),
-  priority: text('priority').default('medium'),
-  source: text('source').default('form'),
 });
 
 // CRM Memberships (Membership/Subscription Tracking)

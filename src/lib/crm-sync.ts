@@ -328,34 +328,34 @@ export async function syncEnquiryToCRM(enquiryData: any) {
       console.log(`⚠️ Enquiry sync: Property not in CRM, will create without property link`);
     }
 
-    // Create enquiry record - only include required fields to debug
+    // Create enquiry record - only core fields
     const enquiryRecord: any = {
       id: randomUUID(),
       status: 'new',
       createdAt: new Date().toISOString(),
     };
     
-    // Add optional fields
+    // Add optional fields only if they exist
     if (ownerId) {
       enquiryRecord.ownerId = ownerId;
     }
     if (propertyId) {
       enquiryRecord.propertyId = propertyId;
     }
-    if (enquiryData.guestEmail) {
+    if (enquiryData.guestEmail || enquiryData.email) {
       enquiryRecord.guestEmail = enquiryData.guestEmail || enquiryData.email;
     }
-    if (enquiryData.guestPhone) {
+    if (enquiryData.guestPhone || enquiryData.phone) {
       enquiryRecord.guestPhone = enquiryData.guestPhone || enquiryData.phone;
     }
-    if (enquiryData.guestName) {
+    if (enquiryData.guestName || enquiryData.name) {
       enquiryRecord.guestName = enquiryData.guestName || enquiryData.name;
     }
     if (enquiryData.message) {
       enquiryRecord.message = enquiryData.message;
     }
     
-    console.log(`📊 Enquiry record prepared:`, JSON.stringify(enquiryRecord, null, 2));
+    console.log(`📊 Enquiry record prepared with ${Object.keys(enquiryRecord).length} fields:`, Object.keys(enquiryRecord).join(', '));
     
     // Verify FKs exist in database before insert
     if (ownerId) {
@@ -391,7 +391,7 @@ export async function syncEnquiryToCRM(enquiryData: any) {
       await db.insert(crmEnquiries).values(enquiryRecord);
       console.log(`✅ Enquiry synced to CRM for ${enquiryData.guestEmail}`);
     } catch (insertError) {
-      console.error(`❌ Failed to insert enquiry record (database schema mismatch - skipping):`, insertError.message);
+      console.error(`❌ Failed to insert enquiry record (database schema mismatch - skipping):`, insertError instanceof Error ? insertError.message : insertError);
       return null; // Don't throw - let enquiry processing continue
     }
     
