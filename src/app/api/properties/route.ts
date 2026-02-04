@@ -374,7 +374,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if property exists using raw SQL to avoid JSON parsing errors
     const existingPropertyResult = await db.run(sql`
-      SELECT id FROM properties WHERE id = ${parseInt(id)} LIMIT 1
+      SELECT id, status FROM properties WHERE id = ${parseInt(id)} LIMIT 1
     `);
 
     if (!existingPropertyResult.rows || existingPropertyResult.rows.length === 0) {
@@ -491,13 +491,17 @@ export async function PUT(request: NextRequest) {
     // - If property was rejected and is being resubmitted, change back to pending_approval
     // - Otherwise, use the provided status or keep existing
     if (body.status !== undefined) {
-      const currentStatus = existingPropertyResult.rows[0].status;
+      const currentStatus = existingPropertyResult.rows[0].status as string;
+      const newStatus = body.status?.trim();
       
-      // If rejected property is being resubmitted, send to pending_approval again
-      if (currentStatus === 'rejected' && body.status === 'published') {
+      console.log(`[API] Status update for property ${parseInt(id)}: current="${currentStatus}", requested="${newStatus}"`);
+      
+      // If rejected property is being edited and marked as Active/published, send to pending_approval for re-review
+      if (currentStatus === 'rejected' && (newStatus === 'Active' || newStatus === 'published')) {
         updates.status = 'pending_approval';
+        console.log(`[API] Rejected property ${parseInt(id)} resubmitted - resetting to pending_approval for admin review`);
       } else {
-        updates.status = body.status?.trim() || 'pending_approval';
+        updates.status = newStatus || 'pending_approval';
       }
     }
     
