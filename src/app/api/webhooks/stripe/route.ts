@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { db } from '@/db';
 import { user as userTable, properties as propertiesTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { syncMembershipToCRM, updateMembershipInCRM } from '@/lib/crm-sync';
 
 const processedEvents = new Set<string>();
 
@@ -81,6 +82,21 @@ export async function POST(request: NextRequest) {
 
       console.log(`Webhook: Update result for user ${userId}:`, updateResult);
       
+      // Sync membership to CRM
+      try {
+        const membershipData = {
+          planTier: planId.toLowerCase(),
+          planPrice: subscription?.items.data[0].price.unit_amount ? 
+            subscription.items.data[0].price.unit_amount / 100 : 0,
+          billingCycle: subscription?.items.data[0].price.recurring?.interval || 'annual',
+          stripeCustomerId: subscription?.customer,
+          stripeSubscriptionId: subscription?.id,
+        };
+        await syncMembershipToCRM(userId, membershipData);
+      } catch (crmError) {
+        console.error('Failed to sync membership to CRM (non-blocking):', crmError);
+      }
+      
       // Verify the update was successful
       const verifyUser = await db
         .select()
@@ -133,6 +149,15 @@ export async function POST(request: NextRequest) {
           })
           .where(eq(userTable.id, metadata.userId));
         console.log(`User ${metadata.userId} subscription cancelled`);
+        
+        // Update membership in CRM
+        try {
+          await updateMembershipInCRM(metadata.userId, {
+            status: 'cancelled',
+          });
+        } catch (crmError) {
+          console.error('Failed to update membership in CRM (non-blocking):', crmError);
+        }
       }
 
       if (metadata?.propertyId) {
@@ -165,6 +190,16 @@ export async function POST(request: NextRequest) {
             })
             .where(eq(userTable.id, metadata.userId));
           console.log(`User ${metadata.userId} payment failed, status set to past_due`);
+          
+          // Update membership in CRM with payment failure
+          try {
+            await updateMembershipInCRM(metadata.userId, {
+              status: 'past_due',
+              paymentFailed: true,
+            });
+          } catch (crmError) {
+            console.error('Failed to update membership in CRM (non-blocking):', crmError);
+          }
         }
       }
     }

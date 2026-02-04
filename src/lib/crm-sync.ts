@@ -14,7 +14,7 @@ import {
   properties,
   user
 } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 /**
@@ -537,6 +537,85 @@ export async function updatePropertyInCRM(propertyId: number, updates: any) {
   } catch (error) {
     console.error(`❌ Failed to update property in CRM:`, error);
     return false;
+  }
+}
+
+/**
+ * Update membership status in CRM (for cancellations, renewals, etc.)
+ */
+export async function updateMembershipInCRM(userId: string, statusUpdate: any) {
+  try {
+    // Get contact
+    const contact = await db
+      .select()
+      .from(crmContacts)
+      .where(eq(crmContacts.userId, userId))
+      .limit(1);
+
+    if (!contact || contact.length === 0) {
+      console.log(`⚠️ Contact not found in CRM for membership update`);
+      return null;
+    }
+
+    // Get active membership
+    const membership = await db
+      .select()
+      .from(crmMemberships)
+      .where(eq(crmMemberships.contactId, contact[0].id))
+      .limit(1);
+
+    if (!membership || membership.length === 0) {
+      console.log(`⚠️ Membership not found for contact: ${contact[0].id}`);
+      return null;
+    }
+
+    const updateData: any = {
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Handle status change
+    if (statusUpdate.status) {
+      updateData.status = statusUpdate.status;
+      
+      if (statusUpdate.status === 'cancelled') {
+        updateData.cancelledDate = new Date().toISOString();
+      }
+    }
+
+    // Handle payment updates
+    if (statusUpdate.lastPaymentDate) {
+      updateData.lastPaymentDate = statusUpdate.lastPaymentDate;
+    }
+    if (statusUpdate.lastPaymentAmount !== undefined) {
+      updateData.lastPaymentAmount = statusUpdate.lastPaymentAmount;
+    }
+    if (statusUpdate.nextPaymentDate) {
+      updateData.nextPaymentDate = statusUpdate.nextPaymentDate;
+    }
+
+    // Handle renewal info
+    if (statusUpdate.renewalDate) {
+      updateData.renewalDate = statusUpdate.renewalDate;
+    }
+    if (statusUpdate.autoRenew !== undefined) {
+      updateData.autoRenew = statusUpdate.autoRenew;
+    }
+
+    // Handle payment failures
+    if (statusUpdate.paymentFailed) {
+      updateData.paymentFailureCount = (membership[0].paymentFailureCount || 0) + 1;
+    }
+
+    await db
+      .update(crmMemberships)
+      .set(updateData)
+      .where(eq(crmMemberships.id, membership[0].id));
+
+    console.log(`✅ Membership updated in CRM: ${membership[0].id} → ${statusUpdate.status || 'updated'}`);
+    return membership[0];
+  } catch (error) {
+    console.error(`❌ Failed to update membership in CRM:`, error);
+    return null;
   }
 }
 
