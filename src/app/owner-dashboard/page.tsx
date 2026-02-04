@@ -210,7 +210,10 @@ function OwnerDashboardContent() {
   const [upcomingCheckIns, setUpcomingCheckIns] = useState<CheckIn[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<"overview" | "bookings" | "properties" | "approvals" | "payments" | "availability" | "subscription" | "settings">("overview");
+  const [activeView, setActiveView] = useState<"overview" | "bookings" | "properties" | "approvals" | "payments" | "availability" | "subscription" | "settings" | "enquiries">("overview");
+  const [enquiries, setEnquiries] = useState<any[]>([]);
+  const [loadingEnquiries, setLoadingEnquiries] = useState(false);
+  const [enquiryStatusFilter, setEnquiryStatusFilter] = useState<'all' | 'new' | 'contacted' | 'converted'>('all');
   const [pendingProperties, setPendingProperties] = useState<PendingProperty[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [statusCounts, setStatusCounts] = useState<StatusCounts>({ pending: 0, approved: 0, rejected: 0, all: 0 });
@@ -366,6 +369,33 @@ function OwnerDashboardContent() {
     }
   };
 
+  const handleEnquiryStatusChange = async (enquiryId: string, newStatus: string) => {
+    try {
+      const res = await fetch('/api/owner/enquiries', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enquiryId, status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data?.error || 'Failed to update enquiry status');
+        return;
+      }
+
+      // Update enquiries array with new status
+      setEnquiries((prev) => 
+        prev.map((e) => 
+          e.id === enquiryId ? { ...e, status: newStatus } : e
+        )
+      );
+      toast.success('Enquiry status updated!');
+    } catch (e) {
+      console.error('Failed to update enquiry status:', e);
+      toast.error('Failed to update enquiry status. Please try again.');
+    }
+  };
+
   useEffect(() => {
     async function loadDashboard() {
       try {
@@ -456,6 +486,13 @@ function OwnerDashboardContent() {
         if (propertiesRes.ok) {
           const propertiesData = await propertiesRes.json();
           setProperties(propertiesData.properties || []);
+        }
+
+        // Fetch customer enquiries
+        const enquiriesRes = await fetch('/api/owner/enquiries', { cache: 'no-store' });
+        if (enquiriesRes.ok) {
+          const enquiriesData = await enquiriesRes.json();
+          setEnquiries(enquiriesData.enquiries || []);
         }
 
       } catch (error) {
@@ -685,6 +722,7 @@ function OwnerDashboardContent() {
           {[
             { name: 'Overview', icon: Home, view: 'overview' },
             { name: 'Bookings', icon: Calendar, view: 'bookings' },
+            { name: 'Enquiries', icon: Mail, view: 'enquiries' },
             { name: 'Properties', icon: Building, view: 'properties' },
           ].map((item) => (
             <button
@@ -820,6 +858,7 @@ function OwnerDashboardContent() {
                 {[
                   { name: 'Overview', icon: Home, view: 'overview' },
                   { name: 'Bookings', icon: Calendar, view: 'bookings' },
+                  { name: 'Enquiries', icon: Mail, view: 'enquiries' },
                   { name: 'Properties', icon: Building, view: 'properties' },
                 ].map((item) => (
                   <button
@@ -898,6 +937,7 @@ function OwnerDashboardContent() {
                   <h1 className="text-3xl font-bold text-black mb-1">
                     {activeView === "overview" && "Dashboard Overview"}
                     {activeView === "bookings" && "All Bookings"}
+                    {activeView === "enquiries" && "Customer Enquiries"}
                     {activeView === "properties" && "My Properties"}
                     {activeView === "approvals" && "Property Approvals"}
                     {activeView === "payments" && "Payment History"}
@@ -906,6 +946,7 @@ function OwnerDashboardContent() {
                   <p className="text-black">
                     {activeView === "overview" && `Welcome back, ${user?.name || 'Owner'}! Here's your business overview.`}
                     {activeView === "bookings" && "Manage and track all your property bookings."}
+                    {activeView === "enquiries" && "View and manage customer enquiries for your properties."}
                     {activeView === "properties" && "View and manage your property listings."}
                     {activeView === "approvals" && "Track approval status of your properties."}
                     {activeView === "payments" && "View your subscription and payment history."}
@@ -1526,6 +1567,129 @@ function OwnerDashboardContent() {
                       </div>
                     </div>
                   </>
+                )}
+              </div>
+            )}
+
+            {/* Enquiries View */}
+            {activeView === "enquiries" && (
+              <div className="space-y-6 text-black">
+                {/* Status Filter */}
+                <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-md text-black">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: 'all', label: 'All', color: 'indigo' },
+                      { key: 'new', label: 'New', color: 'blue' },
+                      { key: 'contacted', label: 'Contacted', color: 'amber' },
+                      { key: 'converted', label: 'Converted', color: 'emerald' },
+                    ].map((filter) => {
+                      const isActive = enquiryStatusFilter === filter.key;
+                      return (
+                        <button
+                          key={filter.key}
+                          onClick={() => setEnquiryStatusFilter(filter.key as any)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                            isActive
+                              ? `bg-${filter.color}-100 text-${filter.color}-700 border-2 border-${filter.color}-300`
+                              : `bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent`
+                          }`}
+                        >
+                          {filter.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Enquiries Table */}
+                {enquiries.length > 0 ? (
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Guest Name</th>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Property</th>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Email</th>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Phone</th>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Date</th>
+                            <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Status</th>
+                            <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {enquiries.map((enquiry) => (
+                            <tr key={enquiry.id} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-4 text-sm font-medium text-gray-900">{enquiry.guestName}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{enquiry.propertyName}</td>
+                              <td className="px-6 py-4 text-sm text-gray-600">
+                                <a href={`mailto:${enquiry.guestEmail}`} className="text-blue-600 hover:underline">
+                                  {enquiry.guestEmail}
+                                </a>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-600">
+                                {enquiry.guestPhone ? (
+                                  <a href={`tel:${enquiry.guestPhone}`} className="text-blue-600 hover:underline">
+                                    {enquiry.guestPhone}
+                                  </a>
+                                ) : (
+                                  'N/A'
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-600">{formatUKDate(enquiry.createdAt)}</td>
+                              <td className="px-6 py-4 text-sm">
+                                <select
+                                  value={enquiry.status || 'new'}
+                                  onChange={(e) => handleEnquiryStatusChange(enquiry.id, e.target.value)}
+                                  className="px-3 py-1 rounded-lg border border-gray-300 text-sm font-medium bg-white text-gray-700 cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#89A38F]"
+                                >
+                                  <option value="new">New</option>
+                                  <option value="contacted">Contacted</option>
+                                  <option value="converted">Converted</option>
+                                </select>
+                              </td>
+                              <td className="px-6 py-4 text-center text-sm">
+                                <button
+                                  onClick={() => window.location.href = `mailto:${enquiry.guestEmail}?subject=RE: Your enquiry about ${enquiry.propertyName}`}
+                                  className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium transition-colors inline-flex items-center gap-1"
+                                >
+                                  <Mail className="w-4 h-4" />
+                                  Reply
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+                    <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold text-black mb-2">No Enquiries Yet</h3>
+                    <p className="text-gray-600 mb-6">When customers send enquiries about your properties, they'll appear here.</p>
+                  </div>
+                )}
+
+                {/* Message Preview Modal */}
+                {enquiries.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6">
+                    <h3 className="text-lg font-bold text-black mb-4">Recent Enquiry Messages</h3>
+                    <div className="space-y-4">
+                      {enquiries.slice(0, 3).map((enquiry) => (
+                        <div key={enquiry.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="font-semibold text-black">{enquiry.guestName}</p>
+                              <p className="text-sm text-gray-600">{enquiry.propertyName}</p>
+                            </div>
+                            <span className="text-xs text-gray-500">{formatUKDate(enquiry.createdAt)}</span>
+                          </div>
+                          <p className="text-gray-700 text-sm break-words">{enquiry.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
