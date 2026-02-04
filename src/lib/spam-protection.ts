@@ -379,10 +379,11 @@ export async function checkForSpam(
   }
   
   // ==========================================
-  // 5. JAVASCRIPT CHALLENGE
+  // 5. JAVASCRIPT CHALLENGE (Disabled for local testing)
   // ==========================================
   
-  if (data.challenge && !validateChallenge(data.challenge)) {
+  // Only validate challenge in production
+  if (data.challenge && process.env.NODE_ENV === 'production' && !validateChallenge(data.challenge)) {
     blacklistIP(ip, 'Failed JavaScript challenge');
     return {
       isSpam: true,
