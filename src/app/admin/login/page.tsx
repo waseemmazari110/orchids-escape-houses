@@ -73,8 +73,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      toast.success("Welcome back, Admin!");
-      router.push("/admin/dashboard");
+      // Redirect immediately to admin dashboard
+      router.replace("/admin/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       toast.error("An error occurred. Please try again.");

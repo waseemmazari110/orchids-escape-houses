@@ -156,15 +156,14 @@ export function UnifiedAuthForm({
       }
 
       trackEvent(AuthEvents.LOGIN_SUCCESS);
-      toast.success("Welcome back!");
       
-      // Redirect based on user role
+      // Redirect immediately based on user role
       if (user?.role === "admin") {
-        router.push("/admin/dashboard");
+        router.replace("/admin/dashboard");
       } else if (user?.role === "owner") {
-        router.push("/owner-dashboard");
+        router.replace("/owner-dashboard");
       } else {
-        router.push("/account/dashboard");
+        router.replace("/account/dashboard");
       }
     } catch (err) {
       toast.error("An error occurred during sign in");
