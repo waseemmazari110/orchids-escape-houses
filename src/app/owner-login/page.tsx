@@ -14,7 +14,11 @@ export default function OwnerLoginPage() {
       <Header />
       <main className="min-h-screen bg-[var(--color-bg-primary)] pt-32 pb-20 px-4">
         <div className="max-w-[1400px] mx-auto">
-          <UnifiedAuthForm initialMode="login" />
+          <UnifiedAuthForm 
+            initialMode="login" 
+            requiredRole="owner"
+            pageTheme="owner"
+          />
         </div>
       </main>
       <Footer />

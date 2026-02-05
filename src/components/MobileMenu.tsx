@@ -237,13 +237,23 @@ export default function MobileMenu({
           <>
             <div className="flex items-center justify-between p-4 bg-white/90 rounded-xl">
                 <Link 
-                  href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                  href={
+                    (session.user as any).role === "admin" 
+                      ? "/admin/dashboard" 
+                      : (session.user as any).role === "owner" 
+                      ? "/owner-dashboard" 
+                      : "/account/dashboard"
+                  }
                   className="flex items-center gap-2"
                   onClick={onClose}
                 >
                 <UserIcon className="w-5 h-5 text-[var(--color-accent-sage)]" />
                 <span className="font-medium">
-                  {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
+                  {(session.user as any).role === "admin" 
+                    ? "Admin Dashboard" 
+                    : (session.user as any).role === "owner" 
+                    ? "Owner Dashboard" 
+                    : "My Account"}
                 </span>
               </Link>
               <div className="flex items-center gap-2">

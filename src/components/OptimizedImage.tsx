@@ -72,9 +72,10 @@ export default function OptimizedImage({
 }: OptimizedImageProps) {
   const [imageError, setImageError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
 
   const validatedSrc = validateImageUrl(src);
-  const displaySrc = imageError ? PLACEHOLDER_IMAGE : validatedSrc;
+  const displaySrc = imageError || hasTimedOut ? PLACEHOLDER_IMAGE : validatedSrc;
 
   const handleError = useCallback(() => {
     setImageError(true);
@@ -84,6 +85,18 @@ export default function OptimizedImage({
     setIsLoaded(true);
     onLoad?.();
   }, [onLoad]);
+
+  // Show placeholder after 10 seconds if image hasn't loaded
+  useEffect(() => {
+    const timeoutTimer = setTimeout(() => {
+      if (!isLoaded && !imageError) {
+        console.warn(`Image load timeout for: ${validatedSrc}`);
+        setHasTimedOut(true);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timeoutTimer);
+  }, [isLoaded, imageError, validatedSrc]);
 
   // Fallback to show image after 2 seconds if onLoad hasn't fired
   useEffect(() => {

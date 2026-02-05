@@ -14,7 +14,11 @@ export default function LoginPage() {
       <Header />
       <main className="min-h-screen bg-[var(--color-bg-primary)] pt-32 pb-20 px-4">
         <div className="max-w-[1400px] mx-auto">
-          <UnifiedAuthForm initialMode="login" />
+          <UnifiedAuthForm 
+            initialMode="login" 
+            requiredRole="customer"
+            pageTheme="customer"
+          />
         </div>
       </main>
       <Footer />

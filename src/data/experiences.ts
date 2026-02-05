@@ -84,7 +84,7 @@ export const experiencesData: Record<string, any> = {
     duration: "2-3 hours",
     priceFrom: 170,
     groupSize: "8-25 guests",
-    image: "https://butlersinthebuff.co.uk/wp-content/uploads/2023/05/fun_friendly.jpg.webp",
+    image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80",
     gallery: [
       "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Unknown-1-1765203408189.jpeg",
       "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Unknown-1765203410720.jpeg"
@@ -386,7 +386,7 @@ export const experiencesData: Record<string, any> = {
     duration: "2 hours",
     priceFrom: 50,
     groupSize: "8-20 guests",
-    image: "https://butlersinthebuff.co.uk/wp-content/uploads/2023/05/fun_friendly.jpg.webp",
+    image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80",
     gallery: [
       "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/hen-party-cocktail-classes-4-e1657801576427.jpg-1760963913852.webp",
       "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80",

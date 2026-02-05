@@ -17,7 +17,17 @@ import { cn } from "@/lib/utils";
 
 type AuthMode = "initial" | "login" | "signup" | "account-type";
 
-export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: AuthMode }) {
+interface UnifiedAuthFormProps {
+  initialMode?: AuthMode;
+  requiredRole?: "customer" | "owner";
+  pageTheme?: "customer" | "owner";
+}
+
+export function UnifiedAuthForm({ 
+  initialMode = "initial", 
+  requiredRole,
+  pageTheme = "customer"
+}: UnifiedAuthFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -108,6 +118,35 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
         return;
       }
 
+      const user = data?.user as any;
+
+      // Strict role validation - users can ONLY login through their designated portal
+      if (requiredRole && user?.role !== requiredRole) {
+        let correctPage = "/login";
+        let correctPageName = "Customer Login";
+        
+        if (user?.role === "owner") {
+          correctPage = "/owner-login";
+          correctPageName = "Owner Login";
+        } else if (user?.role === "admin") {
+          correctPage = "/admin/login";
+          correctPageName = "Admin Login";
+        }
+        
+        const currentPortalName = pageTheme === "owner" ? "Owner" : "Customer";
+        toast.error(`This is the ${currentPortalName} login page. Please use the ${correctPageName} page.`);
+        
+        // Sign out the user immediately
+        await authClient.signOut();
+        setIsLoading(false);
+        
+        // Redirect to the correct login page after a delay
+        setTimeout(() => {
+          router.push(correctPage);
+        }, 2000);
+        return;
+      }
+
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email);
         localStorage.setItem("rememberMe", "true");
@@ -119,8 +158,14 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
       trackEvent(AuthEvents.LOGIN_SUCCESS);
       toast.success("Welcome back!");
       
-      const user = data?.user as any;
-      router.push(user?.role === "owner" ? "/owner-dashboard" : "/account/dashboard");
+      // Redirect based on user role
+      if (user?.role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (user?.role === "owner") {
+        router.push("/owner-dashboard");
+      } else {
+        router.push("/account/dashboard");
+      }
     } catch (err) {
       toast.error("An error occurred during sign in");
       setIsLoading(false);
@@ -203,6 +248,17 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 sm:p-8">
+      {/* Role Identifier */}
+      {pageTheme && (
+        <div className="mb-6 text-center">
+          <div className="inline-block px-4 py-2 bg-gray-100 rounded-lg">
+            <p className="text-sm font-semibold text-gray-700">
+              {pageTheme === "owner" ? "🏠 Property Owner Portal" : "👤 Customer Portal"}
+            </p>
+          </div>
+        </div>
+      )}
+
       {mode !== "initial" && (
         <button
           onClick={() => setMode("initial")}
@@ -219,7 +275,9 @@ export function UnifiedAuthForm({ initialMode = "initial" }: { initialMode?: Aut
           </h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
             {mode === "login" 
-              ? "Sign in to manage your bookings" 
+              ? pageTheme === "owner" 
+                ? "Sign in to manage your properties" 
+                : "Sign in to manage your bookings"
               : "Save properties, track enquiries, and manage bookings in one place"}
           </p>
 

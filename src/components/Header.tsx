@@ -433,12 +433,22 @@ export default function Header({ hideListingButton = false }: { hideListingButto
                   )}
                   <div className="flex items-center gap-3">
                       <Link
-                        href={(session.user as any).role === "owner" ? "/owner-dashboard" : "/account/dashboard"}
+                        href={
+                          (session.user as any).role === "admin" 
+                            ? "/admin/dashboard" 
+                            : (session.user as any).role === "owner" 
+                            ? "/owner-dashboard" 
+                            : "/account/dashboard"
+                        }
                         className="flex items-center gap-2 px-4 py-2 bg-[var(--color-bg-secondary)] rounded-xl hover:bg-gray-100 transition-all"
                       >
                         <UserIcon className="w-4 h-4 text-[var(--color-accent-sage)]" />
                         <span className="text-sm font-medium text-[var(--color-text-primary)]">
-                          {(session.user as any).role === "owner" ? "Owner Dashboard" : "My Account"}
+                          {(session.user as any).role === "admin" 
+                            ? "Admin Dashboard" 
+                            : (session.user as any).role === "owner" 
+                            ? "Owner Dashboard" 
+                            : "My Account"}
                         </span>
                       </Link>
                     <button

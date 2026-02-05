@@ -236,7 +236,7 @@ export default function DestinationClient({ slug }: DestinationClientProps) {
           { name: "Boom Battle Bar Package", description: "Games, cocktails, and fun at Boom Battle Bar", image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80" },
           { name: "Bubble Football", description: "Hilarious football in giant inflatable bubbles", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80" },
           { name: "Bubble Mayhen", description: "Bubble games designed for hen parties", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80" },
-          { name: "Butlers in the Buff", description: "Cheeky service from handsome butlers", image: "https://butlersinthebuff.co.uk/wp-content/uploads/2023/05/fun_friendly.jpg.webp" },
+          { name: "Butlers in the Buff", description: "Cheeky service from handsome butlers", image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80" },
           { name: "Bunting Making", description: "Crafty fun creating beautiful bunting", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80" },
           { name: "Burlesque Lessons", description: "The art of tease and performance", image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&q=80" },
           { name: "Can-Can Lessons", description: "High-kicking fun with this classic dance", image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&q=80" },

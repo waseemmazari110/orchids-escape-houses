@@ -79,7 +79,7 @@ async function main() {
             groupSizeMax: 25,
             priceFrom: 60,
             category: 'Entertainment',
-            heroImage: 'https://butlersinthebuff.co.uk/wp-content/uploads/2023/05/fun_friendly.jpg.webp',
+            heroImage: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80',
             description: 'Add some cheeky fun to your celebration with our handsome Butlers in the Buff. These professional hosts will serve drinks and canapés while entertaining your group – guaranteed laughter and memorable photos!',
             included: ['Handsome professional butler', 'Drinks service and hosting', 'Games and entertainment', 'Photo opportunities', 'Canapé service (food not included)', 'Guaranteed fun and laughter'],
             whatToProvide: ['Drinks and canapés to be served', 'Party atmosphere', 'Cameras ready for photos!', 'Age 18+ guests only'],
