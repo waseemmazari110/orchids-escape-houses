@@ -721,7 +721,6 @@ function OwnerDashboardContent() {
         <nav className="flex-1 px-4 py-6 space-y-2 text-black">
           {[
             { name: 'Overview', icon: Home, view: 'overview' },
-            { name: 'Bookings', icon: Calendar, view: 'bookings' },
             { name: 'Enquiries', icon: Mail, view: 'enquiries' },
             { name: 'Properties', icon: Building, view: 'properties' },
           ].map((item) => (
@@ -857,7 +856,6 @@ function OwnerDashboardContent() {
               <nav className="px-4 py-4 space-y-2">
                 {[
                   { name: 'Overview', icon: Home, view: 'overview' },
-                  { name: 'Bookings', icon: Calendar, view: 'bookings' },
                   { name: 'Enquiries', icon: Mail, view: 'enquiries' },
                   { name: 'Properties', icon: Building, view: 'properties' },
                 ].map((item) => (
@@ -1489,15 +1487,6 @@ function OwnerDashboardContent() {
                             <div className="p-4">
                               <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-lg font-bold text-black flex-1">{property.title}</h3>
-                                <select
-                                  value={property.status || 'Active'}
-                                  onChange={(e) => handleStatusChange(property.id, e.target.value)}
-                                  className="ml-2 px-3 py-1 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white cursor-pointer hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#89A38F]"
-                                >
-                                  <option value="Active">Active</option>
-                                  <option value="Draft">Draft</option>
-                                  <option value="Pending">Pending</option>
-                                </select>
                               </div>
                               
                               {displayLocation && (

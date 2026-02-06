@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { X, Send, Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +27,18 @@ const WhatsAppLogo = ({ className = "w-8 h-8" }: { className?: string }) => (
 );
 
 export default function WhatsAppChat() {
+  const pathname = usePathname();
+  
+  // Don't show on login/dashboard pages
+  const shouldHide = pathname?.includes('login') || 
+                     pathname?.includes('dashboard') ||
+                     pathname?.includes('admin') ||
+                     pathname?.includes('account') ||
+                     pathname?.includes('choose-plan') ||
+                     pathname?.includes('sign-up');
+  
+  if (shouldHide) return null;
+  
   const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
       {

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const WhatsAppChat = dynamic(() => import("./WhatsAppChat"), { 
   ssr: false,
@@ -22,6 +23,7 @@ const ToasterForClient = dynamic(() => import("@/components/ui/sonner").then(mod
 
 export default function ClientSideFeatures() {
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Defer non-critical features until after main content is interactive
@@ -29,13 +31,21 @@ export default function ClientSideFeatures() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (!mounted) return null;
+  // Hide WhatsApp/floating icons on login pages and dashboards
+  const isLoginOrDashboard = pathname?.includes('login') || 
+                             pathname?.startsWith('/owner-dashboard') ||
+                             pathname?.startsWith('/admin') ||
+                             pathname?.startsWith('/account') ||
+                             pathname?.includes('choose-plan') ||
+                             pathname?.includes('sign-up');
+  
+  const showWhatsApp = !isLoginOrDashboard && mounted;
 
   return (
     <>
-      <WhatsAppChat />
+      {showWhatsApp && <WhatsAppChat />}
       <CookieConsent />
-      <ToasterForClient />
+      {mounted && <ToasterForClient />}
     </>
   );
 }

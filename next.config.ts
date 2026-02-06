@@ -83,6 +83,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'st.perplexity.ai',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        pathname: '/**',
       }
     ],
     formats: ['image/avif', 'image/webp'],
