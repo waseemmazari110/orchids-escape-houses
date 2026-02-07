@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { properties, bookings, user, account, session, destinations, destinationImages, experiences, experienceFaqs, experienceImages, propertyFeatures, propertyImages, reviews, crmEnquiries, crmOwnerProfiles, crmPropertyLinks, enquiries, subscriptions, invoices, media, payments, propertyReviews, availabilityCalendar, orchardsPayments, seasonalPricing, specialDatePricing } from "./schema";
+import { properties, bookings, user, account, session, destinations, destinationImages, experiences, experienceFaqs, experienceImages, propertyFeatures, propertyImages, reviews, crmOwnerProfiles, crmPropertyLinks, enquiries, subscriptions, invoices, media, payments, propertyReviews, availabilityCalendar, orchardsPayments, seasonalPricing, specialDatePricing, savedProperties, savedQuotes, adminActivityLog, crmProperties, crmEnquiries, crmContacts } from "./schema";
 
 export const bookingsRelations = relations(bookings, ({one, many}) => ({
 	property: one(properties, {
@@ -27,13 +27,13 @@ export const propertiesRelations = relations(properties, ({one, many}) => ({
 	propertyFeatures: many(propertyFeatures),
 	propertyImages: many(propertyImages),
 	reviews: many(reviews),
-	crmEnquiries: many(crmEnquiries),
 	crmPropertyLinks: many(crmPropertyLinks),
 	enquiries: many(enquiries),
 	propertyReviews: many(propertyReviews),
 	availabilityCalendars: many(availabilityCalendar),
 	seasonalPricings: many(seasonalPricing),
 	specialDatePricings: many(specialDatePricing),
+	savedProperties: many(savedProperties),
 }));
 
 export const accountRelations = relations(account, ({one}) => ({
@@ -52,13 +52,15 @@ export const userRelations = relations(user, ({many}) => ({
 	properties_ownerId: many(properties, {
 		relationName: "properties_ownerId_user_id"
 	}),
-	crmEnquiries: many(crmEnquiries),
 	crmOwnerProfiles: many(crmOwnerProfiles),
 	crmPropertyLinks: many(crmPropertyLinks),
 	invoices: many(invoices),
 	media: many(media),
 	subscriptions: many(subscriptions),
 	payments: many(payments),
+	savedProperties: many(savedProperties),
+	savedQuotes: many(savedQuotes),
+	adminActivityLogs: many(adminActivityLog),
 }));
 
 export const sessionRelations = relations(session, ({one}) => ({
@@ -116,17 +118,6 @@ export const reviewsRelations = relations(reviews, ({one}) => ({
 	property: one(properties, {
 		fields: [reviews.propertyId],
 		references: [properties.id]
-	}),
-}));
-
-export const crmEnquiriesRelations = relations(crmEnquiries, ({one}) => ({
-	property: one(properties, {
-		fields: [crmEnquiries.propertyId],
-		references: [properties.id]
-	}),
-	user: one(user, {
-		fields: [crmEnquiries.ownerId],
-		references: [user.id]
 	}),
 }));
 
@@ -243,4 +234,48 @@ export const specialDatePricingRelations = relations(specialDatePricing, ({one})
 		fields: [specialDatePricing.propertyId],
 		references: [properties.id]
 	}),
+}));
+
+export const savedPropertiesRelations = relations(savedProperties, ({one}) => ({
+	property: one(properties, {
+		fields: [savedProperties.propertyId],
+		references: [properties.id]
+	}),
+	user: one(user, {
+		fields: [savedProperties.userId],
+		references: [user.id]
+	}),
+}));
+
+export const savedQuotesRelations = relations(savedQuotes, ({one}) => ({
+	user: one(user, {
+		fields: [savedQuotes.userId],
+		references: [user.id]
+	}),
+}));
+
+export const adminActivityLogRelations = relations(adminActivityLog, ({one}) => ({
+	user: one(user, {
+		fields: [adminActivityLog.adminId],
+		references: [user.id]
+	}),
+}));
+
+export const crmEnquiriesRelations = relations(crmEnquiries, ({one}) => ({
+	crmProperty: one(crmProperties, {
+		fields: [crmEnquiries.propertyId],
+		references: [crmProperties.id]
+	}),
+	crmContact: one(crmContacts, {
+		fields: [crmEnquiries.ownerId],
+		references: [crmContacts.id]
+	}),
+}));
+
+export const crmPropertiesRelations = relations(crmProperties, ({many}) => ({
+	crmEnquiries: many(crmEnquiries),
+}));
+
+export const crmContactsRelations = relations(crmContacts, ({many}) => ({
+	crmEnquiries: many(crmEnquiries),
 }));

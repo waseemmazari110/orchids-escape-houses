@@ -15,7 +15,10 @@ export const getPlanPriceId = (planId: PlanId, interval: 'monthly' | 'yearly' = 
     },
   };
   
-  return priceMap[planId][interval];
+  const priceId = priceMap[planId][interval];
+  console.log(`[getPlanPriceId] Plan: ${planId}, Interval: ${interval}, Price ID: ${priceId}`);
+  
+  return priceId;
 };
 
 export const PLANS = {

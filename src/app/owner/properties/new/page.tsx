@@ -15,11 +15,19 @@ function OwnerNewPropertyPageContent() {
   const paymentSuccess = searchParams.get("payment");
   const planId = searchParams.get("planId");
   const sessionId = searchParams.get("session_id");
+  const purchaseId = searchParams.get("purchaseId");
   
   const [verifiedPayment, setVerifiedPayment] = useState<any>(null);
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
+    // If using existing plan purchase, show success message
+    if (purchaseId && planId) {
+      toast.success(`Using your purchased ${planId.toUpperCase()} plan. Complete your property details below.`);
+      setVerifiedPayment({ planId, purchaseId });
+      return;
+    }
+
     // Verify payment if coming from Stripe
     if (paymentSuccess === "success" && sessionId) {
       setVerifying(true);
@@ -39,7 +47,7 @@ function OwnerNewPropertyPageContent() {
         })
         .finally(() => setVerifying(false));
     }
-  }, [paymentSuccess, sessionId]);
+  }, [paymentSuccess, sessionId, purchaseId, planId]);
 
   return (
     <>
@@ -87,6 +95,7 @@ function OwnerNewPropertyPageContent() {
         <OwnerPropertyForm 
           paidPlanId={verifiedPayment?.planId}
           paymentIntentId={verifiedPayment?.paymentIntentId}
+          purchaseId={verifiedPayment?.purchaseId}
         />
       </div>
     </>

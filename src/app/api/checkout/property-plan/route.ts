@@ -36,6 +36,10 @@ export async function POST(request: NextRequest) {
     // Get the Stripe price ID for this plan (yearly by default)
     const priceId = getPlanPriceId(planId as PlanId, 'yearly');
 
+    console.log(`[Checkout] Creating session for plan: ${planId}`);
+    console.log(`[Checkout] Price ID: ${priceId}`);
+    console.log(`[Checkout] Expected amount: £${plan.price}`);
+
     // Create Stripe checkout session for property-specific plan
     const metadata: Record<string, string> = {
       userId: session.user.id,

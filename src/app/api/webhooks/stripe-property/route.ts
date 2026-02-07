@@ -3,8 +3,8 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/db';
-import { properties } from '../../../../../drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { properties, planPurchases } from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { syncMembershipToCRM } from '@/lib/crm-sync';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -95,8 +95,21 @@ export async function POST(request: NextRequest) {
           } else {
             // Payment made before property creation
             // Store payment info to be associated with property later
-            // For now, we'll retrieve this from session client-side
-            console.log(`✅ Payment completed for user ${userId}, plan ${planId}. Payment intent: ${paymentIntentId}`);
+            const now = new Date().toISOString();
+            await db.insert(planPurchases).values({
+              userId: userId!,
+              planId: planId!,
+              stripePaymentIntentId: paymentIntentId,
+              stripeCustomerId: customerId,
+              stripeSubscriptionId: subscriptionId,
+              amount,
+              purchasedAt,
+              expiresAt: expiresAt.toISOString(),
+              used: 0,
+              createdAt: now,
+            });
+            
+            console.log(`✅ Plan purchase saved for user ${userId}, plan ${planId}. Payment intent: ${paymentIntentId}`);
             console.log(`   Plan valid until ${expiresAt.toISOString()}. Property will be created next.`);
           }
 

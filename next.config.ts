@@ -88,6 +88,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'upload.wikimedia.org',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.gettyimages.com',
+        pathname: '/**',
       }
     ],
     formats: ['image/avif', 'image/webp'],
@@ -95,14 +100,14 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 31536000,
   },
-  // @ts-ignore - Turbopack configuration
-  turbopack: {
-    rules: {
-      "*.{jsx,tsx}": {
-        loaders: [LOADER]
-      }
-    }
-  },
+  // @ts-ignore - Turbopack configuration (disabled for Windows build compatibility)
+  // turbopack: {
+  //   rules: {
+  //     "*.{jsx,tsx}": {
+  //       loaders: [LOADER]
+  //     }
+  //   }
+  // },
   typescript: {
     ignoreBuildErrors: false,
   },

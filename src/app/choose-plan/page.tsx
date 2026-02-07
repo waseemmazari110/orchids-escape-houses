@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -95,6 +95,9 @@ function ChoosePlanContent() {
   const errorParam = searchParams.get("error");
   const [selectedPlan, setSelectedPlan] = useState(initialPlan);
   const [loading, setLoading] = useState(false);
+  const [unusedPlan, setUnusedPlan] = useState<any>(null);
+  const [checkingPlan, setCheckingPlan] = useState(true);
+  const toastShownRef = useRef(false);
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -103,18 +106,70 @@ function ChoosePlanContent() {
     }
   }, [session, isPending, router]);
 
-  const handleProceed = async () => {
+  // Check for unused plan purchases
+  useEffect(() => {
+    const checkUnusedPlan = async () => {
+      if (!session?.user) return;
+      
+      try {
+        console.log('[Choose Plan] Checking for unused plans...');
+        const response = await fetch("/api/owner/unused-plan");
+        const data = await response.json();
+        
+        console.log('[Choose Plan] API Response:', data);
+        
+        if (data.hasUnusedPlan) {
+          console.log('[Choose Plan] Found unused plan:', data.purchase);
+          setUnusedPlan(data.purchase);
+          setSelectedPlan(data.purchase.planId);
+          
+          // Only show toast once using ref
+          if (!toastShownRef.current) {
+            toast.success("You have an unused plan! You can use it to list your property.");
+            toastShownRef.current = true;
+          }
+        } else {
+          console.log('[Choose Plan] No unused plan found');
+        }
+      } catch (error) {
+        console.error("[Choose Plan] Error checking unused plan:", error);
+      } finally {
+        setCheckingPlan(false);
+      }
+    };
+
+    if (session && !isPending) {
+      checkUnusedPlan();
+    }
+  }, [session, isPending]);
+
+  const handleProceed = async (planId?: string) => {
+    // Use passed planId or fall back to selectedPlan state
+    const planToUse = planId || selectedPlan;
+    
+    console.log('[Choose Plan] handleProceed called');
+    console.log('[Choose Plan] unusedPlan:', unusedPlan);
+    console.log('[Choose Plan] planToUse:', planToUse);
+    
     setLoading(true);
     try {
+      // If user has unused plan, redirect directly to property creation
+      if (unusedPlan) {
+        console.log('[Choose Plan] Using unused plan, redirecting to property creation...');
+        router.push(`/owner/properties/new?planId=${unusedPlan.planId}&purchaseId=${unusedPlan.id}`);
+        return;
+      }
+
       const propertyId = searchParams.get("propertyId");
       const propertyTitle = searchParams.get("propertyTitle");
       
+      console.log('[Choose Plan] Creating checkout session for plan:', planToUse);
       // Create checkout session
       const response = await fetch("/api/checkout/property-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          planId: selectedPlan,
+          planId: planToUse,
           propertyId: propertyId ? parseInt(propertyId) : null,
           propertyTitle: propertyTitle || ""
         }),
@@ -196,21 +251,28 @@ function ChoosePlanContent() {
                 </li>
               ))}
             </ul>
-
+            
             <Button
               onClick={() => {
+                console.log('[Choose Plan] Button clicked for plan:', plan.id);
+                console.log('[Choose Plan] Current unusedPlan:', unusedPlan);
                 setSelectedPlan(plan.id);
-                handleProceed();
+                handleProceed(plan.id);  // Pass plan.id directly instead of relying on state
               }}
-              disabled={loading && selectedPlan === plan.id}
+              disabled={(loading && selectedPlan === plan.id) || (unusedPlan && unusedPlan.planId !== plan.id)}
               className="w-full py-6 text-lg font-semibold rounded-xl transition-all"
               style={{ 
                 backgroundColor: plan.color,
-                color: "white"
+                color: "white",
+                opacity: (unusedPlan && unusedPlan.planId !== plan.id) ? 0.5 : 1
               }}
             >
               {loading && selectedPlan === plan.id ? (
                 <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Processing...</>
+              ) : unusedPlan && unusedPlan.planId === plan.id ? (
+                "Use Your Purchased Plan"
+              ) : unusedPlan ? (
+                "Already Have Plan"
               ) : (
                 "Continue to sign up"
               )}

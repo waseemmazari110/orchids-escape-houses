@@ -203,6 +203,10 @@ export const properties = sqliteTable('properties', {
   featured: integer('featured', { mode: 'boolean' }).default(false),
   isPublished: integer('is_published', { mode: 'boolean' }).default(false),
   plan: text('plan'),
+  planId: text('plan_id'),
+  planPurchasedAt: text('plan_purchased_at'),
+  planExpiresAt: text('plan_expires_at'),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
   stripePriceId: text('stripe_price_id'),
@@ -698,4 +702,21 @@ export const crmSegments = sqliteTable('crm_segments', {
   // Dates
   addedAt: text('added_at').notNull(),
   removedAt: text('removed_at'),
+});
+
+// Plan Purchases (tracks purchased plans before property creation)
+export const planPurchases = sqliteTable('plan_purchases', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  planId: text('plan_id').notNull(),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  amount: real('amount').notNull(),
+  purchasedAt: text('purchased_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  used: integer('used').default(0).notNull(),
+  propertyId: integer('property_id').references(() => properties.id, { onDelete: 'set null' }),
+  usedAt: text('used_at'),
+  createdAt: text('created_at').notNull(),
 });

@@ -1,4 +1,4 @@
-import { sqliteTable, AnySQLiteColumn, foreignKey, integer, text, real, uniqueIndex } from "drizzle-orm/sqlite-core"
+import { sqliteTable, AnySQLiteColumn, foreignKey, check, integer, text, real, uniqueIndex, index } from "drizzle-orm/sqlite-core"
   import { sql } from "drizzle-orm"
 
 export const bookings = sqliteTable("bookings", {
@@ -15,9 +15,9 @@ export const bookings = sqliteTable("bookings", {
 	bookingStatus: text("booking_status").default("pending").notNull(),
 	totalPrice: real("total_price"),
 	depositAmount: real("deposit_amount"),
-	depositPaid: integer("deposit_paid").default(0),
+	depositPaid: integer("deposit_paid").default(false),
 	balanceAmount: real("balance_amount"),
-	balancePaid: integer("balance_paid").default(0),
+	balancePaid: integer("balance_paid").default(false),
 	specialRequests: text("special_requests"),
 	experiencesSelected: text("experiences_selected"),
 	adminNotes: text("admin_notes"),
@@ -31,7 +31,14 @@ export const bookings = sqliteTable("bookings", {
 	stripeBalanceChargeId: text("stripe_balance_charge_id"),
 	stripeRefundId: text("stripe_refund_id"),
 	paymentMetadata: text("payment_metadata"),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const account = sqliteTable("account", {
 	id: text().primaryKey().notNull(),
@@ -47,7 +54,14 @@ export const account = sqliteTable("account", {
 	password: text(),
 	createdAt: integer("created_at").notNull(),
 	updatedAt: integer("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const session = sqliteTable("session", {
 	id: text().primaryKey().notNull(),
@@ -61,6 +75,11 @@ export const session = sqliteTable("session", {
 },
 (table) => [
 	uniqueIndex("session_token_unique").on(table.token),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const user = sqliteTable("user", {
@@ -80,6 +99,11 @@ export const user = sqliteTable("user", {
 },
 (table) => [
 	uniqueIndex("user_email_unique").on(table.email),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const verification = sqliteTable("verification", {
@@ -89,7 +113,14 @@ export const verification = sqliteTable("verification", {
 	expiresAt: integer("expires_at").notNull(),
 	createdAt: integer("created_at"),
 	updatedAt: integer("updated_at"),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const blogPosts = sqliteTable("blog_posts", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -103,13 +134,18 @@ export const blogPosts = sqliteTable("blog_posts", {
 	author: text().notNull(),
 	seoTitle: text("seo_title"),
 	seoDescription: text("seo_description"),
-	isPublished: integer("is_published").default(0),
+	isPublished: integer("is_published").default(false),
 	publishedAt: text("published_at"),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
 },
 (table) => [
 	uniqueIndex("blog_posts_slug_unique").on(table.slug),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const destinationImages = sqliteTable("destination_images", {
@@ -119,7 +155,14 @@ export const destinationImages = sqliteTable("destination_images", {
 	caption: text(),
 	orderIndex: integer("order_index").default(0),
 	createdAt: text("created_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const destinations = sqliteTable("destinations", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -131,12 +174,17 @@ export const destinations = sqliteTable("destinations", {
 	topVenues: text("top_venues"),
 	heroImage: text("hero_image").notNull(),
 	mapArea: text("map_area"),
-	isPublished: integer("is_published").default(1),
+	isPublished: integer("is_published").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
 },
 (table) => [
 	uniqueIndex("destinations_slug_unique").on(table.slug),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const experienceFaqs = sqliteTable("experience_faqs", {
@@ -146,7 +194,14 @@ export const experienceFaqs = sqliteTable("experience_faqs", {
 	answer: text().notNull(),
 	orderIndex: integer("order_index").default(0),
 	createdAt: text("created_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const experienceImages = sqliteTable("experience_images", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -154,7 +209,14 @@ export const experienceImages = sqliteTable("experience_images", {
 	imageUrl: text("image_url").notNull(),
 	orderIndex: integer("order_index").default(0),
 	createdAt: text("created_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const experiences = sqliteTable("experiences", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -169,12 +231,17 @@ export const experiences = sqliteTable("experiences", {
 	whatToProvide: text("what_to_provide"),
 	heroImage: text("hero_image").notNull(),
 	category: text(),
-	isPublished: integer("is_published").default(1),
+	isPublished: integer("is_published").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
 },
 (table) => [
 	uniqueIndex("experiences_slug_unique").on(table.slug),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const faqs = sqliteTable("faqs", {
@@ -183,10 +250,17 @@ export const faqs = sqliteTable("faqs", {
 	answer: text().notNull(),
 	category: text().notNull(),
 	orderIndex: integer("order_index").default(0),
-	isPublished: integer("is_published").default(1),
+	isPublished: integer("is_published").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const partners = sqliteTable("partners", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -196,10 +270,17 @@ export const partners = sqliteTable("partners", {
 	website: text(),
 	contactEmail: text("contact_email"),
 	commissionNotes: text("commission_notes"),
-	isActive: integer("is_active").default(1),
+	isActive: integer("is_active").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const properties = sqliteTable("properties", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -223,8 +304,8 @@ export const properties = sqliteTable("properties", {
 	mapLat: real("map_lat"),
 	mapLng: real("map_lng"),
 	ownerContact: text("owner_contact"),
-	featured: integer().default(0),
-	isPublished: integer("is_published").default(1),
+	featured: integer().default(false),
+	isPublished: integer("is_published").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
 	ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" } ),
@@ -232,6 +313,11 @@ export const properties = sqliteTable("properties", {
 	rejectionReason: text("rejection_reason"),
 	approvedBy: text("approved_by").references(() => user.id, { onDelete: "set null" } ),
 	approvedAt: text("approved_at"),
+	stripeCustomerId: text("stripe_customer_id"),
+	stripeSubscriptionId: text("stripe_subscription_id"),
+	stripePriceId: text("stripe_price_id"),
+	stripeInvoiceId: text("stripe_invoice_id"),
+	nextPaymentDate: text("next_payment_date"),
 	planId: text("plan_id"),
 	paymentStatus: text("payment_status").default("pending"),
 	stripePaymentIntentId: text("stripe_payment_intent_id"),
@@ -240,6 +326,11 @@ export const properties = sqliteTable("properties", {
 },
 (table) => [
 	uniqueIndex("properties_slug_unique").on(table.slug),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const propertyFeatures = sqliteTable("property_features", {
@@ -247,7 +338,14 @@ export const propertyFeatures = sqliteTable("property_features", {
 	propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" } ),
 	featureName: text("feature_name").notNull(),
 	createdAt: text("created_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const propertyImages = sqliteTable("property_images", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -256,7 +354,14 @@ export const propertyImages = sqliteTable("property_images", {
 	caption: text(),
 	orderIndex: integer("order_index").default(0),
 	createdAt: text("created_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const reviews = sqliteTable("reviews", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -266,11 +371,18 @@ export const reviews = sqliteTable("reviews", {
 	propertyId: integer("property_id").references(() => properties.id),
 	reviewDate: text("review_date").notNull(),
 	guestImage: text("guest_image"),
-	isApproved: integer("is_approved").default(0),
-	isPublished: integer("is_published").default(0),
+	isApproved: integer("is_approved").default(false),
+	isPublished: integer("is_published").default(false),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const crmActivityLog = sqliteTable("crm_activity_log", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -283,32 +395,16 @@ export const crmActivityLog = sqliteTable("crm_activity_log", {
 	performedBy: text("performed_by"),
 	metadata: text(),
 	createdAt: text("created_at").notNull(),
-});
-
-export const crmEnquiries = sqliteTable("crm_enquiries", {
-	id: integer().primaryKey({ autoIncrement: true }).notNull(),
-	ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" } ),
-	propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" } ),
-	guestName: text("guest_name").notNull(),
-	guestEmail: text("guest_email").notNull(),
-	guestPhone: text("guest_phone"),
-	subject: text().notNull(),
-	message: text().notNull(),
-	enquiryType: text("enquiry_type").default("general").notNull(),
-	status: text().default("new").notNull(),
-	priority: text().default("medium"),
-	assignedTo: text("assigned_to"),
-	source: text().default("website"),
-	checkInDate: text("check_in_date"),
-	checkOutDate: text("check_out_date"),
-	numberOfGuests: integer("number_of_guests"),
-	budget: real(),
-	notes: text(),
-	followUpDate: text("follow_up_date"),
-	createdAt: text("created_at").notNull(),
-	updatedAt: text("updated_at").notNull(),
-	closedAt: text("closed_at"),
-});
+},
+(table) => [
+	index("idx_crm_activity_log_entityId").on(table.entityId),
+	index("idx_crm_activity_log_entityType").on(table.entityType),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const crmNotes = sqliteTable("crm_notes", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -319,13 +415,20 @@ export const crmNotes = sqliteTable("crm_notes", {
 	content: text().notNull(),
 	priority: text().default("normal"),
 	dueDate: text("due_date"),
-	isCompleted: integer("is_completed").default(0),
+	isCompleted: integer("is_completed").default(false),
 	completedAt: text("completed_at"),
 	createdBy: text("created_by"),
 	assignedTo: text("assigned_to"),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const crmOwnerProfiles = sqliteTable("crm_owner_profiles", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -352,6 +455,11 @@ export const crmOwnerProfiles = sqliteTable("crm_owner_profiles", {
 },
 (table) => [
 	uniqueIndex("crm_owner_profiles_user_id_unique").on(table.userId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const crmPropertyLinks = sqliteTable("crm_property_links", {
@@ -366,7 +474,14 @@ export const crmPropertyLinks = sqliteTable("crm_property_links", {
 	notes: text(),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const enquiries = sqliteTable("enquiries", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -390,7 +505,7 @@ export const enquiries = sqliteTable("enquiries", {
 	preferredLocations: text("preferred_locations"),
 	specialRequests: text("special_requests"),
 	referralSource: text("referral_source"),
-	marketingConsent: integer("marketing_consent").default(0),
+	marketingConsent: integer("marketing_consent").default(false),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
 	adminNotes: text("admin_notes"),
@@ -402,7 +517,14 @@ export const enquiries = sqliteTable("enquiries", {
 	metadata: text(),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const invoices = sqliteTable("invoices", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -437,6 +559,11 @@ export const invoices = sqliteTable("invoices", {
 (table) => [
 	uniqueIndex("invoices_invoice_number_unique").on(table.invoiceNumber),
 	uniqueIndex("invoices_stripe_invoice_id_unique").on(table.stripeInvoiceId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const media = sqliteTable("media", {
@@ -458,7 +585,7 @@ export const media = sqliteTable("media", {
 	uploadedBy: text("uploaded_by").references(() => user.id, { onDelete: "set null" } ),
 	folder: text().default("general"),
 	tags: text(),
-	isPublic: integer("is_public").default(1),
+	isPublic: integer("is_public").default(true),
 	thumbnailUrl: text("thumbnail_url"),
 	metadata: text(),
 	storageProvider: text("storage_provider").default("supabase"),
@@ -468,6 +595,11 @@ export const media = sqliteTable("media", {
 },
 (table) => [
 	uniqueIndex("media_file_url_unique").on(table.fileUrl),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const subscriptions = sqliteTable("subscriptions", {
@@ -481,7 +613,7 @@ export const subscriptions = sqliteTable("subscriptions", {
 	status: text().default("active").notNull(),
 	currentPeriodStart: text("current_period_start").notNull(),
 	currentPeriodEnd: text("current_period_end").notNull(),
-	cancelAtPeriodEnd: integer("cancel_at_period_end").default(0),
+	cancelAtPeriodEnd: integer("cancel_at_period_end").default(false),
 	cancelledAt: text("cancelled_at"),
 	trialStart: text("trial_start"),
 	trialEnd: text("trial_end"),
@@ -495,6 +627,11 @@ export const subscriptions = sqliteTable("subscriptions", {
 },
 (table) => [
 	uniqueIndex("subscriptions_stripe_subscription_id_unique").on(table.stripeSubscriptionId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const payments = sqliteTable("payments", {
@@ -537,6 +674,11 @@ export const payments = sqliteTable("payments", {
 },
 (table) => [
 	uniqueIndex("payments_stripe_payment_intent_id_unique").on(table.stripePaymentIntentId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const propertyReviews = sqliteTable("property_reviews", {
@@ -553,19 +695,26 @@ export const propertyReviews = sqliteTable("property_reviews", {
 	communication: integer(),
 	location: integer(),
 	value: integer(),
-	isVerified: integer("is_verified").default(0),
-	isPublished: integer("is_published").default(1),
+	isVerified: integer("is_verified").default(false),
+	isPublished: integer("is_published").default(true),
 	ownerResponse: text("owner_response"),
 	respondedAt: text("responded_at"),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const availabilityCalendar = sqliteTable("availability_calendar", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
 	propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" } ),
 	date: text().notNull(),
-	isAvailable: integer("is_available").default(1),
+	isAvailable: integer("is_available").default(true),
 	status: text().default("available").notNull(),
 	price: real(),
 	minimumStay: integer("minimum_stay").default(1),
@@ -573,7 +722,14 @@ export const availabilityCalendar = sqliteTable("availability_calendar", {
 	notes: text(),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const orchardsPayments = sqliteTable("orchards_payments", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -593,6 +749,11 @@ export const orchardsPayments = sqliteTable("orchards_payments", {
 },
 (table) => [
 	uniqueIndex("orchards_payments_orchards_transaction_id_unique").on(table.orchardsTransactionId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
 ]);
 
 export const seasonalPricing = sqliteTable("seasonal_pricing", {
@@ -605,11 +766,18 @@ export const seasonalPricing = sqliteTable("seasonal_pricing", {
 	pricePerNight: real("price_per_night").notNull(),
 	minimumStay: integer("minimum_stay"),
 	dayType: text("day_type").default("any").notNull(),
-	isActive: integer("is_active").default(1),
+	isActive: integer("is_active").default(true),
 	priority: integer().default(0),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const specialDatePricing = sqliteTable("special_date_pricing", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -619,10 +787,17 @@ export const specialDatePricing = sqliteTable("special_date_pricing", {
 	endDate: text("end_date"),
 	pricePerNight: real("price_per_night").notNull(),
 	minimumStay: integer("minimum_stay"),
-	isAvailable: integer("is_available").default(1),
+	isAvailable: integer("is_available").default(true),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
-});
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
 
 export const performanceStats = sqliteTable("performance_stats", {
 	id: integer().primaryKey({ autoIncrement: true }).notNull(),
@@ -671,5 +846,243 @@ export const performanceStats = sqliteTable("performance_stats", {
 	calculatedAt: text("calculated_at").notNull(),
 	createdAt: text("created_at").notNull(),
 	updatedAt: text("updated_at").notNull(),
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const savedProperties = sqliteTable("saved_properties", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" } ),
+	propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" } ),
+	createdAt: text("created_at").notNull(),
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const savedQuotes = sqliteTable("saved_quotes", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" } ),
+	quotePayload: text("quote_payload").notNull(),
+	createdAt: text("created_at").notNull(),
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmContacts = sqliteTable("crm_contacts", {
+	id: text().primaryKey(),
+	type: text().notNull(),
+	firstName: text("first_name"),
+	lastName: text("last_name"),
+	email: text().notNull(),
+	phone: text(),
+	address: text(),
+	city: text(),
+	postcode: text(),
+	country: text(),
+	businessName: text("business_name"),
+	taxId: text("tax_id"),
+	bankDetails: text("bank_details"),
+	companyName: text("company_name"),
+	eventType: text("event_type"),
+	status: text().default("active").notNull(),
+	notes: text(),
+	createdAt: text("created_at").notNull(),
+	updatedAt: text("updated_at").notNull(),
+	lastContactedAt: text("last_contacted_at"),
+	userId: text("user_id"),
+},
+(table) => [
+	index("idx_crm_contacts_userId").on(table.userId),
+	index("idx_crm_contacts_status").on(table.status),
+	index("idx_crm_contacts_type").on(table.type),
+	index("idx_crm_contacts_email").on(table.email),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmProperties = sqliteTable("crm_properties", {
+	id: text().primaryKey(),
+	ownerId: text("owner_id").notNull(),
+	propertyId: integer("property_id").notNull(),
+	title: text().notNull(),
+	location: text(),
+	bedrooms: integer(),
+	bathrooms: integer(),
+	maxGuests: integer("max_guests"),
+	pricePerNight: real("price_per_night"),
+	listingStatus: text("listing_status"),
+	membershipTier: text("membership_tier"),
+	viewCount: integer("view_count").default(0).notNull(),
+	enquiryCount: integer("enquiry_count").default(0).notNull(),
+	bookingCount: integer("booking_count").default(0).notNull(),
+	totalRevenue: real("total_revenue").notNull(),
+	createdAt: text("created_at").notNull(),
+	updatedAt: text("updated_at").notNull(),
+	publishedAt: text("published_at"),
+	expiresAt: text("expires_at"),
+	internalNotes: text("internal_notes"),
+	rejectionReason: text("rejection_reason"),
+},
+(table) => [
+	index("idx_crm_properties_tier").on(table.membershipTier),
+	index("idx_crm_properties_status").on(table.listingStatus),
+	index("idx_crm_properties_propertyId").on(table.propertyId),
+	index("idx_crm_properties_ownerId").on(table.ownerId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmMemberships = sqliteTable("crm_memberships", {
+	id: text().primaryKey(),
+	contactId: text("contact_id").notNull(),
+	planTier: text("plan_tier").notNull(),
+	planPrice: real("plan_price"),
+	billingCycle: text("billing_cycle"),
+	startDate: text("start_date").notNull(),
+	endDate: text("end_date").notNull(),
+	renewalDate: text("renewal_date"),
+	cancelledDate: text("cancelled_date"),
+	status: text().default("active").notNull(),
+	stripeCustomerId: text("stripe_customer_id"),
+	stripeSubscriptionId: text("stripe_subscription_id"),
+	lastPaymentDate: text("last_payment_date"),
+	lastPaymentAmount: real("last_payment_amount"),
+	nextPaymentDate: text("next_payment_date"),
+	autoRenew: integer("auto_renew").default(1).notNull(),
+	paymentFailureCount: integer("payment_failure_count").default(0).notNull(),
+	createdAt: text("created_at").notNull(),
+	updatedAt: text("updated_at").notNull(),
+	notes: text(),
+},
+(table) => [
+	index("idx_crm_memberships_endDate").on(table.endDate),
+	index("idx_crm_memberships_status").on(table.status),
+	index("idx_crm_memberships_contactId").on(table.contactId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmInteractions = sqliteTable("crm_interactions", {
+	id: text().primaryKey(),
+	contactId: text("contact_id").notNull(),
+	relatedPropertyId: text("related_property_id"),
+	relatedEnquiryId: text("related_enquiry_id"),
+	type: text().notNull(),
+	subject: text(),
+	content: text(),
+	direction: text(),
+	initiatedBy: text("initiated_by"),
+	createdAt: text("created_at").notNull(),
+	readAt: text("read_at"),
+	metadata: text(),
+},
+(table) => [
+	index("idx_crm_interactions_createdAt").on(table.createdAt),
+	index("idx_crm_interactions_type").on(table.type),
+	index("idx_crm_interactions_contactId").on(table.contactId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmSegments = sqliteTable("crm_segments", {
+	id: text().primaryKey(),
+	contactId: text("contact_id").notNull(),
+	segment: text().notNull(),
+	lifetimeValue: real("lifetime_value"),
+	engagementScore: integer("engagement_score"),
+	addedAt: text("added_at").notNull(),
+	removedAt: text("removed_at"),
+},
+(table) => [
+	index("idx_crm_segments_segment").on(table.segment),
+	index("idx_crm_segments_contactId").on(table.contactId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const adminActivityLog = sqliteTable("admin_activity_log", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	adminId: text("admin_id").notNull().references(() => user.id),
+	action: text().notNull(),
+	entityType: text("entity_type"),
+	entityId: text("entity_id"),
+	details: text(),
+	ipAddress: text("ip_address"),
+	createdAt: text("created_at").notNull(),
+},
+(table) => [
+	index("idx_admin_activity_entity").on(table.entityType, table.entityId),
+	index("idx_admin_activity_created_at").on(table.createdAt),
+	index("idx_admin_activity_admin_id").on(table.adminId),
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const crmEnquiries = sqliteTable("crm_enquiries", {
+	id: text().primaryKey(),
+	ownerId: text("owner_id").references(() => crmContacts.id, { onDelete: "cascade" } ),
+	propertyId: text("property_id").references(() => crmProperties.id, { onDelete: "cascade" } ),
+	status: text().default("new").notNull(),
+	message: text(),
+	guestEmail: text("guest_email"),
+	guestPhone: text("guest_phone"),
+	guestName: text("guest_name"),
+	createdAt: text("created_at").notNull(),
+},
+(table) => [
+	check("crm_contacts_check_1", sql`type IN ('owner', 'guest'`),
+	check("crm_contacts_check_2", sql`status IN ('active', 'inactive', 'blocked'`),
+	check("crm_properties_check_3", sql`listing_status IN ('draft', 'pending_approval', 'live', 'paused', 'rejected'`),
+	check("crm_properties_check_4", sql`membership_tier IN ('bronze', 'silver', 'gold'`),
+	check("crm_memberships_check_5", sql`status IN ('active', 'expiring_soon', 'expired', 'cancelled', 'suspended'`),
+]);
+
+export const planPurchases = sqliteTable("plan_purchases", {
+	id: integer().primaryKey({ autoIncrement: true }).notNull(),
+	userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+	planId: text("plan_id").notNull(),
+	stripePaymentIntentId: text("stripe_payment_intent_id"),
+	stripeCustomerId: text("stripe_customer_id"),
+	stripeSubscriptionId: text("stripe_subscription_id"),
+	amount: real().notNull(),
+	purchasedAt: text("purchased_at").notNull(),
+	expiresAt: text("expires_at").notNull(),
+	used: integer().default(0).notNull(),
+	propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
+	usedAt: text("used_at"),
+	createdAt: text("created_at").notNull(),
 });
 

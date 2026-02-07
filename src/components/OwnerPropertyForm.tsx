@@ -86,9 +86,10 @@ interface OwnerPropertyFormProps {
   initialData?: Partial<PropertyFormData>;
   paidPlanId?: string;
   paymentIntentId?: string;
+  purchaseId?: number;
 }
 
-export function OwnerPropertyForm({ propertyId, initialData, paidPlanId, paymentIntentId }: OwnerPropertyFormProps) {
+export function OwnerPropertyForm({ propertyId, initialData, paidPlanId, paymentIntentId, purchaseId }: OwnerPropertyFormProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -386,6 +387,25 @@ export function OwnerPropertyForm({ propertyId, initialData, paidPlanId, payment
           throw new Error(error.error || "Failed to create property");
         }
         
+        const createdProperty = await response.json();
+        
+        // If using an existing plan purchase, mark it as used
+        if (purchaseId && createdProperty?.id) {
+          try {
+            await fetch("/api/owner/mark-plan-used", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                purchaseId,
+                propertyId: createdProperty.id
+              }),
+            });
+          } catch (err) {
+            console.error("Failed to mark plan as used:", err);
+            // Non-critical error, continue anyway
+          }
+        }
+        
         toast.success("Property submitted for approval! Our team will review it shortly.");
         router.push("/owner-dashboard?view=approvals");
       }
@@ -487,20 +507,6 @@ export function OwnerPropertyForm({ propertyId, initialData, paidPlanId, payment
                 </SelectContent>
               </Select>
               {errors.property_type && <p className="text-red-500 text-sm mt-1">{errors.property_type}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => updateField("status", value)}>
-                <SelectTrigger className="rounded-xl border-gray-200 focus:ring-[var(--color-accent-sage)]/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div>
