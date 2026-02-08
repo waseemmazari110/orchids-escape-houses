@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "cross-env CSS_TRANSFORMER_WASM= next build --no-lint",
-    "start": "next start",
+    "dev": "node init && next dev --turbopack",
+    "build": "node init && cross-env CSS_TRANSFORMER_WASM= next build --no-lint",
+    "start": "node init && next start",
     "lint": "next lint"
   },
   "dependencies": {
