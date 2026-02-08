@@ -262,23 +262,15 @@ export default function OwnerPropertiesPage() {
 
               {/* Management Buttons Section */}
               <div className="bg-gray-50 rounded-2xl shadow-lg border border-gray-200 p-8">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/owner/properties/new" className="flex-1">
-                    <Button 
-                      className="w-full rounded-xl text-white py-3 text-lg font-semibold"
-                      style={{ background: "var(--color-accent-sage)" }}
-                    >
-                      <Plus className="w-5 h-5 mr-2" />
-                      Add New Property
-                    </Button>
-                  </Link>
-                  <button 
-                    onClick={fetchProperties}
-                    className="flex-1 px-6 py-3 rounded-xl border-2 border-[var(--color-accent-sage)] text-[var(--color-accent-sage)] hover:bg-[var(--color-accent-sage)]/5 font-semibold transition-colors"
+                <Link href="/owner/properties/new">
+                  <Button 
+                    className="w-full rounded-xl text-white py-3 text-lg font-semibold"
+                    style={{ background: "var(--color-accent-sage)" }}
                   >
-                    🔄 Refresh
-                  </button>
-                </div>
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add New Property
+                  </Button>
+                </Link>
               </div>
             </>
           )}
