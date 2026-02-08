@@ -1237,12 +1237,6 @@ function OwnerDashboardContent() {
                         <p className="text-sm text-gray-600">Manage and track all property bookings</p>
                       </div>
                     </div>
-                    <button
-                      onClick={loadBookings}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${purpleButtonSoftClass}`}
-                    >
-                      Refresh
-                    </button>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -1540,19 +1534,13 @@ function OwnerDashboardContent() {
 
                     {/* Action Buttons */}
                     <div className="bg-white rounded-2xl border border-gray-100 p-8">
-                      <div className="flex flex-wrap gap-4 justify-center">
+                      <div className="flex justify-center">
                         <Link href="/choose-plan">
                           <button className={`${purpleButtonClass} px-8 py-4 rounded-xl text-white font-bold flex items-center gap-3`}>
                             <Plus className="w-5 h-5" />
                             Add New Property
                           </button>
                         </Link>
-                        <button 
-                          onClick={() => window.location.reload()}
-                          className="px-8 py-4 rounded-xl border border-gray-300 text-gray-700 font-bold flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                        >
-                          🔄 Refresh
-                        </button>
                       </div>
                     </div>
                   </>
